@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Official website of Students' Federation of India (SFI) Dakshina Kannada. Organizing students to struggle for Independence, Democracy, and Socialism.">
+    <title>SFI Dakshina Kannada | Official Web Portal</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- html2canvas for Ticket PNG Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+    <!-- App Header & Navigation -->
+    <header class="glass-nav">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo" id="app-logo">
+                <img src="assets/logo.jpg" alt="SFI DK Logo" class="logo-img" width="42" height="42">
+                <div class="logo-text">
+                    <span class="logo-title">SFI DK</span>
+                    <span class="logo-subtitle">D.K. District</span>
+                </div>
+            </a>
+
+            <nav class="nav-links" id="main-nav">
+                <a href="#home" class="nav-link active" data-tab="home" data-i18n="nav_home">Home</a>
+                <a href="#about" class="nav-link" data-tab="about" data-i18n="nav_about">About Us</a>
+                <a href="#campaigns" class="nav-link" data-tab="campaigns" data-i18n="nav_campaigns">Campaigns</a>
+                <a href="#grievance" class="nav-link" data-tab="grievance" data-i18n="nav_grievance">Help Desk</a>
+                <a href="#gallery" class="nav-link" data-tab="gallery" data-i18n="nav_gallery">Gallery</a>
+                <a href="#join" class="nav-btn" data-tab="join" data-i18n="nav_join">Join SFI</a>
+            </nav>
+
+            <div class="nav-actions">
+                <!-- Language Toggle Button -->
+                <button class="lang-toggle" id="lang-toggle-btn" aria-label="Switch Language">
+                    <span id="lang-text-label">ಕನ್ನಡ</span>
+                </button>
+
+                <!-- Theme Toggle Button -->
+                <button class="theme-toggle" id="theme-toggle-btn" aria-label="Toggle Theme">
+                    <!-- Sun Icon -->
+                    <svg class="sun-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2" />
+                        <path
+                            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <!-- Moon Icon -->
+                    <svg class="moon-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container (SPA Router targets this) -->
+    <main class="main-content" id="app-container">
+
+        <!-- ================= HOME SECTION ================= -->
+        <!-- ================= HOME SECTION ================= -->
+        <section id="home" class="tab-content active">
+            <!-- Hero Banner -->
+            <div class="hero-section">
+                <div class="hero-overlay"></div>
+
+                <div class="hero-content container">
+                    <div class="badge glow-badge" data-i18n="hero_badge">STUDY & STRUGGLE</div>
+                    <h1 class="hero-title animate-text" id="dynamic-hero-title" data-i18n="hero_title">Independence. Democracy. Socialism.</h1>
+                    <p class="hero-lead animate-text-delay" id="dynamic-hero-subtitle" data-i18n="hero_lead">Students' Federation of India (SFI) is
+                        the vanguard organization of progressive, democratic students fighting for equality, education,
+                        and student rights in Dakshina Kannada.</p>
+                    <div class="hero-buttons">
+                        <a href="#join" class="btn btn-primary btn-lg" data-i18n="hero_join_btn">Become a Member</a>
+                        <a href="#about" class="btn btn-secondary btn-lg" data-i18n="hero_about_btn">Learn Our
+                            Ideology</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News & Announcements -->
+            <div class="container section-padding">
+                <div class="section-header">
+                    <h2 data-i18n="news_header">Latest Updates & News</h2>
+                    <p data-i18n="news_subtitle">Stay informed about SFI Dakshina Kannada's recent events, protests, and
+                        news.</p>
+                </div>
+
+                <div class="carousel-container">
+                    <div class="news-carousel" id="news-carousel">
+                        <!-- Dynamic slides loaded by JS -->
+                    </div>
+                    <div class="carousel-controls">
+                        <button class="carousel-btn prev-btn" id="news-prev">&larr;</button>
+                        <div class="carousel-dots" id="news-dots"></div>
+                        <button class="carousel-btn next-btn" id="news-next">&rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-banner">
+                <div class="container stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-icon">✊</span>
+                        <div class="stat-num" data-val="12000">0</div>
+                        <div class="stat-label" data-i18n="stat_members">Active Members</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">🏫</span>
+                        <div class="stat-num" data-val="42">0</div>
+                        <div class="stat-label" data-i18n="stat_colleges">Colleges Covered</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">📢</span>
+                        <div class="stat-num" data-val="180">0</div>
+                        <div class="stat-label" data-i18n="stat_campaigns">Campaigns Conducted</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">✅</span>
+                        <div class="stat-num" data-val="650">0</div>
+                        <div class="stat-label" data-i18n="stat_grievances">Grievances Solved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Events & Protest Calendar -->
+            <div class="container section-padding" style="padding-top: 30px;">
+                <div class="section-header">
+                    <div class="badge glow-badge" data-i18n="events_badge">DISTRICT SCHEDULE</div>
+                    <h2 data-i18n="events_title">🗓️ Upcoming Events & Protest Calendar</h2>
+                    <p data-i18n="events_subtitle">Key rallies, college conventions, and campaigns scheduled across
+                        Dakshina Kannada.</p>
+                </div>
+
+                <div class="events-grid">
+                    <div class="event-card">
+                        <div class="event-date">
+                            <span class="day">15</span>
+                            <span class="month">AUG</span>
+                        </div>
+                        <div class="event-details">
+                            <span class="event-tag" data-i18n="etag_assembly">DISTRICT ASSEMBLY</span>
+                            <h4 data-i18n="e1_title">Independence Day Student Flag Hoisting & Freedom March</h4>
+                            <p data-i18n="e1_desc">📍 Don-Bosco Hall, Jyothi Circle, Mangaluru | ⏱️ 9:30 AM</p>
+                            <button class="btn btn-secondary btn-xs rsvp-btn" data-event="Independence Day March">🔔
+                                Remind Me</button>
+                        </div>
+                    </div>
+                    <div class="event-card">
+                        <div class="event-date">
+                            <span class="day">22</span>
+                            <span class="month">AUG</span>
+                        </div>
+                        <div class="event-details">
+                            <span class="event-tag" data-i18n="etag_buspass">BUS PASS CAMPAIGN</span>
+                            <h4 data-i18n="e2_title">KSRTC Student Bus Pass Delegation Meet</h4>
+                            <p data-i18n="e2_desc">📍 KSRTC Bus Stand Division Office, Mangaluru | ⏱️ 11:00 AM</p>
+                            <button class="btn btn-secondary btn-xs rsvp-btn" data-event="KSRTC Bus Pass Meet">🔔 Remind
+                                Me</button>
+                        </div>
+                    </div>
+                    <div class="event-card">
+                        <div class="event-date">
+                            <span class="day">05</span>
+                            <span class="month">SEP</span>
+                        </div>
+                        <div class="event-details">
+                            <span class="event-tag" data-i18n="etag_seminar">EDUCATION SEMINAR</span>
+                            <h4 data-i18n="e3_title">Save Public Education Seminar & Teachers' Forum</h4>
+                            <p data-i18n="e3_desc">📍 Town Hall, Mangaluru | ⏱️ 2:00 PM</p>
+                            <button class="btn btn-secondary btn-xs rsvp-btn" data-event="Public Education Seminar">🔔
+                                Remind Me</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Press Releases & Official Media Hub -->
+            <div class="container section-padding" style="padding-top: 10px;">
+                <div class="section-header">
+                    <div class="badge glow-badge" data-i18n="press_badge">OFFICIAL STATEMENTS</div>
+                    <h2 data-i18n="press_title">📜 Press Releases & Media Hub</h2>
+                    <p data-i18n="press_subtitle">Official statements released by SFI Dakshina Kannada District
+                        Secretariat.</p>
+                </div>
+
+                <div class="press-grid">
+                    <div class="press-card">
+                        <span class="press-date">06 AUG 2026</span>
+                        <h4 data-i18n="pr1_title">SFI DK Demands Immediate KSRTC Special Buses for Rural College
+                            Students</h4>
+                        <p data-i18n="pr1_desc">Press statement issuing ultimatum to transport authorities regarding
+                            Utre-Kokkada bus routes.</p>
+                        <a href="javascript:void(0)" class="press-download-link"
+                            onclick="alert('Downloading Official Statement PDF...')">📄 Download Statement (PDF)</a>
+                    </div>
+                    <div class="press-card">
+                        <span class="press-date">28 JUL 2026</span>
+                        <h4 data-i18n="pr2_title">Press Release on High Court Decision Regarding College Student Union
+                            Elections</h4>
+                        <p data-i18n="pr2_desc">Official resolution adopted at the 19th District Conference at Don-Bosco
+                            Hall Mangaluru.</p>
+                        <a href="javascript:void(0)" class="press-download-link"
+                            onclick="alert('Downloading Official Statement PDF...')">📄 Download Statement (PDF)</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Student Issue Opinion Poll & Voting System -->
+            <div class="container section-padding" style="padding-top: 10px;">
+                <div class="section-header">
+                    <div class="badge glow-badge" data-i18n="poll_badge">STUDENT VOICE POLL</div>
+                    <h2 data-i18n="poll_title">📊 Live Student Issue Poll</h2>
+                    <p data-i18n="poll_subtitle">Cast your vote on pressing student issues across Dakshina Kannada.</p>
+                </div>
+
+                <div class="poll-card">
+                    <div class="poll-question" data-i18n="poll_q1">
+                        Should KSRTC launch student special buses during college morning hours (8:00 AM - 9:30 AM)
+                        across rural Dakshina Kannada?
+                    </div>
+
+                    <div class="poll-options" id="poll-options">
+                        <div class="poll-option-btn" id="poll-opt-1" data-opt="yes">
+                            <div class="poll-opt-header">
+                                <span class="opt-text" data-i18n="poll_o1">Yes, Urgent Necessity for Rural
+                                    Students</span>
+                                <span class="opt-pct" id="pct-yes">94%</span>
+                            </div>
+                            <div class="poll-bar-track">
+                                <div class="poll-bar-fill" id="bar-yes" style="width: 94%;"></div>
+                            </div>
+                            <span class="vote-count" id="count-yes">482 votes</span>
+                        </div>
+
+                        <div class="poll-option-btn" id="poll-opt-2" data-opt="no">
+                            <div class="poll-opt-header">
+                                <span class="opt-text" data-i18n="poll_o2">No, Existing buses are sufficient</span>
+                                <span class="opt-pct" id="pct-no">6%</span>
+                            </div>
+                            <div class="poll-bar-track">
+                                <div class="poll-bar-fill" id="bar-no" style="width: 6%;"></div>
+                            </div>
+                            <span class="vote-count" id="count-no">31 votes</span>
+                        </div>
+                    </div>
+                    <div class="poll-footer-msg hidden" id="poll-voted-msg" data-i18n="poll_voted">
+                        ✅ Thank you! Your vote has been recorded in the SFI DK Student Opinion Registry.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SFI Digital Library -->
+            <div class="container section-padding" style="border-top: 1px solid var(--border-color); margin-top: 20px;">
+                <div class="section-header">
+                    <div class="badge glow-badge" data-i18n="lib_badge"
+                        style="background: rgba(41, 182, 246, 0.1); color: #0288d1; border-color: rgba(41, 182, 246, 0.3);">
+                        FREE RESOURCES</div>
+                    <h2 data-i18n="lib_title">📚 SFI Digital Library & Study Materials</h2>
+                    <p data-i18n="lib_subtitle">Free access to Mangalore University previous year question papers, PU
+                        notes, and competitive exam study materials provided by SFI DK.</p>
+                </div>
+
+                <div class="articles-grid">
+                    <div class="article-card" style="text-align: center;">
+                        <h3 class="article-title">Mangalore University Old Papers</h3>
+                        <p class="article-excerpt">Download previous 5 years question papers for BA, B.Com, B.Sc, BBA,
+                            and BCA courses under NEP scheme.</p>
+                        <button class="btn btn-secondary btn-sm" onclick="alert('Downloading MU Papers PDF...')">📥
+                            Download ZIP</button>
+                    </div>
+                    <div class="article-card" style="text-align: center;">
+                        <h3 class="article-title">PUC Board Notes & Models</h3>
+                        <p class="article-excerpt">Comprehensive study materials for 1st & 2nd PUC Commerce and Arts
+                            students prepared by our subject experts.</p>
+                        <button class="btn btn-secondary btn-sm" onclick="alert('Downloading PUC Notes PDF...')">📥
+                            Download PDF</button>
+                    </div>
+                    <div class="article-card" style="text-align: center;">
+                        <h3 class="article-title">Competitive Exams (KPSC/UPSC)</h3>
+                        <p class="article-excerpt">General knowledge compilations, current affairs digests, and FDA/SDA
+                            syllabus guides for aspirants.</p>
+                        <button class="btn btn-secondary btn-sm"
+                            onclick="alert('Downloading Competitive Exams PDF...')">📥 Download Material</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Free Coaching & Career Guidance -->
+            <div class="container section-padding" style="border-top: 1px solid var(--border-color); margin-top: 20px;">
+                <div class="section-header">
+                    <div class="badge glow-badge" data-i18n="coach_badge" style="background: rgba(156, 39, 176, 0.1); color: #9c27b0; border-color: rgba(156, 39, 176, 0.3);">CAREER GUIDANCE</div>
+                    <h2 data-i18n="coach_title">🎯 Free Coaching & Career Orientation</h2>
+                    <p data-i18n="coach_subtitle">Register for upcoming free coaching workshops organized by SFI DK for competitive exams, career guidance, and skill development.</p>
+                </div>
+                
+                <div class="card join-card" style="max-width: 600px; margin: 0 auto; background: var(--bg-card); border-left: 4px solid #9c27b0;">
+                    <form id="coaching-form" class="styled-form">
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label><span data-i18n="coach_name">Full Name</span> <span class="required">*</span></label>
+                            <input type="text" id="coach-name" required placeholder="Your Name">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label><span data-i18n="coach_course">Target Exam / Goal</span> <span class="required">*</span></label>
+                            <select id="coach-course" required>
+                                <option value="" disabled selected>Select Coaching Program</option>
+                                <option value="KPSC/UPSC Base">KPSC / UPSC Foundation Course</option>
+                                <option value="Banking/SSC">Banking / SSC Preparation</option>
+                                <option value="NET/SLET">UGC NET / SLET Orientation</option>
+                                <option value="General Career">General Degree Career Guidance</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label><span data-i18n="coach_phone">WhatsApp Number</span> <span class="required">*</span></label>
+                            <input type="tel" id="coach-phone" required placeholder="For workshop updates">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-block" style="background: #9c27b0; border-color: #9c27b0;" onclick="alert('Registration Successful! We will notify you about the next batch.')">📝 Register for Free Workshop</button>
+                    </form>
+                </div>
+                </div>
+            </div>
+
+            <!-- Daily News & SFI Press Releases (Moved from Campaigns) -->
+            <div class="container section-padding" style="margin-top: 20px; border-top: 1px solid var(--border-color);">
+                <div class="section-header">
+                    <div class="badge glow-badge" data-i18n="news_badge" style="background: rgba(233, 30, 99, 0.1); color: #e91e63; border-color: rgba(233, 30, 99, 0.3);">MEDIA & UPDATES</div>
+                    <h2 data-i18n="news_title">📰 ದೈನಂದಿನ ಸುದ್ದಿಗಳು ಮತ್ತು ಪತ್ರಿಕಾ ಪ್ರಕಟಣೆಗಳು</h2>
+                    <p data-i18n="news_subtitle">ಎಸ್‌ಎಫ್‌ಐ ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಸಮಿತಿಯ ಹೋರಾಟಗಳು ಮತ್ತು ಪತ್ರಿಕೆಗಳಲ್ಲಿ ಪ್ರಕಟವಾದ ದಿನನಿತ್ಯದ ಸುದ್ದಿಗಳು.</p>
+                </div>
+
+                <div class="articles-grid" id="dynamic-news-container">
+                    <!-- Dynamic News Cards will be loaded here by JS -->
+                </div>
+            </div>
+
+            <!-- Join Banner -->
+            <div class="cta-banner container">
+                <div class="cta-content">
+                    <h3 data-i18n="cta_title">Ready to stand up for student rights?</h3>
+                    <p data-i18n="cta_subtitle">Join SFI Dakshina Kannada and become part of a historic movement
+                        ensuring quality, affordable, and equal education for all.</p>
+                </div>
+                <div class="cta-action">
+                    <a href="#join" class="btn btn-primary btn-xl" data-i18n="cta_btn">Join SFI Today</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ABOUT SECTION ================= -->
+        <section id="about" class="tab-content">
+            <div class="about-hero">
+                <div class="container">
+                    <h1 data-i18n="about_hero_title">About SFI Dakshina Kannada</h1>
+                    <p data-i18n="about_hero_subtitle">Empowering the student community of the coastal district to fight
+                        for educational justice and progressive values.</p>
+                </div>
+            </div>
+
+            <div class="container section-padding">
+                <div class="about-grid">
+                    <!-- About Navigation Tabs -->
+                    <div class="about-nav">
+                        <button class="about-tab-btn active" data-about-tab="history" data-i18n="about_tab_history">Our
+                            History</button>
+                        <button class="about-tab-btn" data-about-tab="ideology" data-i18n="about_tab_ideology">Our
+                            Ideology</button>
+                        <button class="about-tab-btn" data-about-tab="leadership"
+                            data-i18n="about_tab_leadership">Leadership Team</button>
+                        <button class="about-tab-btn" data-about-tab="structure"
+                            data-i18n="about_tab_structure">Organizational Structure</button>
+                        <button class="about-tab-btn" data-about-tab="taluk_explorer"
+                            data-i18n="about_tab_taluk_explorer">DK Taluk Explorer</button>
+                        <button class="about-tab-btn" data-about-tab="articles" data-i18n="about_tab_articles">Student
+                            Articles</button>
+                    </div>
+
+                    <!-- About Tab Panes -->
+                    <div class="about-panes">
+                        <!-- History Pane -->
+                        <div class="about-pane active" id="about-history">
+                            <h2 data-i18n="about_tab_history">Our History</h2>
+                            <p id="dynamic-about-history1" data-i18n="about_history_p1">The Students' Federation of India (SFI) was formed in 1970,
+                                out of the need to unite the
+                                student community on a national scale to resist anti-student policies,
+                                commercialization, and privatization of education. Over the last five decades, SFI has
+                                grown into India's largest progressive student organisation, with millions of members.
+                            </p>
+                            <p id="dynamic-about-history2" data-i18n="about_history_p2">In the Dakshina Kannada district, SFI has a rich legacy of
+                                leading struggles. Being an
+                                educational hub with hundreds of professional, degree, and pre-university colleges,
+                                Mangaluru and its surrounding taluks have witnessed historical student movements led by
+                                SFI demanding fair bus passes, well-equipped government hostels, transparent evaluation
+                                processes, and democratic representation within educational institutions.</p>
+
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <span class="timeline-year-tag">1970</span>
+                                        <h3 data-i18n="history_t1_title">All India Foundation</h3>
+                                        <p data-i18n="history_t1_desc">SFI formed at the All India Student Conference in
+                                            Thiruvananthapuram,
+                                            presenting the slogan "Study and Struggle".</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <span class="timeline-year-tag">1980s</span>
+                                        <h3 data-i18n="history_t2_title">Establishing in Coastal Karnataka</h3>
+                                        <p data-i18n="history_t2_desc">Initiation of district units in Dakshina Kannada
+                                            to represent students in
+                                            government and private colleges.</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <span class="timeline-year-tag">Present</span>
+                                        <h3 data-i18n="history_t3_title">Leading Modern Struggles</h3>
+                                        <p data-i18n="history_t3_desc">Mobilizing students against national education
+                                            policies, NEET corruption, and
+                                            local student rights.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ideology Pane -->
+                        <div class="about-pane" id="about-ideology">
+                            <h2 data-i18n="about_tab_ideology">Our Ideology</h2>
+                            <p data-i18n="ideology_intro">These three words form the core ideology of SFI and are
+                                represented on our white flag
+                                with its five-pointed red star.</p>
+
+                            <div class="ideology-cards">
+                                <div class="ideology-card">
+                                    <div class="ideology-icon">🛡️</div>
+                                    <h3 data-i18n="ideology1_title">Independence</h3>
+                                    <p data-i18n="ideology1_desc">An education system free from imperialist influences
+                                        and commercial interests.
+                                        Promoting scientific temper and rational, progressive thinking among students.
+                                    </p>
+                                </div>
+                                <div class="ideology-card">
+                                    <div class="ideology-icon">⚖️</div>
+                                    <h3 data-i18n="ideology2_title">Democracy</h3>
+                                    <p data-i18n="ideology2_desc">The right of students to organize, speak, and vote.
+                                        SFI demands the restoration
+                                        of democratic student union elections in all colleges and universities.</p>
+                                </div>
+                                <div class="ideology-card">
+                                    <div class="ideology-icon">🤝</div>
+                                    <h3 data-i18n="ideology3_title">Socialism</h3>
+                                    <p data-i18n="ideology3_desc">Fighting for a society free from exploitation. We
+                                        believe that quality education
+                                        is not a commodity for sale, but a fundamental human right available to all,
+                                        regardless of caste or economic status.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="about-pane" id="about-leadership">
+                            <h2 data-i18n="about_tab_leadership">Leadership Team</h2>
+                            <p data-i18n="leadership_intro">Meet the office bearers steering the student movement from
+                                the district of Dakshina
+                                Kannada to the national committee.</p>
+
+                            <div class="leader-grid">
+                                <div class="leader-card">
+                                    <div class="leader-avatar"><img src="assets\photo.jpg" alt="Photo"
+                                            style="width:65px; height:65px; border-radius: 50%;" /></div>
+                                    <h3>Com. VINAYAK S I </h3>
+                                    <span class="leader-title" data-i18n="leader1_title">District Secretary,<br>
+                                        Dakshina Kannada</span>
+                                    <p data-i18n="leader1_desc">Leading the local campaigns and organizing protests
+                                        against infrastructure gaps,
+                                        bus pass issues, and fee regulations across Mangaluru.</p>
+                                </div>
+                                <div class="leader-card">
+                                    <div class="leader-avatar"><img src="assets\hazlan.jpg" alt="Photo"
+                                            style="width:65px; height:65px; border-radius: 50%;" />
+                                    </div>
+                                    <h3>Com. HAZLAN </h3>
+                                    <span class="leader-title" data-i18n="leader2_title"> District President <br>
+                                        Dakshina Kannada </span>
+                                    <p data-i18n="leader2_desc">Coordinating the state-level student struggles,
+                                        representation in education
+                                        boards, and statewide policy interventions.</p>
+                                </div>
+                                <div class="leader-card">
+                                    <div class="leader-avatar"><img src="assets\shivappa.jpg" alt="Photo"
+                                            style="width:65px; height:65px; border-radius: 50%;" /></div>
+                                    <h3>Com. SHIVAPPA </h3>
+                                    <span class="leader-title" data-i18n="leader3_title">Karnataka State
+                                        President</span>
+                                    <p data-i18n="leader3_desc">Coordinating the state-level student struggles,
+                                        representation in education
+                                        boards, and statewide policy interventions.</p>
+                                </div>
+
+                                <div class="leader-card">
+                                    <div class="leader-avatar"><img src="assets\vijay.png" alt="Photo"
+                                            style="width:65px; height:65px; border-radius: 50%;" /></div>
+                                    <h3>Com. VIJAYA KUMAR</h3>
+                                    <span class="leader-title" data-i18n="leader4_title">Karnataka State
+                                        Secretary</span>
+                                    <p data-i18n="leader4_desc">Orchestrating state campaigns, building organizations
+                                        across districts, and
+                                        leading delegations to the state education department.</p>
+                                </div>
+                                <div class="leader-card">
+                                    <div class="leader-avatar"><img src="assets\Adarsh-m-saji-sfi.avif" alt="Photo"
+                                            style="width:65px; height:65px; border-radius: 50%;" /></div>
+                                    <h3>Com. Adarsh M. Saji</h3>
+                                    <span class="leader-title" data-i18n="leader5_title">All India President</span>
+                                    <p data-i18n="leader5_desc">Leading the nationwide campaigns for student rights,
+                                        education budget
+                                        expansion,
+                                        and resistance against central education policies.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Structure Pane -->
+                        <div class="about-pane" id="about-structure">
+                            <h2 data-i18n="about_tab_structure">Organizational Structure</h2>
+                            <p data-i18n="structure_intro">SFI operates on democratic centralism. Decisions are taken
+                                collectively after open
+                                discussions. Our structure ensures representation from the grassroots college level
+                                to
+                                the national executive.</p>
+
+                            <div class="structure-flow">
+                                <div class="flow-node">
+                                    <h4 data-i18n="struct_unit_title">Primary / Unit Committee</h4>
+                                    <p data-i18n="struct_unit_desc">Formed within individual colleges and high schools.
+                                        The direct link to the
+                                        student body.</p>
+                                </div>
+                                <div class="flow-arrow">&darr;</div>
+                                <div class="flow-node">
+                                    <h4 data-i18n="struct_taluk_title">Local / Taluk Committee</h4>
+                                    <p data-i18n="struct_taluk_desc">Coordinates unit activities in specific taluks
+                                        (e.g., Mangaluru, Bantwal,
+                                        Puttur,
+                                        Sullia, Belthangady).</p>
+                                </div>
+                                <div class="flow-arrow">&darr;</div>
+                                <div class="flow-node highlight">
+                                    <h4 data-i18n="struct_district_title">District Committee (SFI DK)</h4>
+                                    <p data-i18n="struct_district_desc">The governing body for Dakshina Kannada
+                                        district, directing the local taluk
+                                        committees and student struggles.</p>
+                                </div>
+                                <div class="flow-arrow">&darr;</div>
+                                <div class="flow-node">
+                                    <h4 data-i18n="struct_state_title">State Committee</h4>
+                                    <p data-i18n="struct_state_desc">Coordinates all district committees within
+                                        Karnataka, headquartered in
+                                        Bengaluru.
+                                    </p>
+                                </div>
+                                <div class="flow-arrow">&darr;</div>
+                                <div class="flow-node">
+                                    <h4 data-i18n="struct_central_title">Central Executive Committee (CEC)</h4>
+                                    <p data-i18n="struct_central_desc">The apex national body representing SFI across
+                                        all states of India.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DK District Taluk Explorer Pane -->
+                        <div class="about-pane" id="about-taluk_explorer">
+                            <h2 data-i18n="taluk_exp_title">Dakshina Kannada District Units</h2>
+                            <p data-i18n="taluk_exp_desc">Select a taluk to explore active college units, student
+                                leaders, and local struggles.</p>
+
+                            <div class="taluk-map-grid">
+                                <button class="taluk-map-btn active" data-taluk-info="mangaluru">🌊 Mangaluru (District
+                                    HQ)</button>
+                                <button class="taluk-map-btn" data-taluk-info="bantwal">🌴 Bantwal</button>
+                                <button class="taluk-map-btn" data-taluk-info="puttur">🌄 Puttur</button>
+                                <button class="taluk-map-btn" data-taluk-info="belthangady">⛰️ Belthangady</button>
+                                <button class="taluk-map-btn" data-taluk-info="sullia">🍃 Sullia</button>
+                                <button class="taluk-map-btn" data-taluk-info="moodbidri">🏛️ Moodbidri</button>
+                                <button class="taluk-map-btn" data-taluk-info="kadaba">🌾 Kadaba</button>
+                            </div>
+
+                            <div class="taluk-display-card" id="taluk-display-card">
+                                <h3 id="td-name">Mangaluru Taluk Unit</h3>
+                                <p id="td-desc">District headquarters with active units in University College Mangaluru,
+                                    GFGC Carstreet, St. Aloysius, and Canara College. Leading struggles for bus passes
+                                    and democratic student elections.</p>
+                                <div class="td-stats">
+                                    <div class="td-stat"><span>Active Units:</span> <strong id="td-units">18
+                                            Colleges</strong></div>
+                                    <div class="td-stat"><span>Members:</span> <strong id="td-members">2,400+
+                                            Members</strong></div>
+                                    <div class="td-stat"><span>Convener:</span> <strong id="td-leader">Comrade
+                                            Nihal</strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Student Articles Pane -->
+                        <div class="about-pane" id="about-articles">
+                            <div class="section-header" style="text-align: left; margin-bottom: 20px;">
+                                <h2 data-i18n="articles_title">✍️ Student Voice & Opinion Blog</h2>
+                                <p data-i18n="articles_subtitle">Articles on education, progressive thoughts, and
+                                    student rights written by our comrades.</p>
+                            </div>
+
+                            <div class="articles-grid">
+                                <div class="article-card">
+                                    <div class="article-tag">EDUCATION</div>
+                                    <h3 class="article-title">Why Public Education is essential for a democratic society
+                                    </h3>
+                                    <p class="article-meta">By Comrade Rashmi, University College Mangaluru • Aug 5,
+                                        2026</p>
+                                    <p class="article-excerpt">A deep dive into how privatization and the influx of
+                                        foreign universities under NEP are alienating rural students from higher
+                                        education.</p>
+                                    <button class="btn btn-secondary btn-sm" onclick="alert('Opening Article...')">Read
+                                        Full Article</button>
+                                </div>
+                                <div class="article-card">
+                                    <div class="article-tag">STUDENT RIGHTS</div>
+                                    <h3 class="article-title">Commercialization of Higher Education & the Student Debt
+                                        Trap</h3>
+                                    <p class="article-meta">By Comrade Kaushik, GFGC Bantwal • Jul 28, 2026</p>
+                                    <p class="article-excerpt">Analyzing the steep hike in professional college fees and
+                                        its direct impact on first-generation learners in coastal Karnataka.</p>
+                                    <button class="btn btn-secondary btn-sm" onclick="alert('Opening Article...')">Read
+                                        Full Article</button>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 25px;">
+                                <button class="btn btn-primary"
+                                    onclick="alert('Opening Article Submission Form...')">Submit Your Article</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= CAMPAIGNS SECTION ================= -->
+        <section id="campaigns" class="tab-content">
+            <div class="campaigns-hero">
+                <div class="container">
+                    <h1 data-i18n="campaigns_hero_title">Active Campaigns</h1>
+                    <p data-i18n="campaigns_hero_subtitle">We believe in action. SFI DK is actively fighting against
+                        policies that discriminate, commercialize, or dilute education.</p>
+                </div>
+            </div>
+
+            <div class="container section-padding">
+                <div class="campaigns-grid" id="campaigns-list">
+                    <!-- Dynamic Campaigns loaded by JS with signature simulator -->
+                </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= HELP DESK / GRIEVANCE SECTION ================= -->
+        <section id="grievance" class="tab-content">
+            <div class="grievance-hero">
+                <div class="container">
+                    <h1 data-i18n="grievance_hero_title">Student Help Desk & Grievance Cell</h1>
+                    <p data-i18n="grievance_hero_subtitle">Facing issues with college fees, hostel facilities,
+                        scholarships, or transportation? Report your grievance to us. SFI DK will take it up with
+                        relevant authorities.</p>
+                </div>
+            </div>
+
+            <div class="container section-padding">
+                <div class="grievance-split">
+                    <!-- Grievance Form -->
+                    <div class="card form-card">
+                        <h2 data-i18n="grievance_form_title">Submit a Grievance</h2>
+                        <p data-i18n="grievance_form_desc">Fill out this form and our student representative team will
+                            contact you to assist.</p>
+
+                        <form id="grievance-form" class="styled-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="grievance-name"><span data-i18n="label_name">Your Full Name</span> <span
+                                            class="required">*</span></label>
+                                    <input type="text" id="grievance-name" required placeholder="Enter your name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="grievance-phone"><span data-i18n="label_phone">Phone Number</span> <span
+                                            class="required">*</span></label>
+                                    <input type="tel" id="grievance-phone" required
+                                        placeholder="10-digit mobile number">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="grievance-email" data-i18n="label_email">Email Address</label>
+                                    <input type="email" id="grievance-email" placeholder="student@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label for="grievance-taluk"><span data-i18n="label_taluk">Taluk / Area</span> <span
+                                            class="required">*</span></label>
+                                    <select id="grievance-taluk" required>
+                                        <option value="" disabled selected>Select Taluk</option>
+                                        <option value="Mangaluru">Mangaluru</option>
+                                        <option value="Bantwal">Bantwal</option>
+                                        <option value="Puttur">Puttur</option>
+                                        <option value="Sullia">Sullia</option>
+                                        <option value="Belthangady">Belthangady</option>
+                                        <option value="Moodbidri">Moodbidri</option>
+                                        <option value="Kadaba">Kadaba</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="grievance-college"><span data-i18n="label_college">College /
+                                            Institution</span> <span class="required">*</span></label>
+                                    <input type="text" id="grievance-college" required
+                                        placeholder="College name and location">
+                                </div>
+                                <div class="form-group">
+                                    <label for="grievance-type"><span data-i18n="label_category">Category</span> <span
+                                            class="required">*</span></label>
+                                    <select id="grievance-type" required>
+                                        <option value="" disabled selected>Select Category</option>
+                                        <option value="Hostel Facilities">Hostel Facilities & Food</option>
+                                        <option value="Bus Pass / Transport">Bus Pass & Public Transport</option>
+                                        <option value="Scholarship Issues">Scholarships & Fees</option>
+                                        <option value="College Harassment">College Management Issues</option>
+                                        <option value="Exam / Marksheet Delay">University/Exam Issues</option>
+                                        <option value="Other">Other Grievances</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="grievance-description"><span data-i18n="label_description">Grievance
+                                        Description</span> <span class="required">*</span></label>
+                                <textarea id="grievance-description" rows="5" required
+                                    placeholder="Please describe the issue in detail, mentioning dates, locations, or specific grievances..."></textarea>
+                            </div>
+
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="grievance-anonymous" value="true">
+                                <label for="grievance-anonymous" data-i18n="label_anonymous">Keep my name confidential
+                                    when representing this issue to the management/authorities.</label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="grievance-submit-btn"
+                                data-i18n="btn_submit_grievance">Submit Grievance</button>
+                        </form>
+
+                        <div id="grievance-success" class="form-success-card hidden">
+                            <div class="success-icon">✓</div>
+                            <h3 data-i18n="grievance_success_title">Grievance Submitted Successfully</h3>
+                            <p data-i18n="grievance_success_msg1">Thank you for reaching out. We have logged your
+                                complaint under ticket: <strong id="ticket-number">#DK-0000</strong>.</p>
+                            <p data-i18n="grievance_success_msg2">Our district student coordination team will review the
+                                issue and contact you within 24-48
+                                hours. Stay strong!</p>
+                            <button class="btn btn-secondary" id="reset-grievance-btn"
+                                data-i18n="grievance_another_btn">Submit Another Complaint</button>
+                        </div>
+                    </div>
+
+                    <!-- Helpful Directory & Contacts -->
+                    <div class="help-directory">
+                        <div class="card info-card">
+                            <h3 data-i18n="helpline_title">SFI DK Student Helpline</h3>
+                            <p data-i18n="helpline_desc">For immediate assistance or emergencies, you can directly reach
+                                out to our
+                                representatives:</p>
+                            <ul class="contact-list">
+                                <li>
+                                    <span class="icon">📞</span>
+                                    <div>
+                                        <strong data-i18n="office_mangaluru">District Office (Mangaluru)</strong>
+                                        <a href="tel:+918951565792">+91 8951565792</a>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="icon">✉️</span>
+                                    <div>
+                                        <strong data-i18n="office_email">Email Address</strong>
+                                        <a href="mailto:sfidk19@gmail.com">sfidk19@gmail.com</a>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="icon">📍</span>
+                                    <div>
+                                        <strong data-i18n="office_address_title">District Office Address</strong>
+                                        <p data-i18n="office_address">First Floor, Vikas, Near State Bank, Mangaluru,
+                                            Dakshina Kannada - 575001
+                                        </p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="card info-card quick-links-card">
+                            <h3 data-i18n="resources_title">Important Student Resources</h3>
+                            <p data-i18n="resources_desc">Frequently accessed resources for students in Dakshina
+                                Kannada:</p>
+                            <div class="resource-links">
+                                <a href="https://mangaloreuniversity.ac.in/" target="_blank" class="resource-link">
+                                    <span data-i18n="res_mu">Mangalore University Portal</span> &rarr;
+                                </a>
+                                <a href="https://ssp.postmatric.karnataka.gov.in/" target="_blank"
+                                    class="resource-link">
+                                    <span data-i18n="res_ssp">State Scholarship Portal (SSP)</span> &rarr;
+                                </a>
+                                <a href="https://sevasindhuservices.karnataka.gov.in/" target="_blank"
+                                    class="resource-link">
+                                    <span data-i18n="res_bus">KSRTC Student Bus Pass Portal</span> &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp Community Groups -->
+                    <div class="whatsapp-groups-card" style="margin-top: 30px; background: rgba(37, 211, 102, 0.05); border: 1px solid rgba(37, 211, 102, 0.2); border-radius: 12px; padding: 25px;">
+                        <h3 style="color: #128c7e; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <img src="assets/whatsapp_icon.png" alt="WhatsApp" width="24" onerror="this.src='https://cdn-icons-png.flaticon.com/512/733/733585.png'"> 
+                            <span data-i18n="wa_title">SFI DK Official WhatsApp Groups</span>
+                        </h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;" data-i18n="wa_desc">Join your respective Taluk's WhatsApp community to stay updated on local struggles, events, and student rights alerts.</p>
+                        
+                        <div class="wa-links-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <a href="#" class="btn btn-outline" style="border-color: #25D366; color: #25D366; justify-content: center;">Mangaluru Taluk Unit</a>
+                            <a href="#" class="btn btn-outline" style="border-color: #25D366; color: #25D366; justify-content: center;">Bantwal Taluk Unit</a>
+                            <a href="#" class="btn btn-outline" style="border-color: #25D366; color: #25D366; justify-content: center;">Puttur Taluk Unit</a>
+                            <a href="#" class="btn btn-outline" style="border-color: #25D366; color: #25D366; justify-content: center;">Belthangady Taluk Unit</a>
+                            <a href="#" class="btn btn-outline" style="border-color: #25D366; color: #25D366; justify-content: center;">Sullia Taluk Unit</a>
+                            <a href="#" class="btn btn-outline" style="border-color: #25D366; color: #25D366; justify-content: center;">Moodbidri & Kadaba</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Anonymous Grievance & Anti-Ragging Report System -->
+                <div class="container section-padding"
+                    style="margin-top: 20px; border-top: 1px solid var(--border-color);">
+                    <div class="section-header">
+                        <div class="badge glow-badge" data-i18n="anon_badge"
+                            style="background: rgba(211, 47, 47, 0.1); color: #d32f2f; border-color: rgba(211, 47, 47, 0.3);">
+                            CONFIDENTIAL REPORTING</div>
+                        <h2 data-i18n="anon_title">🚨 Anonymous Grievance & Anti-Ragging Portal</h2>
+                        <p data-i18n="anon_subtitle">Securely report ragging, harassment, illegal fee collection, or
+                            college infrastructure issues anonymously. Your identity will remain hidden.</p>
+                    </div>
+
+                    <div class="card join-card"
+                        style="max-width: 700px; margin: 0 auto; background: var(--bg-card); border-left: 4px solid #d32f2f;">
+                        <form id="anonymous-report-form" class="styled-form">
+                            <div class="form-group">
+                                <label for="anon-college"><span data-i18n="anon_college_label">College / Institution
+                                        Name</span> <span class="required">*</span></label>
+                                <input type="text" id="anon-college" required placeholder="e.g. GFGC Carstreet">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="anon-type"><span data-i18n="anon_type_label">Incident Type</span> <span
+                                        class="required">*</span></label>
+                                <select id="anon-type" required>
+                                    <option value="" disabled selected>Select Incident Type</option>
+                                    <option value="Ragging / Physical Harassment">Ragging / Physical Harassment</option>
+                                    <option value="Mental Harassment by Management">Mental Harassment by Management
+                                    </option>
+                                    <option value="Illegal Donation / Fee Collection">Illegal Donation / Fee Collection
+                                    </option>
+                                    <option value="Poor Hostel Facilities">Poor Hostel / Food Facilities</option>
+                                    <option value="Other Confidential Issue">Other Confidential Issue</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="anon-desc"><span data-i18n="anon_desc_label">Incident Details</span> <span
+                                        class="required">*</span></label>
+                                <textarea id="anon-desc" rows="4" required
+                                    placeholder="Describe the incident securely..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block"
+                                style="background: #d32f2f; border-color: #d32f2f;">🔒 Submit Anonymously</button>
+                            <span class="success-msg hidden" id="anon-success-msg">✅ Your report has been submitted
+                                securely. The SFI DK Secretariat will investigate immediately.</span>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Student Blood Donation Network -->
+                <div class="container section-padding" style="margin-top: 20px; border-top: 1px solid var(--border-color);">
+                    <div class="section-header">
+                        <div class="badge glow-badge" data-i18n="blood_badge" style="background: rgba(229, 57, 53, 0.1); color: #e53935; border-color: rgba(229, 57, 53, 0.3);">LIFE SAVERS</div>
+                        <h2 data-i18n="blood_title">🩸 SFI DK Blood Donation Network</h2>
+                        <p data-i18n="blood_subtitle">Join the district's largest student blood donor registry. Register as a donor or request blood during medical emergencies.</p>
+                    </div>
+
+                    <div class="blood-network-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <!-- Register to Donate -->
+                        <div class="card info-card" style="border-top: 4px solid #e53935;">
+                            <h3>Register as a Blood Donor</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 15px;">Your blood can save a life. Register your details with our DK medical emergency team.</p>
+                            <form id="blood-donor-form" class="styled-form">
+                                <div class="form-group" style="margin-bottom: 10px;">
+                                    <input type="text" id="bd-name" required placeholder="Your Full Name">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 10px;">
+                                    <select id="bd-group" required>
+                                        <option value="" disabled selected>Select Blood Group</option>
+                                        <option value="A+">A+</option><option value="A-">A-</option>
+                                        <option value="B+">B+</option><option value="B-">B-</option>
+                                        <option value="O+">O+</option><option value="O-">O-</option>
+                                        <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 15px;">
+                                    <input type="tel" id="bd-phone" required placeholder="Phone Number">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block" style="background: #e53935; border-color: #e53935;">🩸 Register as Donor</button>
+                            </form>
+                        </div>
+
+                        <!-- Request Blood -->
+                        <div class="card info-card" style="border-top: 4px solid var(--text-primary); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                            <h3>Emergency Blood Request</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 20px;">Need blood urgently in Mangaluru or surrounding hospitals? Contact our emergency task force.</p>
+                            <div style="font-size: 2rem; margin-bottom: 15px;">🏥</div>
+                            <h4 style="color: #e53935; margin-bottom: 5px;">24/7 Helpline</h4>
+                            <a href="tel:+918951565792" style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); text-decoration: none;">+91 8951565792</a>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 15px;">We will broadcast your request to our registered college units immediately.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- College & Taluk Unit Directory -->
+                <div class="container section-padding"
+                    style="margin-top: 20px; border-top: 1px solid var(--border-color);">
+                    <div class="section-header">
+                        <h2 data-i18n="unit_dir_title">College & Taluk Unit Directory</h2>
+                        <p data-i18n="unit_dir_subtitle">Find and connect directly with SFI student leaders across
+                            Dakshina Kannada colleges.</p>
+                    </div>
+
+                    <div class="unit-search-bar">
+                        <input type="text" id="unit-search-input" class="unit-search-input"
+                            placeholder="🔍 Search college, taluk, or leader name..."
+                            data-i18n-placeholder="unit_search_placeholder">
+                        <div class="unit-taluk-filters" id="unit-taluk-filters">
+                            <button class="taluk-pill active" data-taluk="all" data-i18n="taluk_all">All Taluks</button>
+                            <button class="taluk-pill" data-taluk="Mangaluru"
+                                data-i18n="taluk_mangaluru">Mangaluru</button>
+                            <button class="taluk-pill" data-taluk="Bantwal" data-i18n="taluk_bantwal">Bantwal</button>
+                            <button class="taluk-pill" data-taluk="Puttur" data-i18n="taluk_puttur">Puttur</button>
+                            <button class="taluk-pill" data-taluk="Belthangady"
+                                data-i18n="taluk_belthangady">Belthangady</button>
+                            <button class="taluk-pill" data-taluk="Sullia" data-i18n="taluk_sullia">Sullia</button>
+                        </div>
+                    </div>
+
+                    <div class="unit-grid" id="unit-grid">
+                        <!-- Dynamic Unit Cards populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Student Rights & Bus Pass / Hostel FAQ Guide -->
+                <div class="container section-padding"
+                    style="margin-top: 30px; border-top: 1px solid var(--border-color);">
+                    <div class="section-header">
+                        <h2 data-i18n="faq_title">📚 Student Rights & Bus Pass / Hostel FAQ</h2>
+                        <p data-i18n="faq_subtitle">Everything you need to know about student bus passes, hostels, and
+                            college fee regulations in Dakshina Kannada.</p>
+                    </div>
+
+                    <div class="faq-accordion">
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>🚌 How to apply for Seva Sindhu KSRTC Student Bus Pass in DK?</span>
+                                <span class="faq-icon">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Apply online on the official Seva Sindhu portal with your college admission receipt,
+                                    Aadhaar number, and passport photo. Submit the printed acknowledgment form to your
+                                    college office for verification. If your bus pass is delayed beyond 7 days, contact
+                                    SFI Helpline (+91 8951565792).</p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>🏠 What are the eligibility rules for SC/ST & BCM Government Hostels?</span>
+                                <span class="faq-icon">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Students studying in PU, Degree, and Post-Graduate courses can apply through the
+                                    SSP/State Social Welfare portal. Sanction is based on distance and annual family
+                                    income criteria. SFI conducts hostel inspection drives across Mangaluru to ensure
+                                    hygienic food and safety.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>🚫 What to do if private/aided college management demands illegal donation or
+                                    extra building fees?</span>
+                                <span class="faq-icon">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Under Karnataka Education Department rules, colleges cannot charge unapproved fees
+                                    above the government prescribed fee structure. You can log an anonymous complaint on
+                                    the SFI Help Desk portal or contact our district secretariat. SFI will represent
+                                    your issue directly to the Joint Director of Collegiate Education.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= JOIN US / MEMBERSHIP SECTION ================= -->
+        <section id="join" class="tab-content">
+            <div class="join-hero">
+                <div class="container">
+                    <h1 data-i18n="join_hero_title">Join the Movement</h1>
+                    <p data-i18n="join_hero_subtitle">In SFI, every member is an activist. Join India's largest
+                        progressive student organisation and build a better future.</p>
+                </div>
+            </div>
+
+            <div class="container section-padding join-form-container">
+
+                <!-- Multi-Step Progress Bar -->
+                <div class="join-stepper">
+                    <div class="step-item active" id="step-node-1">
+                        <div class="step-number">1</div>
+                        <div class="step-label" data-i18n="step1_label">Member Details</div>
+                    </div>
+                    <div class="step-line" id="step-line-1"></div>
+                    <div class="step-item" id="step-node-2">
+                        <div class="step-number">2</div>
+                        <div class="step-label" data-i18n="step2_label">Pay Fee</div>
+                    </div>
+                    <div class="step-line" id="step-line-2"></div>
+                    <div class="step-item" id="step-node-3">
+                        <div class="step-number">3</div>
+                        <div class="step-label" data-i18n="step3_label">Membership Card</div>
+                    </div>
+                </div>
+
+                <div class="card join-card" id="join-form-wrapper">
+
+                    <!-- STEP 1: Membership Application Form -->
+                    <div id="join-step-1" class="join-step-pane">
+                        <h2 data-i18n="join_form_title">Membership Application Form</h2>
+                        <p data-i18n="join_form_desc">Fill out this form to register as a member of SFI Dakshina
+                            Kannada. Annual membership fee is ₹2.</p>
+
+                        <form id="membership-form" class="styled-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="member-name"><span data-i18n="label_name">Full Name</span> <span
+                                            class="required">*</span></label>
+                                    <input type="text" id="member-name" required placeholder="Your full name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="member-dob"><span data-i18n="label_dob">Date of Birth</span> <span
+                                            class="required">*</span></label>
+                                    <input type="date" id="member-dob" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="member-phone"><span data-i18n="label_phone">Phone Number</span> <span
+                                            class="required">*</span></label>
+                                    <input type="tel" id="member-phone" required placeholder="10-digit number">
+                                </div>
+                                <div class="form-group">
+                                    <label for="member-email"><span data-i18n="label_email">Email Address</span> <span
+                                            class="required">*</span></label>
+                                    <input type="email" id="member-email" required placeholder="your.email@gmail.com">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="member-college"><span data-i18n="label_college">College Name</span>
+                                        <span class="required">*</span></label>
+                                    <input type="text" id="member-college" required
+                                        placeholder="Name of your institution">
+                                </div>
+                                <div class="form-group">
+                                    <label for="member-taluk"><span data-i18n="label_taluk">Taluk / Area</span> <span
+                                            class="required">*</span></label>
+                                    <select id="member-taluk" required>
+                                        <option value="" disabled selected data-i18n="opt_select_taluk">Select Taluk
+                                        </option>
+                                        <option value="Mangaluru">Mangaluru</option>
+                                        <option value="Bantwal">Bantwal</option>
+                                        <option value="Puttur">Puttur</option>
+                                        <option value="Sullia">Sullia</option>
+                                        <option value="Belthangady">Belthangady</option>
+                                        <option value="Moodbidri">Moodbidri</option>
+                                        <option value="Kadaba">Kadaba</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="member-course"><span data-i18n="label_course">Course of Study</span>
+                                        <span class="required">*</span></label>
+                                    <input type="text" id="member-course" required
+                                        placeholder="e.g., B.A, B.Sc, B.Com, B.E, PU, etc.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="member-year"><span data-i18n="label_year">Year of Study</span> <span
+                                            class="required">*</span></label>
+                                    <select id="member-year" required>
+                                        <option value="" disabled selected data-i18n="opt_select_year">Select Year
+                                        </option>
+                                        <option value="1st Year" data-i18n="opt_y1">1st Year</option>
+                                        <option value="2nd Year" data-i18n="opt_y2">2nd Year</option>
+                                        <option value="3rd Year" data-i18n="opt_y3">3rd Year</option>
+                                        <option value="4th Year / Above" data-i18n="opt_y4">4th Year / Above</option>
+                                        <option value="PU - 1st Year" data-i18n="opt_pu1">PU - 1st Year (11th)</option>
+                                        <option value="PU - 2nd Year" data-i18n="opt_pu2">PU - 2nd Year (12th)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="member-declaration" required>
+                                <label for="member-declaration" data-i18n="label_declaration">I agree to abide by the
+                                    constitution of the Students' Federation of India and fight for Independence,
+                                    Democracy,
+                                    and Socialism. <span class="required">*</span></label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block btn-lg" id="join-submit-btn"
+                                data-i18n="btn_next_payment">Next: Proceed to Payment &rarr;</button>
+                        </form>
+                    </div>
+
+                    <!-- STEP 2: Payment Scanner & 3-Min Timer -->
+                    <div id="join-step-2" class="join-step-pane hidden">
+                        <div class="payment-box">
+                            <div class="payment-badge" data-i18n="payment_badge">SECURE UPI PAYMENT</div>
+                            <h2 data-i18n="payment_title">Scan QR & Pay Membership Fee (₹2)</h2>
+                            <p data-i18n="payment_desc">Scan using any UPI app (GPay, PhonePe, Paytm, BHIM) to complete
+                                your SFI membership registration.</p>
+
+                            <!-- QR Code & Scanner Box -->
+                            <div class="qr-container">
+                                <div class="qr-frame">
+                                    <img src="assets/payment_qr.png" alt="SFI DK Membership Payment QR Code"
+                                        id="payment-qr-img">
+                                    <div class="scanner-laser"></div>
+                                </div>
+                                <div class="upi-details">
+                                    <span class="upi-id-label" data-i18n="upi_label">UPI ID:</span>
+                                    <code class="upi-id">sfidk@upi</code>
+                                    <span class="fee-badge">₹2.00 Only</span>
+                                </div>
+                            </div>
+
+                            <!-- Live 3-Minute Countdown Timer -->
+                            <div class="payment-timer-card">
+                                <div class="timer-title" data-i18n="timer_title">Session Expires In</div>
+                                <div class="timer-display" id="payment-timer">03:00</div>
+                                <p class="timer-note" data-i18n="timer_note">Please complete payment before the timer
+                                    expires to get your instant membership card.</p>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="payment-actions">
+                                <button class="btn btn-primary btn-lg btn-block" id="confirm-payment-btn"
+                                    data-i18n="btn_confirm_payment">
+                                    ✅ I Have Completed Payment (₹2)
+                                </button>
+                                <button class="btn btn-secondary btn-sm" id="back-to-step1-btn"
+                                    data-i18n="btn_back_form">
+                                    &larr; Back to Application Form
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Membership Card Ticket -->
+                    <div id="join-step-3" class="join-step-pane hidden">
+                        <div id="join-success" class="ticket-container">
+                            <div class="ticket">
+                                <div class="ticket-header">
+                                    <img src="assets/sfi_logo.png" alt="SFI Logo" class="ticket-logo-img" width="30"
+                                        height="30">
+                                    <h4 data-i18n="ticket_title">SFI MEMBERSHIP CARD</h4>
+                                    <span class="ticket-subtitle" data-i18n="ticket_subtitle">Dakshina Kannada District
+                                        Unit</span>
+                                </div>
+                                <div class="ticket-body">
+                                    <div class="ticket-row">
+                                        <div class="ticket-col">
+                                            <span class="t-label" data-i18n="ticket_label_name">MEMBER NAME</span>
+                                            <span class="t-val" id="ticket-name">Comrade Name</span>
+                                        </div>
+                                        <div class="ticket-col">
+                                            <span class="t-label" data-i18n="ticket_label_id">MEMBERSHIP NO.</span>
+                                            <span class="t-val text-red" id="ticket-id">#SFIDK-00000</span>
+                                        </div>
+                                    </div>
+                                    <div class="ticket-row">
+                                        <div class="ticket-col">
+                                            <span class="t-label" data-i18n="ticket_label_college">COLLEGE</span>
+                                            <span class="t-val" id="ticket-college">Govt College, Mangaluru</span>
+                                        </div>
+                                        <div class="ticket-col">
+                                            <span class="t-label" data-i18n="ticket_label_taluk">TALUK</span>
+                                            <span class="t-val" id="ticket-taluk">Mangaluru</span>
+                                        </div>
+                                    </div>
+                                    <div class="ticket-row">
+                                        <div class="ticket-col">
+                                            <span class="t-label" data-i18n="ticket_label_course">COURSE & YEAR</span>
+                                            <span class="t-val" id="ticket-course">B.Com | 1st Year</span>
+                                        </div>
+                                        <div class="ticket-col">
+                                            <span class="t-label" data-i18n="ticket_label_date">REGISTRATION DATE</span>
+                                            <span class="t-val" id="ticket-date">05-08-2026</span>
+                                        </div>
+                                    </div>
+                                    <div class="ticket-footer-msg" data-i18n="ticket_footer">
+                                        "Study and Struggle!"
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ticket-instructions">
+                                <p class="success-alert" data-i18n="join_success_congrats">🎉 Congratulations, your
+                                    payment is verified & registered! Membership card sent to your email.</p>
+                                <p data-i18n="join_success_info">A representative from your college unit will contact
+                                    you shortly. Keep a screenshot of this card.</p>
+                                <div class="ticket-action-buttons">
+                                    <button class="btn btn-primary" id="download-ticket-btn"
+                                        data-i18n="join_download_card">📥 Download Membership Card (PNG)</button>
+                                    <button class="btn btn-secondary" id="reset-join-btn"
+                                        data-i18n="join_register_another">Register Another Student</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Membership ID Verification Search Portal -->
+                <div class="container section-padding"
+                    style="margin-top: 30px; border-top: 1px solid var(--border-color);">
+                    <div class="section-header">
+                        <div class="badge glow-badge" data-i18n="verify_badge">MEMBERSHIP VERIFICATION</div>
+                        <h2 data-i18n="verify_title">🔍 Instant Membership Card Verification</h2>
+                        <p data-i18n="verify_subtitle">Verify the authenticity of any SFI DK membership card by entering
+                            the Member ID.</p>
+                    </div>
+
+                    <div class="verify-portal">
+                        <div class="verify-search-box">
+                            <input type="text" id="verify-input" placeholder="e.g. SFIDK-77777" class="verify-input">
+                            <button id="verify-btn" class="btn btn-primary verify-btn" data-i18n="verify_btn">Verify
+                                Member</button>
+                        </div>
+                        <div class="verify-result hidden" id="verify-result">
+                            <div class="verify-status" id="verify-status">
+                                <!-- Status (Valid / Invalid) will be populated here -->
+                            </div>
+                            <div class="verify-details" id="verify-details">
+                                <p><strong>Name:</strong> <span id="vd-name"></span></p>
+                                <p><strong>College:</strong> <span id="vd-college"></span></p>
+                                <p><strong>Taluk:</strong> <span id="vd-taluk"></span></p>
+                                <p><strong>Joined On:</strong> <span id="vd-date"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campus Ambassador Program -->
+                <div class="container section-padding"
+                    style="margin-top: 30px; border-top: 1px solid var(--border-color);">
+                    <div class="cta-banner"
+                        style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); text-align: center; border-radius: 16px; padding: 40px 20px;">
+                        <h2 data-i18n="amb_title" style="color: #fff; margin-bottom: 15px;">🎓 Become an SFI Campus
+                            Ambassador</h2>
+                        <p data-i18n="amb_subtitle" style="color: #94a3b8; max-width: 600px; margin: 0 auto 25px auto;">
+                            Lead the student movement in your college! We are looking for passionate individuals to
+                            represent SFI, organize local events, and act as the voice of the students.</p>
+                        <button class="btn btn-primary btn-lg"
+                            onclick="alert('Opening Campus Ambassador Application Form...')">Apply for Campus
+                            Ambassador</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= GALLERY SECTION ================= -->
+        <section id="gallery" class="tab-content">
+            <div class="gallery-hero">
+                <div class="container">
+                    <h1 data-i18n="gallery_hero_title">SFI DK Photo Gallery</h1>
+                    <p data-i18n="gallery_hero_subtitle">Visual records of our struggles, student assemblies,
+                        educational seminars, and progressive cultural campaigns in Dakshina Kannada.</p>
+                </div>
+            </div>
+
+            <div class="container section-padding">
+                <!-- Gallery Filter Buttons -->
+                <div class="gallery-filters">
+                    <button class="filter-btn active" data-filter="all" data-i18n="filter_all">All Events</button>
+                    <button class="filter-btn" data-filter="protest" data-i18n="filter_protest">Protests &amp; Rallies</button>
+                    <button class="filter-btn" data-filter="seminar" data-i18n="filter_seminar">Seminars &amp; Forums</button>
+                    <button class="filter-btn" data-filter="meet" data-i18n="filter_meet">Student Conferences</button>
+                    <button class="filter-btn" data-filter="cultural" data-i18n="filter_cultural">Cultural Campaigns</button>
+                    <button class="filter-btn" data-filter="video" data-i18n="filter_video">🎬 Videos</button>
+                </div>
+
+                <!-- Gallery Grid -->
+                <div class="gallery-grid" id="gallery-grid">
+                    <!-- Dynamic Gallery Cards loaded by JS -->
+                </div>
+
+                <!-- Video Rally & Protest Showcase -->
+                <div class="video-showcase-section"
+                    style="margin-top: 60px; border-top: 1px solid var(--border-color); padding-top: 40px;">
+                    <div class="section-header">
+                        <h2 data-i18n="video_section_title">🎥 Video Rallies & Protest Showcase</h2>
+                        <p data-i18n="video_section_subtitle">Watch video footage of student assemblies, street plays,
+                            and protests led by SFI in Dakshina Kannada.</p>
+                    </div>
+
+                    <div class="video-grid" id="video-grid">
+                        <div class="video-card">
+                            <div class="video-wrapper">
+                                <video controls poster="assets/protest.png">
+                                    <source src="assets/sfi_flag.mp4" type="video/mp4">
+                                    Your browser does not support video playback.
+                                </video>
+                            </div>
+                            <div class="video-info">
+                                <span class="video-tag" data-i18n="vtag_protest">PROTEST RALLY</span>
+                                <h4 data-i18n="v1_title">NEET Exam Corruption Student March</h4>
+                                <p data-i18n="v1_desc">SFI Dakshina Kannada district demonstration held at Jyothi
+                                    Circle, Mangaluru.</p>
+                            </div>
+                        </div>
+                        <div class="video-card">
+                            <div class="video-wrapper">
+                                <video controls poster="assets/Conference.png">
+                                    <source src="assets/sfi_flag.mp4" type="video/mp4">
+                                    Your browser does not support video playback.
+                                </video>
+                            </div>
+                            <div class="video-info">
+                                <span class="video-tag" data-i18n="vtag_conference">DISTRICT CONFERENCE</span>
+                                <h4 data-i18n="v2_title">District Student Conference Address</h4>
+                                <p data-i18n="v2_desc">Keynote speech on public education defense at Don-Bosco Hall,
+                                    Mangaluru.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Achievers Showcase -->
+                <div class="achievers-showcase-section"
+                    style="margin-top: 60px; border-top: 1px solid var(--border-color); padding-top: 40px;">
+                    <div class="section-header">
+                        <div class="badge glow-badge" data-i18n="achieve_badge"
+                            style="background: rgba(255, 193, 7, 0.1); color: #ffb300; border-color: rgba(255, 193, 7, 0.3);">
+                            STUDENT EXCELLENCE</div>
+                        <h2 data-i18n="achieve_title">🌟 SFI DK Student Achievers</h2>
+                        <p data-i18n="achieve_subtitle">Celebrating the academic, cultural, and sports achievements of
+                            our comrades across the district.</p>
+                    </div>
+
+                    <div class="achievers-grid">
+                        <div class="achiever-card">
+                            <div class="achiever-photo"><img src="assets/default_avatar.png" alt="Achiever Photo"></div>
+                            <div class="achiever-info">
+                                <h3 class="achiever-name">Comrade Varsha</h3>
+                                <span class="achiever-college">Mangalore University</span>
+                                <span class="achiever-award">🥇 Gold Medalist - M.A. History</span>
+                            </div>
+                        </div>
+                        <div class="achiever-card">
+                            <div class="achiever-photo"><img src="assets/default_avatar.png" alt="Achiever Photo"></div>
+                            <div class="achiever-info">
+                                <h3 class="achiever-name">Comrade Nithin</h3>
+                                <span class="achiever-college">GFGC Carstreet</span>
+                                <span class="achiever-award">🏆 State Level Powerlifting Champion</span>
+                            </div>
+                        </div>
+                        <div class="achiever-card">
+                            <div class="achiever-photo"><img src="assets/default_avatar.png" alt="Achiever Photo"></div>
+                            <div class="achiever-info">
+                                <h3 class="achiever-name">Comrade Swathi</h3>
+                                <span class="achiever-college">Govt College, Puttur</span>
+                                <span class="achiever-award">🎭 Best Actress - Inter-College Drama</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fullscreen Lightbox Modal -->
+            <div id="gallery-lightbox" class="lightbox-modal hidden">
+                <!-- Top bar: counter, zoom, share, close -->
+                <div class="lightbox-topbar">
+                    <span class="lightbox-counter" id="lightbox-counter">1 / 1</span>
+                    <div class="lightbox-topbar-actions">
+                        <button class="lightbox-action-btn" id="lightbox-zoom-btn" title="Zoom">🔍</button>
+                        <button class="lightbox-action-btn" id="lightbox-share-btn" title="Share on WhatsApp">📤</button>
+                        <span class="lightbox-close" id="lightbox-close">&times;</span>
+                    </div>
+                </div>
+                <button class="lightbox-nav-btn prev-btn" id="lightbox-prev">&#8592;</button>
+                <div class="lightbox-content-wrapper" id="lightbox-content-wrapper">
+                    <img class="lightbox-img" id="lightbox-img" src="" alt="Enlarged gallery view">
+                    <video class="lightbox-video hidden" id="lightbox-video" controls></video>
+                    <div class="lightbox-caption" id="lightbox-caption">Caption text goes here</div>
+                </div>
+                <button class="lightbox-nav-btn next-btn" id="lightbox-next">&#8594;</button>
+            </div>
+        </section>
+
+        <!-- ================= HIDDEN ADMIN SECTION ================= -->
+        <section id="admin" class="tab-content">
+            <div class="container section-padding">
+                <!-- Admin Authentication screen -->
+                <div class="card auth-card" id="admin-auth-card">
+                    <h2 data-i18n="admin_portal_title">Admin Portal Access</h2>
+                    <p data-i18n="admin_portal_desc">Enter the administrator password to view registrations, grievances,
+                        and post news updates.</p>
+                    <form id="admin-login-form" class="styled-form">
+                        <div class="form-group">
+                            <label for="admin-password" data-i18n="admin_password_label">Password</label>
+                            <input type="password" id="admin-password" placeholder="Enter admin password"
+                                required>
+                            <span class="error-msg hidden" id="admin-auth-error" data-i18n="admin_auth_error">Incorrect
+                                password. Please try
+                                again.</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block"
+                            data-i18n="admin_auth_btn">Authenticate</button>
+                    </form>
+                </div>
+
+                <!-- Admin Dashboard View -->
+                <div class="admin-dashboard hidden" id="admin-dashboard-view">
+                    <div class="dashboard-header">
+                        <div>
+                            <h1 data-i18n="admin_dashboard_title">Admin Dashboard</h1>
+                            <p data-i18n="admin_dashboard_subtitle">SFI Dakshina Kannada Management Hub</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" id="admin-logout-btn" data-i18n="admin_logout_btn">Log
+                            Out</button>
+                    </div>
+
+                    <div class="dashboard-tabs">
+                        <button class="dash-tab-btn active" data-dash-tab="members"
+                            data-i18n="admin_tab_members">Members Directory</button>
+                        <button class="dash-tab-btn" data-dash-tab="grievances" data-i18n="admin_tab_grievances">Student
+                            Grievances</button>
+                        <button class="dash-tab-btn" data-dash-tab="announcements" data-i18n="admin_tab_news">News
+                            Publisher</button>
+                        <button class="dash-tab-btn" data-dash-tab="gallery-manager">🖼️ Gallery Manager</button>
+                        <button class="dash-tab-btn" data-dash-tab="site-content">⚙️ Site Settings</button>
+                    </div>
+
+                    <div class="dashboard-content">
+                        <!-- Members Directory View -->
+                        <div class="dash-pane active" id="pane-members">
+                            <div class="pane-header">
+                                <h3>Registered Members (<span id="count-members">0</span>)</h3>
+                                <button class="btn btn-secondary btn-xs" id="clear-members-btn">Clear All
+                                    (Reset)</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>College</th>
+                                            <th>Taluk</th>
+                                            <th>Course</th>
+                                            <th>Phone</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-members-tbody">
+                                        <!-- Members rows populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Student Grievances View -->
+                        <div class="dash-pane" id="pane-grievances">
+                            <div class="pane-header">
+                                <h3>Student Grievances (<span id="count-grievances">0</span>)</h3>
+                                <button class="btn btn-secondary btn-xs" id="clear-grievances-btn">Clear All</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Ticket ID</th>
+                                            <th>Student</th>
+                                            <th>Phone</th>
+                                            <th>College</th>
+                                            <th>Taluk</th>
+                                            <th>Category</th>
+                                            <th>Description</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-grievances-tbody">
+                                        <!-- Grievances rows populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- News Publisher View -->
+                        <div class="dash-pane" id="pane-announcements">
+                            <h3 data-i18n="admin_news_title">Publish New Update</h3>
+                            <p data-i18n="admin_news_desc">Post a news item, campaign announcement, or protest details.
+                                This will immediately
+                                display on the homepage news carousel.</p>
+
+                            <form id="news-publish-form" class="styled-form">
+                                <div class="form-group">
+                                    <label for="news-title">Announcement Title <span class="required">*</span></label>
+                                    <input type="text" id="news-title" required
+                                        placeholder="e.g., SFI Protests Against NEET Exam Discrepancies in Mangaluru">
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="news-date">Date Label <span class="required">*</span></label>
+                                        <input type="text" id="news-date" required
+                                            placeholder="e.g., July 30, 2026 or Today">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="news-category">Category Badge <span
+                                                class="required">*</span></label>
+                                        <input type="text" id="news-category" required
+                                            placeholder="e.g., PROTEST, HOSTEL, BUS PASS">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="news-content">Content Summary <span class="required">*</span></label>
+                                    <textarea id="news-content" rows="4" required
+                                        placeholder="Brief description of the event or campaign details..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Publish to Homepage</button>
+                                <span class="success-msg hidden" id="news-publish-success">Announcement published
+                                    successfully! Check the Home feed.</span>
+                            </form>
+                        </div>
+
+                        <!-- Gallery Manager Pane -->
+                        <div class="dash-pane" id="pane-gallery-manager">
+                            <h3>🖼️ Gallery Photo Manager</h3>
+                            <p>Upload new photos or videos to the gallery. They will appear instantly on the Gallery page.</p>
+
+                            <div class="gallery-upload-area">
+                                <form id="gallery-upload-form" class="styled-form" style="max-width:600px;">
+                                    <div class="form-group">
+                                        <label>Photo / Video File <span class="required">*</span></label>
+                                        <input type="file" id="gallery-file-input" accept="image/*,video/mp4,video/webm" required class="file-input-styled">
+                                        <div class="file-preview" id="gallery-file-preview"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Title <span class="required">*</span></label>
+                                        <input type="text" id="gallery-upload-title" required placeholder="e.g., SFI DK Protest at Mangaluru">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Category <span class="required">*</span></label>
+                                            <select id="gallery-upload-category" required>
+                                                <option value="" disabled selected>Select Category</option>
+                                                <option value="protest">Protests &amp; Rallies</option>
+                                                <option value="seminar">Seminars &amp; Forums</option>
+                                                <option value="meet">Student Conferences</option>
+                                                <option value="cultural">Cultural Campaigns</option>
+                                                <option value="video">🎬 Video</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <input type="text" id="gallery-upload-desc" placeholder="Short caption (optional)">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">📤 Upload to Gallery</button>
+                                    <span class="success-msg hidden" id="gallery-upload-success">✅ Added to gallery successfully!</span>
+                                </form>
+                            </div>
+
+                            <hr style="border-color:var(--border-color); margin: 30px 0;">
+                            <h4 style="margin-bottom:15px;">Current Gallery Items (<span id="gallery-item-count">0</span>)</h4>
+                            <div class="admin-gallery-preview" id="admin-gallery-preview">
+                                <!-- Thumbnails rendered by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Site Settings & Content Pane -->
+                        <div class="dash-pane" id="pane-site-content">
+                            <h3>⚙️ Global Site Content Manager</h3>
+                            <p>Update the core text elements of the website. Changes will take effect immediately.</p>
+
+                            <form id="site-content-form" class="styled-form">
+                                <div class="form-group">
+                                    <label>Home Hero Title <span class="required">*</span></label>
+                                    <input type="text" id="admin-hero-title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Home Hero Subtitle <span class="required">*</span></label>
+                                    <textarea id="admin-hero-subtitle" rows="3" required></textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>WhatsApp Helpline Number (with country code) <span class="required">*</span></label>
+                                        <input type="text" id="admin-whatsapp-number" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>About Us - History (Paragraph 1) <span class="required">*</span></label>
+                                    <textarea id="admin-history1" rows="4" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>About Us - History (Paragraph 2) <span class="required">*</span></label>
+                                    <textarea id="admin-history2" rows="4" required></textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">💾 Save & Update Website</button>
+                                <span class="success-msg hidden" id="site-content-success">✅ Website content updated globally!</span>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- App Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-left">
+                <div class="footer-logo">
+                    <span class="star-badge"><img src="./assets/logo.jpg" class="logo-img" height="70"
+                            width="70" /></span>
+                    <span data-i18n="footer_org_name">Students' Federation of India</span>
+                </div>
+                <p class="footer-motto" data-i18n="footer_motto">"Study & Struggle. Independence, Democracy, Socialism."
+                </p>
+            </div>
+            <div class="footer-links">
+                <a href="#home" data-i18n="nav_home">Home</a>
+                <a href="#about" data-i18n="nav_about">About Us</a>
+                <a href="#campaigns" data-i18n="nav_campaigns">Campaigns</a>
+                <a href="#grievance" data-i18n="nav_grievance">Grievance Cell</a>
+                <a href="#gallery" data-i18n="nav_gallery">Gallery</a>
+                <a href="#join" data-i18n="nav_join">Membership</a>
+                <a href="#admin" id="footer-admin-link" data-i18n="footer_admin_link">Admin Portal</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p data-i18n="footer_copyright">&copy; 2026 SFI Dakshina Kannada. Built for progressive student
+                    activism. All rights reserved.</p>
+                <p class="sub-text" data-i18n="footer_sub_text">SFI is affiliated with the All India Committee. Active
+                    in Mangaluru, Bantwal,
+                    Puttur, Sullia, Belthangady, Moodbidri, and Kadaba.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SFI Struggle Songs Floating Audio Player Widget -->
+    <div class="audio-player-widget" id="audio-player-widget">
+        <button class="audio-toggle-btn" id="audio-toggle-btn" title="SFI Struggle Songs Player">🎵 SFI Songs</button>
+        <div class="audio-panel hidden" id="audio-panel">
+            <div class="audio-header">
+                <span>🎵 SFI Struggle Songs</span>
+                <span class="audio-close" id="audio-close">&times;</span>
+            </div>
+            <div class="audio-track-info">
+                <div class="track-title" id="track-title">We Shall Overcome (Hum Honge Kaamyab)</div>
+                <div class="track-artist" id="track-artist">SFI Cultural Front</div>
+            </div>
+            <audio id="sfi-audio-element" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+            <div class="audio-controls">
+                <button class="audio-btn" id="audio-prev-btn">⏮️</button>
+                <button class="audio-btn play-btn" id="audio-play-btn">▶️ Play</button>
+                <button class="audio-btn" id="audio-next-btn">⏭️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp Student Helpline -->
+    <a href="https://wa.me/918951565792?text=Hello%20SFI%20DK%20Helpdesk,%20I%20need%20assistance%20regarding:"
+        target="_blank" rel="noopener noreferrer" class="whatsapp-float" id="whatsapp-float-btn"
+        title="Chat with SFI DK Student Helpline">
+        <svg viewBox="0 0 32 32" width="28" height="28" fill="#FFFFFF">
+            <path
+                d="M16 2a13 13 0 0 0-11 20L3 29l7.2-1.9A13 13 0 1 0 16 2zm0 23.6a10.6 10.6 0 0 1-5.4-1.5l-.4-.2-4 1 1-3.9-.3-.5a10.6 10.6 0 1 1 9.1 5.1zm5.8-7.9c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.1-.8 1-1 1.2-.4.2-.7 0a9 9 0 0 1-2.6-1.6 9.8 9.8 0 0 1-1.8-2.3c-.2-.3 0-.5.1-.7s.3-.4.5-.6l.3-.4c.1-.2.1-.4 0-.6s-.7-1.7-1-2.3c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4a3.8 3.8 0 0 0-1.2 2.8c0 1.6 1.2 3.2 1.4 3.4s2.3 3.6 5.6 5c.8.3 1.4.6 1.9.7 1 .3 1.9.3 2.6.2.8-.1 2.5-1 2.8-2s.3-1.8.2-2c-.1-.2-.3-.3-.6-.5z" />
+        </svg>
+        <span class="wa-tooltip" data-i18n="wa_tooltip">Student Helpline 💬</span>
+    </a>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+
+</html>
