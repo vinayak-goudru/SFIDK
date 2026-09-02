@@ -59,7 +59,7 @@ app.post("/api/send-membership", async (req, res) => {
             </div>
             <div class="body">
                 <div class="welcome">
-                    🎉 <strong>Revolutionary Greetings Comrade!</strong><br>
+                    <strong>Revolutionary Greetings Comrade!</strong><br>
                     Welcome to the Students' Federation of India. Your membership registration is successfully completed.
                 </div>
                 <div class="row">
@@ -112,7 +112,7 @@ app.post("/api/send-membership", async (req, res) => {
             body: JSON.stringify({
                 sender: { name: "SFI Dakshina Kannada", email: senderEmail.trim() },
                 to: [{ email: email.trim(), name: name.trim() }],
-                subject: `🚩 SFI Membership Card - ${name} (${memberId})`,
+                subject: `SFI Membership Card - ${name} (${memberId})`,
                 htmlContent: htmlBody
             })
         });

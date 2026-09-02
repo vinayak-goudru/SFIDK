@@ -1,0 +1,6 @@
+# Robots.txt for SFI Dakshina Kannada Web Portal
+User-agent: *
+Allow: /
+
+# Sitemap Location
+Sitemap: https://www.sfidk.org/sitemap.xml
