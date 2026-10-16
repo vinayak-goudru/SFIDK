@@ -283,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const DEFAULT_SITE_CONTENT = {
         heroTitle: "Independence. Democracy. Socialism.",
         heroSubtitle: "Students' Federation of India (SFI) is the vanguard organization of progressive, democratic students fighting for equality, education, and student rights in Dakshina Kannada.",
-        whatsapp: "918951565792",
+        whatsapp: "",
         history1: "The Students' Federation of India (SFI) was formed in 1970, out of the need to unite the student community on a national scale to resist anti-student policies, commercialization, and privatization of education. Over the last five decades, SFI has grown into India's largest progressive student organisation, with millions of members.",
         history2: "In the Dakshina Kannada district, SFI has a rich legacy of leading struggles. Being an educational hub with hundreds of professional, degree, and pre-university colleges, Mangaluru and its surrounding taluks have witnessed historical student movements led by SFI demanding fair bus passes, well-equipped government hostels, transparent evaluation processes, and democratic representation within educational institutions."
     };
@@ -303,10 +303,19 @@ document.addEventListener("DOMContentLoaded", () => {
         STATE.gallery = [...DEFAULT_GALLERY, ...savedUploads];
         STATE.theme = localStorage.getItem("sfi_theme") || "dark";
         STATE.language = localStorage.getItem("sfi_lang") || "en";
+        try {
+            const savedContent = JSON.parse(localStorage.getItem("sfi_dk_site_content"));
+            STATE.siteContent = (savedContent && typeof savedContent === "object") ? savedContent : Object.assign({}, DEFAULT_SITE_CONTENT);
+            if (STATE.siteContent) {
+                STATE.siteContent.whatsapp = "";
+            }
+        } catch (e) {
+            STATE.siteContent = Object.assign({}, DEFAULT_SITE_CONTENT);
+        }
 
         // 2. Apply theme and language
         document.documentElement.setAttribute("data-theme", STATE.theme);
-        applyLanguage();
+        if (typeof applyLanguage === "function") applyLanguage();
 
         // 3. Setup SPA Router
         handleRouting();
@@ -321,27 +330,93 @@ document.addEventListener("DOMContentLoaded", () => {
         initHeroBgSlider();
         initScrollAnimations();
 
+        // 5. Fetch live data from Firestore
+        if (window.db) {
+            window.db.collection("news").orderBy("createdAt", "desc").get().then((snapshot) => {
+                if (!snapshot.empty) {
+                    const fetchedNews = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        fetchedNews.push({
+                            title: data.title,
+                            date: data.createdAt ? data.createdAt.toDate().toLocaleDateString('kn-IN') + ' • Live Update' : 'New Update',
+                            category: "SFI Updates",
+                            content: data.content,
+                            image: data.imageUrl || null
+                        });
+                    });
+                    
+                    // Replace STATE.news with fetched news
+                    STATE.news = fetchedNews;
+                    renderNewsCarousel();
+                    renderDailyNews();
+                    saveState();
+                }
+            }).catch(e => console.error("Firestore Error:", e));
+
+            // Fetch Gallery
+            window.db.collection("gallery").orderBy("createdAt", "desc").get().then((snapshot) => {
+                if (!snapshot.empty) {
+                    const fetchedGallery = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        fetchedGallery.push({
+                            img: data.url,
+                            category: data.category,
+                            title: data.title,
+                            desc: data.desc || ""
+                        });
+                    });
+                    STATE.gallery = fetchedGallery;
+                    renderGallery();
+                }
+            });
+
+            // Fetch Events/Campaigns
+            window.db.collection("events").orderBy("createdAt", "desc").get().then((snapshot) => {
+                if (!snapshot.empty) {
+                    const fetchedEvents = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        fetchedEvents.push({
+                            id: doc.id,
+                            title: data.title,
+                            desc: data.desc,
+                            targetSignatures: data.targetSignatures || 0,
+                            signatures: 0,
+                            signed: false
+                        });
+                    });
+                    STATE.campaigns = fetchedEvents;
+                    renderCampaigns();
+                    saveState();
+                }
+            });
+        }
+
         // Save back mock data if local storage was empty
         saveState();
     }
 
+    // Save State Helper
     function saveState() {
         localStorage.setItem("sfi_news", JSON.stringify(STATE.news));
         localStorage.setItem("sfi_campaigns", JSON.stringify(STATE.campaigns));
         localStorage.setItem("sfi_members", JSON.stringify(STATE.members));
         localStorage.setItem("sfi_grievances", JSON.stringify(STATE.grievances));
-        // Gallery is always loaded from DEFAULT_GALLERY, no need to persist it
         localStorage.setItem("sfi_theme", STATE.theme);
         localStorage.setItem("sfi_lang", STATE.language);
         localStorage.setItem("sfi_dk_site_content", JSON.stringify(STATE.siteContent));
     }
 
     // --- Theme Switcher ---
-    themeToggleBtn.addEventListener("click", () => {
-        STATE.theme = STATE.theme === "dark" ? "light" : "dark";
-        document.documentElement.setAttribute("data-theme", STATE.theme);
-        saveState();
-    });
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener("click", () => {
+            STATE.theme = STATE.theme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", STATE.theme);
+            saveState();
+        });
+    }
 
     // --- Language Switcher ---
     if (langToggleBtn) {
@@ -353,18 +428,757 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // --- Mobile Menu Toggle ---
-    mobileMenuBtn.addEventListener("click", () => {
-        mobileMenuBtn.classList.toggle("active");
-        mainNav.classList.toggle("mobile-active");
-    });
+    if (mobileMenuBtn && mainNav) {
+        mobileMenuBtn.addEventListener("click", () => {
+            mobileMenuBtn.classList.toggle("active");
+            mainNav.classList.toggle("mobile-active");
+        });
 
-    // Close mobile menu on clicking links
-    mainNav.addEventListener("click", (e) => {
-        if (e.target.classList.contains("nav-link") || e.target.classList.contains("nav-btn")) {
-            mobileMenuBtn.classList.remove("active");
-            mainNav.classList.remove("mobile-active");
+        // Close mobile menu on clicking links
+        mainNav.addEventListener("click", (e) => {
+            if (e.target.classList.contains("nav-link") || e.target.classList.contains("nav-btn")) {
+                mobileMenuBtn.classList.remove("active");
+                mainNav.classList.remove("mobile-active");
+            }
+        });
+    }
+
+    // --- Global Translations Dictionary & Switcher ---
+    const TRANSLATIONS = {
+        en: {
+                logo_title: "SFI",
+                logo_subtitle: "D.K. District",
+                nav_home: "Home",
+                nav_about: "About Us",
+                nav_campaigns: "Campaigns",
+                nav_grievance: "Help Desk",
+                nav_gallery: "Gallery",
+                nav_join: "Join SFI",
+                audio_btn: "SFI Songs",
+                audio_panel_title: "SFI Struggle Songs",
+                top_bar_badge: "DISTRICT CONVENTION 2026",
+                top_bar_text: "SFI Dakshina Kannada 19th District Conference — Be Part of the Change",
+                top_bar_link: "Get Digital Membership Now →",
+                hero_badge: "STUDY & STRUGGLE",
+                hero_title: "Independence. Democracy. Socialism.",
+                hero_lead: "Students' Federation of India (SFI) is the vanguard organization of progressive, democratic students fighting for equality, education, and student rights in Dakshina Kannada.",
+                home_leaders_view_all: "View All Leaders",
+                leader1_title: "District President",
+                leader1_desc: "Leading campaigns against fee hikes, representing students at state level.",
+                leader2_title: "District Secretary",
+                leader2_desc: "Coordinating state-level student movements and policy advocacy.",
+                leader3_title: "District Treasurer",
+                leader3_desc: "Coordinating statewide student welfare programs.",
+                leader4_title: "Joint Secretary",
+                leader4_desc: "Organizing rallies, seminars, and student awareness programs.",
+                leader5_title: "Cultural Secretary",
+                leader5_desc: "Promoting art, literature, and cultural programs among students.",
+                leadership_intro: "Our district leadership is committed to student welfare and social justice.",
+                stat_members: "Active Members",
+                stat_colleges: "Colleges",
+                stat_campaigns: "Campaigns",
+                stat_grievances: "Grievances Resolved",
+                about_hero_title: "About SFI",
+                about_hero_subtitle: "Students' Federation of India — Fighting for Equal Education",
+                about_tab_history: "History",
+                about_tab_ideology: "Ideology",
+                about_tab_leadership: "Leadership",
+                about_tab_structure: "Structure",
+                about_tab_articles: "Articles",
+                about_tab_taluk_explorer: "Taluk Explorer",
+                about_history_p1: "The Students' Federation of India (SFI) was founded in 1970 as the student wing of the Communist Party of India (Marxist). It has been at the forefront of progressive student movements across India.",
+                about_history_p2: "In Dakshina Kannada, SFI has a rich history of fighting for students' rights, free education, and social justice. The district unit has been instrumental in raising voice against fee hikes and discrimination.",
+                history_t1_title: "1970 — Foundation",
+                history_t1_desc: "SFI was established as a national student organization committed to progressive education and student rights.",
+                history_t2_title: "1985 — DK Unit",
+                history_t2_desc: "Dakshina Kannada district unit was formally established, growing into one of the strongest units.",
+                history_t3_title: "2024 — Today",
+                history_t3_desc: "Continuing to fight for students across 7 taluks with digital tools and grassroots activism.",
+                ideology1_title: "Scientific Outlook",
+                ideology1_desc: "Promoting rational, scientific thinking and evidence-based education.",
+                ideology2_title: "Secularism",
+                ideology2_desc: "Upholding the secular values of the Indian constitution in campus life.",
+                ideology3_title: "Social Justice",
+                ideology3_desc: "Fighting for equal access to education for all students regardless of background.",
+                ideology_intro: "SFI's ideology is rooted in Marxist principles of equality, scientific temper, and social justice.",
+                struct_central_title: "Central Committee",
+                struct_central_desc: "The apex body of SFI at the national level, guiding policy and direction.",
+                struct_state_title: "State Committee",
+                struct_state_desc: "Karnataka state-level committee coordinating district units.",
+                struct_district_title: "District Committee",
+                struct_district_desc: "Dakshina Kannada District Committee — our primary operational unit.",
+                struct_taluk_title: "Taluk Unit",
+                struct_taluk_desc: "Seven taluk-level units covering all of Dakshina Kannada.",
+                struct_unit_title: "Campus Unit",
+                struct_unit_desc: "Active units in every college and school in the district.",
+                structure_intro: "SFI follows a democratic centralist structure from campus to national level.",
+                articles_title: "Student Articles",
+                articles_subtitle: "Voices from the student community",
+                art1_title: "The Crisis in Public Education",
+                art1_tag: "Education",
+                art1_meta: "May 2025 · 5 min read",
+                art1_excerpt: "Analyzing the systematic undermining of government colleges and the push for privatization.",
+                art2_title: "Student Rights in the Digital Age",
+                art2_tag: "Technology",
+                art2_meta: "April 2025 · 4 min read",
+                art2_excerpt: "How digital literacy and access to technology is becoming a new dimension of student rights.",
+                btn_read_article: "Read Article",
+                btn_submit_article: "Submit Your Article",
+                taluk_exp_title: "Taluk Explorer",
+                taluk_exp_desc: "Explore SFI units and activities across Dakshina Kannada taluks.",
+                taluk_all: "All Taluks",
+                taluk_mangaluru: "Mangaluru",
+                taluk_bantwal: "Bantwal",
+                taluk_puttur: "Puttur",
+                taluk_sullia: "Sullia",
+                taluk_belthangady: "Belthangady",
+                tbtn_mangaluru: "Mangaluru",
+                tbtn_bantwal: "Bantwal",
+                tbtn_puttur: "Puttur",
+                tbtn_sullia: "Sullia",
+                tbtn_belthangady: "Belthangady",
+                tbtn_kadaba: "Kadaba",
+                tbtn_moodbidri: "Moodbidri",
+                campaigns_hero_title: "Campaigns & Events",
+                campaigns_hero_subtitle: "Our ongoing battles for student rights",
+                tab_buspass: "Bus Pass Rights",
+                tab_helpline: "Student Helpline",
+                tab_leadership: "Leadership Programs",
+                tab_resources: "Study Resources",
+                mm_history_title: "History & Ideology",
+                mm_history_desc: "Our struggle for free, equal education",
+                mm_leadership_title: "District Leadership",
+                mm_leadership_desc: "Meet our District Committee",
+                mm_bus_title: "Student Bus Pass Rights",
+                mm_bus_desc: "Demanding special KSRTC buses across DK",
+                mm_study_title: "Save Public Education",
+                mm_study_desc: "Fighting commercialization and fee hikes",
+                events_title: "Upcoming Events",
+                events_subtitle: "Join us in our upcoming programs",
+                events_badge: "EVENTS",
+                e1_title: "District Convention 2026",
+                e1_desc: "The 19th SFI DK District Convention — A gathering of student voices.",
+                e2_title: "Fee Hike Protest March",
+                e2_desc: "Statewide protest against university fee hikes and commercialization.",
+                e3_title: "Campus Leadership Workshop",
+                e3_desc: "A workshop for campus unit leaders on organizing and advocacy.",
+                etag_assembly: "Assembly",
+                etag_buspass: "Bus Pass",
+                etag_seminar: "Seminar",
+                stack_title: "Student Campaigns",
+                stack_subtitle: "Sign petitions and support our causes",
+                stack_badge: "CAMPAIGNS",
+                btn_remind_me: "Set Reminder",
+                news_title: "Latest News",
+                news_subtitle: "Stay updated with SFI DK",
+                news_header: "Student News",
+                news_badge: "NEWS",
+                press_title: "Press Releases",
+                press_subtitle: "Official statements and media releases",
+                press_badge: "PRESS",
+                pr1_title: "SFI DK Statement on KSRTC Bus Pass Issue",
+                pr1_desc: "Official statement demanding restoration of student bus pass benefits.",
+                pr2_title: "District Convention Announcement",
+                pr2_desc: "SFI DK announces the 19th District Convention for 2026.",
+                btn_download_statement: "Download Statement PDF",
+                grievance_hero_title: "Help Desk",
+                grievance_hero_subtitle: "Submit your grievance — we are here to help",
+                grievance_form_title: "Submit a Grievance",
+                grievance_form_desc: "Fill in the form below and our team will respond within 48 hours.",
+                anon_title: "Anonymous Complaint Box",
+                anon_subtitle: "Report without revealing your identity",
+                anon_desc: "Your anonymity is fully protected. No personal data is collected.",
+                anon_badge: "ANONYMOUS",
+                anon_type_label: "Type of Issue",
+                anon_desc_label: "Describe your issue",
+                anon_college_label: "College (Optional)",
+                label_name: "Full Name",
+                label_phone: "Phone Number",
+                label_email: "Email Address",
+                label_college: "College / Institution",
+                label_course: "Course",
+                label_year: "Year",
+                label_taluk: "Taluk",
+                label_dob: "Date of Birth",
+                label_category: "Category",
+                label_description: "Description",
+                label_anonymous: "Submit Anonymously",
+                label_declaration: "I declare that the information provided is true and correct.",
+                opt_select_taluk: "-- Select Taluk --",
+                opt_select_year: "-- Select Year --",
+                opt_y1: "1st Year",
+                opt_y2: "2nd Year",
+                opt_y3: "3rd Year",
+                opt_y4: "4th Year / Final Year",
+                opt_pu1: "PUC 1",
+                opt_pu2: "PUC 2",
+                btn_submit_grievance: "Submit Grievance",
+                grievance_success_title: "Grievance Submitted!",
+                grievance_success_msg1: "Your grievance has been successfully registered.",
+                grievance_success_msg2: "Our team will review and respond within 48 hours.",
+                grievance_another_btn: "Submit Another Grievance",
+                helpline_title: "Student Helpline",
+                helpline_desc: "Call our helpline for immediate assistance with any student issues.",
+                res_bus: "Bus Pass Guide",
+                res_mu: "MU Question Papers",
+                res_ssp: "Scholarship Guide",
+                resources_title: "Study Resources",
+                resources_desc: "Free educational resources for all students",
+                lib_title: "Student Library",
+                lib_subtitle: "Access free study materials",
+                lib_badge: "LIBRARY",
+                lib_card1_title: "MU Question Papers",
+                lib_card1_desc: "Previous year question papers for Mangalore University.",
+                lib_card2_title: "PUC Notes",
+                lib_card2_desc: "Comprehensive notes for PUC students.",
+                lib_card3_title: "Competitive Exams",
+                lib_card3_desc: "Study material for UPSC, banking and other competitive exams.",
+                lib_btn_download_pdf: "Download PDF",
+                lib_btn_download_zip: "Download ZIP",
+                lib_btn_download_material: "Download Material",
+                btn_download_statement: "Download PDF",
+                coach_title: "Free Coaching",
+                coach_subtitle: "SFI's free coaching program for students",
+                coach_badge: "COACHING",
+                coach_name: "Your Name",
+                coach_phone: "Phone Number",
+                coach_course: "Select Course",
+                opt_coach_select: "-- Select Course --",
+                opt_coach_general: "General Studies",
+                opt_coach_upsc: "UPSC / KAS",
+                opt_coach_banking: "Banking Exams",
+                opt_coach_net: "NET / GATE",
+                btn_register_coach: "Register for Coaching",
+                blood_title: "Blood Donor Network",
+                blood_subtitle: "Connect with blood donors across DK",
+                blood_badge: "BLOOD DONORS",
+                gallery_hero_title: "Photo Gallery",
+                gallery_hero_subtitle: "Moments from our campaigns and events",
+                filter_all: "All",
+                filter_protest: "Protests",
+                filter_seminar: "Seminars",
+                filter_cultural: "Cultural",
+                filter_meet: "Meetings",
+                filter_video: "Videos",
+                video_section_title: "Video Gallery",
+                video_section_subtitle: "Watch our campaigns in action",
+                v1_title: "Fee Hike Protest March",
+                v1_desc: "Students march against university fee hikes.",
+                v2_title: "District Convention Highlights",
+                v2_desc: "Highlights from the 18th District Convention.",
+                vtag_protest: "Protest",
+                vtag_conference: "Conference",
+                join_hero_title: "Join SFI",
+                join_hero_subtitle: "Become part of the movement for student rights",
+                join_form_title: "Membership Application",
+                join_form_desc: "Fill in the form below to join SFI Dakshina Kannada.",
+                step1_label: "Personal Details",
+                step2_label: "Payment",
+                step3_label: "Membership Card",
+                payment_title: "Membership Fee Payment",
+                payment_desc: "Pay ₹50 membership fee via UPI to complete your registration.",
+                payment_badge: "PAYMENT",
+                upi_label: "UPI ID",
+                timer_title: "Payment Timer",
+                timer_note: "Complete payment within the given time.",
+                btn_confirm_payment: "I Have Paid — Confirm",
+                btn_next_payment: "Proceed to Payment",
+                btn_back_form: "← Go Back",
+                verify_title: "Verify Payment",
+                verify_subtitle: "Enter your transaction ID to verify payment.",
+                verify_badge: "VERIFY",
+                verify_btn: "Verify & Get Card",
+                ticket_title: "Membership Card",
+                ticket_subtitle: "SFI DK Digital Membership",
+                ticket_label_name: "Name",
+                ticket_label_id: "Member ID",
+                ticket_label_college: "College",
+                ticket_label_course: "Course",
+                ticket_label_taluk: "Taluk",
+                ticket_label_date: "Date of Joining",
+                ticket_footer: "Students' Federation of India — Dakshina Kannada",
+                join_success_congrats: "Congratulations! You are now a member of SFI DK.",
+                join_success_info: "Your digital membership card is ready. Download it below.",
+                join_download_card: "Download Membership Card",
+                join_register_another: "Register Another Member",
+                poll_title: "Student Poll",
+                poll_subtitle: "Your opinion matters",
+                poll_badge: "POLL",
+                poll_q1: "What is the most important student issue in DK?",
+                poll_o1: "Bus Pass Rights",
+                poll_o2: "Fee Hike",
+                poll_voted: "Thank you for voting!",
+                faq_title: "Frequently Asked Questions",
+                faq_subtitle: "Answers to common questions about SFI and membership",
+                faq_badge: "FAQ",
+                faq_q1: "How do I join SFI?",
+                faq_a1: "You can join SFI by filling out the membership form in the 'Join SFI' section and paying the nominal membership fee of ₹50 via UPI.",
+                faq_q2: "Is there any age limit to join?",
+                faq_a2: "SFI membership is open to all students between 14 and 28 years of age who are enrolled in a recognized educational institution.",
+                faq_q3: "How can I submit a grievance?",
+                faq_a3: "Go to the 'Help Desk' section and fill out the grievance form. You can also submit anonymously. Our team responds within 48 hours.",
+                faq_q4: "What activities does SFI DK organize?",
+                faq_a4: "We organize protest marches, seminars, leadership workshops, free coaching programs, cultural events, and blood donation drives.",
+                cta_title: "Join the Movement",
+                cta_subtitle: "Be part of the change — fight for student rights with SFI DK",
+                cta_btn: "Join SFI Today",
+                achieve_title: "Our Achievements",
+                achieve_subtitle: "What we have accomplished together",
+                achieve_badge: "ACHIEVEMENTS",
+                wa_title: "WhatsApp Community",
+                wa_desc: "Join our WhatsApp community for updates and announcements.",
+                wa_tooltip: "Join WhatsApp Group",
+                amb_title: "Campus Ambassador",
+                amb_subtitle: "Represent SFI in your college",
+                btn_apply_ambassador: "Apply as Ambassador",
+                vulcan_title: "Vulcan Shield",
+                vulcan_desc: "SFI's anti-ragging and campus safety initiative.",
+                vulcan_badge: "SAFE CAMPUS",
+                vulcan_btn: "Report Ragging",
+                unit_dir_title: "Unit Directory",
+                unit_dir_subtitle: "Find SFI units in your college",
+                admin_portal_title: "Admin Portal",
+                admin_portal_desc: "Manage SFI DK website content",
+                admin_auth_btn: "Login",
+                admin_auth_error: "Invalid password. Please try again.",
+                admin_password_label: "Admin Password",
+                admin_dashboard_title: "Admin Dashboard",
+                admin_dashboard_subtitle: "Manage all site content",
+                admin_logout_btn: "Logout",
+                admin_news_title: "Manage News",
+                admin_news_desc: "Add, edit or remove news articles",
+                admin_tab_news: "News",
+                admin_tab_members: "Members",
+                admin_tab_grievances: "Grievances",
+                office_address_title: "District Office",
+                office_address: "SFI DK District Office, Mangaluru",
+                office_email: "sfidkdistrict@gmail.com",
+                office_mangaluru: "Mangaluru",
+                footer_org_name: "SFI Dakshina Kannada",
+                footer_motto: "Study. Struggle. Progress.",
+                footer_copyright: "© 2025 SFI Dakshina Kannada. All rights reserved.",
+                footer_sub_text: "Students' Federation of India — Building a better tomorrow through student power.",
+                anon_title: "Anonymous Complaint Box",
+                anon_desc: "Your identity is completely protected.",
+            },
+            kn: {
+                logo_title: "ಎಸ್‌ಎಫ್‌ಐ",
+                logo_subtitle: "ದ.ಕ. ಜಿಲ್ಲೆ",
+                nav_home: "ಮುಖಪುಟ",
+                nav_about: "ನಮ್ಮ ಬಗ್ಗೆ",
+                nav_campaigns: "ಅಭಿಯಾನಗಳು",
+                nav_grievance: "ಸಹಾಯ ಕೇಂದ್ರ",
+                nav_gallery: "ಗ್ಯಾಲರಿ",
+                nav_join: "ಎಸ್‌ಎಫ್‌ಐ ಸೇರಿ",
+                audio_btn: "ಎಸ್‌ಎಫ್‌ಐ ಹಾಡುಗಳು",
+                audio_panel_title: "ಎಸ್‌ಎಫ್‌ಐ ಹೋರಾಟದ ಹಾಡುಗಳು",
+                top_bar_badge: "ಜಿಲ್ಲಾ ಸಮ್ಮೇಳನ 2026",
+                top_bar_text: "ಎಸ್‌ಎಫ್‌ಐ ದಕ್ಷಿಣ ಕನ್ನಡ 19ನೇ ಜಿಲ್ಲಾ ಅಧಿವೇಶನ — ಬದಲಾವಣೆಯ ಭಾಗವಾಗಿ",
+                top_bar_link: "ಡಿಜಿಟಲ್ ಸದಸ್ಯತ್ವ ಪಡೆಯಿರಿ →",
+                hero_badge: "ಅಭ್ಯಾಸ ಮತ್ತು ಹೋರಾಟ",
+                hero_title: "ಸ್ವಾತಂತ್ರ್ಯ. ಪ್ರಜಾಪ್ರಭುತ್ವ. ಸಮಾಜವಾದ.",
+                hero_lead: "ಸ್ಟೂಡೆಂಟ್ಸ್ ಫೆಡರೇಷನ್ ಆಫ್ ಇಂಡಿಯಾ — ನಾಳಿನ ನಾಯಕರನ್ನು ಇಂದು ರೂಪಿಸುತ್ತಿದ್ದೇವೆ",
+                home_leaders_view_all: "ಎಲ್ಲಾ ನಾಯಕರನ್ನು ನೋಡಿ",
+                leader1_title: "ಜಿಲ್ಲಾ ಅಧ್ಯಕ್ಷ",
+                leader1_desc: "ಶುಲ್ಕ ಏರಿಕೆ ವಿರುದ್ಧ ಅಭಿಯಾನ ನಡೆಸುತ್ತಿದ್ದಾರೆ, ರಾಜ್ಯ ಮಟ್ಟದಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿಗಳ ಪ್ರತಿನಿಧಿ.",
+                leader2_title: "ಜಿಲ್ಲಾ ಕಾರ್ಯದರ್ಶಿ",
+                leader2_desc: "ರಾಜ್ಯ ಮಟ್ಟದ ವಿದ್ಯಾರ್ಥಿ ಚಳವಳಿ ಸಂಘಟನೆ ಮತ್ತು ನೀತಿ ಪ್ರತಿಪಾದನೆ.",
+                leader3_title: "ಜಿಲ್ಲಾ ಖಜಾಂಚಿ",
+                leader3_desc: "ರಾಜ್ಯಾದ್ಯಂತ ವಿದ್ಯಾರ್ಥಿ ಕಲ್ಯಾಣ ಕಾರ್ಯಕ್ರಮ ಸಂಘಟನೆ.",
+                leader4_title: "ಜಂಟಿ ಕಾರ್ಯದರ್ಶಿ",
+                leader4_desc: "ಸಮಾವೇಶ, ವಿಚಾರ ಸಂಕಿರಣ ಮತ್ತು ವಿದ್ಯಾರ್ಥಿ ಜಾಗೃತಿ ಕಾರ್ಯಕ್ರಮ ಆಯೋಜನೆ.",
+                leader5_title: "ಸಾಂಸ್ಕೃತಿಕ ಕಾರ್ಯದರ್ಶಿ",
+                leader5_desc: "ವಿದ್ಯಾರ್ಥಿಗಳಲ್ಲಿ ಕಲೆ, ಸಾಹಿತ್ಯ ಮತ್ತು ಸಾಂಸ್ಕೃತಿಕ ಕಾರ್ಯಕ್ರಮಗಳ ಉತ್ತೇಜನ.",
+                leadership_intro: "ನಮ್ಮ ಜಿಲ್ಲಾ ನಾಯಕತ್ವ ವಿದ್ಯಾರ್ಥಿ ಕಲ್ಯಾಣ ಮತ್ತು ಸಾಮಾಜಿಕ ನ್ಯಾಯಕ್ಕೆ ಬದ್ಧವಾಗಿದೆ.",
+                stat_members: "ಸಕ್ರಿಯ ಸದಸ್ಯರು",
+                stat_colleges: "ಕಾಲೇಜುಗಳು",
+                stat_campaigns: "ಅಭಿಯಾನಗಳು",
+                stat_grievances: "ದೂರು ಪರಿಹಾರ",
+                about_hero_title: "ಎಸ್‌ಎಫ್‌ಐ ಬಗ್ಗೆ",
+                about_hero_subtitle: "ಸ್ಟೂಡೆಂಟ್ಸ್ ಫೆಡರೇಷನ್ ಆಫ್ ಇಂಡಿಯಾ — ಸಮಾನ ಶಿಕ್ಷಣಕ್ಕಾಗಿ ಹೋರಾಟ",
+                about_tab_history: "ಇತಿಹಾಸ",
+                about_tab_ideology: "ಸಿದ್ಧಾಂತ",
+                about_tab_leadership: "ನಾಯಕತ್ವ",
+                about_tab_structure: "ರಚನೆ",
+                about_tab_articles: "ಲೇಖನಗಳು",
+                about_tab_taluk_explorer: "ತಾಲೂಕು ಅನ್ವೇಷಣೆ",
+                about_history_p1: "ಸ್ಟೂಡೆಂಟ್ಸ್ ಫೆಡರೇಷನ್ ಆಫ್ ಇಂಡಿಯಾ (ಎಸ್‌ಎಫ್‌ಐ) 1970ರಲ್ಲಿ ಕಮ್ಯುನಿಸ್ಟ್ ಪಾರ್ಟಿ ಆಫ್ ಇಂಡಿಯಾ (ಮಾರ್ಕ್ಸ್‌ವಾದಿ) ವಿದ್ಯಾರ್ಥಿ ವಿಭಾಗವಾಗಿ ಸ್ಥಾಪನೆಯಾಯಿತು.",
+                about_history_p2: "ದಕ್ಷಿಣ ಕನ್ನಡದಲ್ಲಿ ಎಸ್‌ಎಫ್‌ಐ ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳು, ಉಚಿತ ಶಿಕ್ಷಣ ಮತ್ತು ಸಾಮಾಜಿಕ ನ್ಯಾಯಕ್ಕಾಗಿ ಹೋರಾಡಿದ ಶ್ರೀಮಂತ ಇತಿಹಾಸ ಹೊಂದಿದೆ.",
+                history_t1_title: "1970 — ಸ್ಥಾಪನೆ",
+                history_t1_desc: "ಎಸ್‌ಎಫ್‌ಐ ರಾಷ್ಟ್ರೀಯ ವಿದ್ಯಾರ್ಥಿ ಸಂಘಟನೆಯಾಗಿ ಸ್ಥಾಪನೆ.",
+                history_t2_title: "1985 — ದ.ಕ. ಘಟಕ",
+                history_t2_desc: "ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಘಟಕ ಅಧಿಕೃತವಾಗಿ ಸ್ಥಾಪನೆ.",
+                history_t3_title: "2024 — ಇಂದು",
+                history_t3_desc: "7 ತಾಲೂಕುಗಳಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿಗಳಿಗಾಗಿ ಹೋರಾಟ ಮುಂದುವರೆಯುತ್ತಿದೆ.",
+                ideology1_title: "ವೈಜ್ಞಾನಿಕ ದೃಷ್ಟಿ",
+                ideology1_desc: "ವೈಚಾರಿಕ, ವೈಜ್ಞಾನಿಕ ಚಿಂತನೆ ಮತ್ತು ಸಾಕ್ಷ್ಯ ಆಧಾರಿತ ಶಿಕ್ಷಣ.",
+                ideology2_title: "ಜಾತ್ಯತೀತತೆ",
+                ideology2_desc: "ಕ್ಯಾಂಪಸ್ ಜೀವನದಲ್ಲಿ ಭಾರತ ಸಂವಿಧಾನದ ಜಾತ್ಯತೀತ ಮೌಲ್ಯಗಳ ಎತ್ತಿಹಿಡಿಯುವಿಕೆ.",
+                ideology3_title: "ಸಾಮಾಜಿಕ ನ್ಯಾಯ",
+                ideology3_desc: "ಎಲ್ಲ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಸಮಾನ ಶಿಕ್ಷಣ ಪ್ರವೇಶಕ್ಕಾಗಿ ಹೋರಾಟ.",
+                ideology_intro: "ಎಸ್‌ಎಫ್‌ಐ ಸಿದ್ಧಾಂತ ಸಮಾನತೆ, ವೈಜ್ಞಾನಿಕ ಮನೋಭಾವ ಮತ್ತು ಸಾಮಾಜಿಕ ನ್ಯಾಯದ ಮಾರ್ಕ್ಸ್‌ವಾದಿ ತತ್ವಗಳಲ್ಲಿ ಬೇರೂರಿದೆ.",
+                struct_central_title: "ಕೇಂದ್ರ ಸಮಿತಿ",
+                struct_central_desc: "ರಾಷ್ಟ್ರ ಮಟ್ಟದಲ್ಲಿ ಎಸ್‌ಎಫ್‌ಐ ಸರ್ವೋಚ್ಚ ಸಂಸ್ಥೆ.",
+                struct_state_title: "ರಾಜ್ಯ ಸಮಿತಿ",
+                struct_state_desc: "ಕರ್ನಾಟಕ ರಾಜ್ಯ ಮಟ್ಟದ ಸಮಿತಿ.",
+                struct_district_title: "ಜಿಲ್ಲಾ ಸಮಿತಿ",
+                struct_district_desc: "ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಸಮಿತಿ — ನಮ್ಮ ಪ್ರಾಥಮಿಕ ಕಾರ್ಯಾಚರಣಾ ಘಟಕ.",
+                struct_taluk_title: "ತಾಲೂಕು ಘಟಕ",
+                struct_taluk_desc: "ದಕ್ಷಿಣ ಕನ್ನಡವನ್ನು ಒಳಗೊಂಡ ಏಳು ತಾಲೂಕು ಘಟಕಗಳು.",
+                struct_unit_title: "ಕ್ಯಾಂಪಸ್ ಘಟಕ",
+                struct_unit_desc: "ಜಿಲ್ಲೆಯ ಪ್ರತಿ ಕಾಲೇಜು ಮತ್ತು ಶಾಲೆಯಲ್ಲಿ ಸಕ್ರಿಯ ಘಟಕಗಳು.",
+                structure_intro: "ಎಸ್‌ಎಫ್‌ಐ ಕ್ಯಾಂಪಸ್‌ನಿಂದ ರಾಷ್ಟ್ರ ಮಟ್ಟದವರೆಗೆ ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ಕೇಂದ್ರೀಯ ರಚನೆ ಅನುಸರಿಸುತ್ತದೆ.",
+                articles_title: "ವಿದ್ಯಾರ್ಥಿ ಲೇಖನಗಳು",
+                articles_subtitle: "ವಿದ್ಯಾರ್ಥಿ ಸಮುದಾಯದ ಧ್ವನಿಗಳು",
+                art1_title: "ಸಾರ್ವಜನಿಕ ಶಿಕ್ಷಣದಲ್ಲಿ ಬಿಕ್ಕಟ್ಟು",
+                art1_tag: "ಶಿಕ್ಷಣ",
+                art1_meta: "ಮೇ 2025 · 5 ನಿಮಿಷ ಓದು",
+                art1_excerpt: "ಸರ್ಕಾರಿ ಕಾಲೇಜುಗಳ ಯೋಜನಾಬದ್ಧ ದುರ್ಬಲಗೊಳಿಸುವಿಕೆ ಮತ್ತು ಖಾಸಗೀಕರಣದ ವಿಶ್ಲೇಷಣೆ.",
+                art2_title: "ಡಿಜಿಟಲ್ ಯುಗದಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳು",
+                art2_tag: "ತಂತ್ರಜ್ಞಾನ",
+                art2_meta: "ಏಪ್ರಿಲ್ 2025 · 4 ನಿಮಿಷ ಓದು",
+                art2_excerpt: "ಡಿಜಿಟಲ್ ಸಾಕ್ಷರತೆ ಮತ್ತು ತಂತ್ರಜ್ಞಾನ ಪ್ರವೇಶ ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕಿನ ಹೊಸ ಆಯಾಮವಾಗಿದೆ.",
+                btn_read_article: "ಲೇಖನ ಓದಿ",
+                btn_submit_article: "ಲೇಖನ ಸಲ್ಲಿಸಿ",
+                taluk_exp_title: "ತಾಲೂಕು ಅನ್ವೇಷಣೆ",
+                taluk_exp_desc: "ದಕ್ಷಿಣ ಕನ್ನಡ ತಾಲೂಕುಗಳಲ್ಲಿ ಎಸ್‌ಎಫ್‌ಐ ಘಟಕಗಳು ಮತ್ತು ಚಟುವಟಿಕೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.",
+                taluk_all: "ಎಲ್ಲ ತಾಲೂಕುಗಳು",
+                taluk_mangaluru: "ಮಂಗಳೂರು",
+                taluk_bantwal: "ಬಂಟ್ವಾಳ",
+                taluk_puttur: "ಪುತ್ತೂರು",
+                taluk_sullia: "ಸುಳ್ಯ",
+                taluk_belthangady: "ಬೆಳ್ತಂಗಡಿ",
+                tbtn_mangaluru: "ಮಂಗಳೂರು",
+                tbtn_bantwal: "ಬಂಟ್ವಾಳ",
+                tbtn_puttur: "ಪುತ್ತೂರು",
+                tbtn_sullia: "ಸುಳ್ಯ",
+                tbtn_belthangady: "ಬೆಳ್ತಂಗಡಿ",
+                tbtn_kadaba: "ಕಡಬ",
+                tbtn_moodbidri: "ಮೂಡುಬಿದಿರೆ",
+                campaigns_hero_title: "ಅಭಿಯಾನಗಳು & ಕಾರ್ಯಕ್ರಮಗಳು",
+                campaigns_hero_subtitle: "ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳಿಗಾಗಿ ನಮ್ಮ ನಿರಂತರ ಹೋರಾಟ",
+                tab_buspass: "ಬಸ್ ಪಾಸ್ ಹಕ್ಕು",
+                tab_helpline: "ವಿದ್ಯಾರ್ಥಿ ಸಹಾಯವಾಣಿ",
+                tab_leadership: "ನಾಯಕತ್ವ ಕಾರ್ಯಕ್ರಮ",
+                tab_resources: "ಅಧ್ಯಯನ ಸಂಪನ್ಮೂಲ",
+                mm_history_title: "ಇತಿಹಾಸ & ಸಿದ್ಧಾಂತ",
+                mm_history_desc: "ಉಚಿತ, ಸಮಾನ ಶಿಕ್ಷಣಕ್ಕಾಗಿ ನಮ್ಮ ಹೋರಾಟ",
+                mm_leadership_title: "ಜಿಲ್ಲಾ ನಾಯಕತ್ವ",
+                mm_leadership_desc: "ನಮ್ಮ ಜಿಲ್ಲಾ ಸಮಿತಿ ಭೇಟಿ",
+                mm_bus_title: "ವಿದ್ಯಾರ್ಥಿ ಬಸ್ ಪಾಸ್ ಹಕ್ಕು",
+                mm_bus_desc: "ದ.ಕ. ಉದ್ದಕ್ಕೂ ವಿಶೇಷ KSRTC ಬಸ್‌ಗಳ ಬೇಡಿಕೆ",
+                mm_study_title: "ಸಾರ್ವಜನಿಕ ಶಿಕ್ಷಣ ಉಳಿಸಿ",
+                mm_study_desc: "ವ್ಯಾಪಾರೀಕರಣ ಮತ್ತು ಶುಲ್ಕ ಏರಿಕೆ ವಿರುದ್ಧ ಹೋರಾಟ",
+                events_title: "ಮುಂಬರುವ ಕಾರ್ಯಕ್ರಮಗಳು",
+                events_subtitle: "ನಮ್ಮ ಮುಂಬರುವ ಕಾರ್ಯಕ್ರಮಗಳಲ್ಲಿ ಭಾಗವಹಿಸಿ",
+                events_badge: "ಕಾರ್ಯಕ್ರಮಗಳು",
+                e1_title: "ಜಿಲ್ಲಾ ಅಧಿವೇಶನ 2026",
+                e1_desc: "19ನೇ ಎಸ್‌ಎಫ್‌ಐ ದ.ಕ. ಜಿಲ್ಲಾ ಅಧಿವೇಶನ.",
+                e2_title: "ಶುಲ್ಕ ಏರಿಕೆ ಪ್ರತಿಭಟನಾ ಮೆರವಣಿಗೆ",
+                e2_desc: "ವಿಶ್ವವಿದ್ಯಾಲಯ ಶುಲ್ಕ ಏರಿಕೆ ವಿರುದ್ಧ ರಾಜ್ಯಾದ್ಯಂತ ಪ್ರತಿಭಟನೆ.",
+                e3_title: "ಕ್ಯಾಂಪಸ್ ನಾಯಕತ್ವ ಕಾರ್ಯಾಗಾರ",
+                e3_desc: "ಕ್ಯಾಂಪಸ್ ಘಟಕ ನಾಯಕರಿಗೆ ಸಂಘಟನೆ ಮತ್ತು ಪ್ರತಿಪಾದನೆ ಕಾರ್ಯಾಗಾರ.",
+                etag_assembly: "ಸಭೆ",
+                etag_buspass: "ಬಸ್ ಪಾಸ್",
+                etag_seminar: "ವಿಚಾರ ಸಂಕಿರಣ",
+                stack_title: "ವಿದ್ಯಾರ್ಥಿ ಅಭಿಯಾನಗಳು",
+                stack_subtitle: "ಅರ್ಜಿಗಳಿಗೆ ಸಹಿ ಹಾಕಿ ಮತ್ತು ನಮ್ಮ ಕಾರ್ಯಗಳನ್ನು ಬೆಂಬಲಿಸಿ",
+                stack_badge: "ಅಭಿಯಾನಗಳು",
+                btn_remind_me: "ನೆನಪೂಟ ಹೊಂದಿಸಿ",
+                news_title: "ಇತ್ತೀಚಿನ ಸುದ್ದಿ",
+                news_subtitle: "ಎಸ್‌ಎಫ್‌ಐ ದ.ಕ. ಜೊತೆ ನವೀಕೃತರಾಗಿ",
+                news_header: "ವಿದ್ಯಾರ್ಥಿ ಸುದ್ದಿ",
+                news_badge: "ಸುದ್ದಿ",
+                press_title: "ಪತ್ರಿಕಾ ಪ್ರಕಟಣೆಗಳು",
+                press_subtitle: "ಅಧಿಕೃತ ಹೇಳಿಕೆಗಳು ಮತ್ತು ಮಾಧ್ಯಮ ಪ್ರಕಟಣೆಗಳು",
+                press_badge: "ಪತ್ರಿಕಾ",
+                pr1_title: "KSRTC ಬಸ್ ಪಾಸ್ ವಿಷಯದ ಕುರಿತು ಎಸ್‌ಎಫ್‌ಐ ದ.ಕ. ಹೇಳಿಕೆ",
+                pr1_desc: "ವಿದ್ಯಾರ್ಥಿ ಬಸ್ ಪಾಸ್ ಸೌಲಭ್ಯ ಮರುಸ್ಥಾಪನೆ ಬೇಡಿಕೆ ಅಧಿಕೃತ ಹೇಳಿಕೆ.",
+                pr2_title: "ಜಿಲ್ಲಾ ಅಧಿವೇಶನ ಘೋಷಣೆ",
+                pr2_desc: "ಎಸ್‌ಎಫ್‌ಐ ದ.ಕ. 2026ಕ್ಕೆ 19ನೇ ಜಿಲ್ಲಾ ಅಧಿವೇಶನ ಘೋಷಿಸಿದೆ.",
+                btn_download_statement: "ಹೇಳಿಕೆ PDF ಡೌನ್‌ಲೋಡ್",
+                grievance_hero_title: "ಸಹಾಯ ಕೇಂದ್ರ",
+                grievance_hero_subtitle: "ನಿಮ್ಮ ದೂರು ಸಲ್ಲಿಸಿ — ನಾವು ಸಹಾಯ ಮಾಡಲಿದ್ದೇವೆ",
+                grievance_form_title: "ದೂರು ಸಲ್ಲಿಸಿ",
+                grievance_form_desc: "ಕೆಳಗಿನ ಫಾರ್ಮ್ ತುಂಬಿ, ನಮ್ಮ ತಂಡ 48 ಗಂಟೆಯಲ್ಲಿ ಪ್ರತಿಕ್ರಿಯಿಸುತ್ತದೆ.",
+                anon_title: "ಅನಾಮಧೇಯ ದೂರು ಪೆಟ್ಟಿಗೆ",
+                anon_subtitle: "ಗುರುತು ಬಹಿರಂಗಪಡಿಸದೆ ವರದಿ ಮಾಡಿ",
+                anon_desc: "ನಿಮ್ಮ ಅನಾಮಧೇಯತೆ ಸಂಪೂರ್ಣ ರಕ್ಷಿತ. ವ್ಯಕ್ತಿಗತ ಮಾಹಿತಿ ಸಂಗ್ರಹಿಸಲಾಗುವುದಿಲ್ಲ.",
+                anon_badge: "ಅನಾಮಧೇಯ",
+                anon_type_label: "ಸಮಸ್ಯೆ ವಿಧ",
+                anon_desc_label: "ನಿಮ್ಮ ಸಮಸ್ಯೆ ವಿವರಿಸಿ",
+                anon_college_label: "ಕಾಲೇಜು (ಐಚ್ಛಿಕ)",
+                label_name: "ಪೂರ್ಣ ಹೆಸರು",
+                label_phone: "ದೂರವಾಣಿ ಸಂಖ್ಯೆ",
+                label_email: "ಇ-ಮೇಲ್ ವಿಳಾಸ",
+                label_college: "ಕಾಲೇಜು / ಸಂಸ್ಥೆ",
+                label_course: "ಕೋರ್ಸ್",
+                label_year: "ವರ್ಷ",
+                label_taluk: "ತಾಲೂಕು",
+                label_dob: "ಜನ್ಮ ದಿನಾಂಕ",
+                label_category: "ವರ್ಗ",
+                label_description: "ವಿವರಣೆ",
+                label_anonymous: "ಅನಾಮಧೇಯವಾಗಿ ಸಲ್ಲಿಸಿ",
+                label_declaration: "ಒದಗಿಸಿದ ಮಾಹಿತಿ ನಿಜ ಮತ್ತು ಸರಿ ಎಂದು ಘೋಷಿಸುತ್ತೇನೆ.",
+                opt_select_taluk: "-- ತಾಲೂಕು ಆಯ್ಕೆ --",
+                opt_select_year: "-- ವರ್ಷ ಆಯ್ಕೆ --",
+                opt_y1: "1ನೇ ವರ್ಷ",
+                opt_y2: "2ನೇ ವರ್ಷ",
+                opt_y3: "3ನೇ ವರ್ಷ",
+                opt_y4: "4ನೇ ವರ್ಷ / ಅಂತಿಮ ವರ್ಷ",
+                opt_pu1: "ಪಿಯುಸಿ 1",
+                opt_pu2: "ಪಿಯುಸಿ 2",
+                btn_submit_grievance: "ದೂರು ಸಲ್ಲಿಸಿ",
+                grievance_success_title: "ದೂರು ಸಲ್ಲಿಸಲಾಗಿದೆ!",
+                grievance_success_msg1: "ನಿಮ್ಮ ದೂರು ಯಶಸ್ವಿಯಾಗಿ ನೋಂದಾಯಿಸಲಾಗಿದೆ.",
+                grievance_success_msg2: "ನಮ್ಮ ತಂಡ ಪರಿಶೀಲಿಸಿ 48 ಗಂಟೆಯಲ್ಲಿ ಪ್ರತಿಕ್ರಿಯಿಸುತ್ತದೆ.",
+                grievance_another_btn: "ಮತ್ತೊಂದು ದೂರು ಸಲ್ಲಿಸಿ",
+                helpline_title: "ವಿದ್ಯಾರ್ಥಿ ಸಹಾಯವಾಣಿ",
+                helpline_desc: "ಯಾವುದೇ ವಿದ್ಯಾರ್ಥಿ ಸಮಸ್ಯೆಗೆ ತಕ್ಷಣ ಸಹಾಯಕ್ಕಾಗಿ ನಮ್ಮ ಸಹಾಯವಾಣಿ ಕರೆ ಮಾಡಿ.",
+                res_bus: "ಬಸ್ ಪಾಸ್ ಮಾರ್ಗದರ್ಶಿ",
+                res_mu: "ಮಂಗಳೂರು ವಿಶ್ವ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳು",
+                res_ssp: "ವಿದ್ಯಾರ್ಥಿ ವೇತನ ಮಾರ್ಗದರ್ಶಿ",
+                resources_title: "ಅಧ್ಯಯನ ಸಂಪನ್ಮೂಲ",
+                resources_desc: "ಎಲ್ಲ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಉಚಿತ ಶೈಕ್ಷಣಿಕ ಸಂಪನ್ಮೂಲ",
+                lib_title: "ವಿದ್ಯಾರ್ಥಿ ಗ್ರಂಥಾಲಯ",
+                lib_subtitle: "ಉಚಿತ ಅಧ್ಯಯನ ಸಾಮಗ್ರಿ ಪಡೆಯಿರಿ",
+                lib_badge: "ಗ್ರಂಥಾಲಯ",
+                lib_card1_title: "ಮಂಗಳೂರು ವಿ.ವಿ. ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳು",
+                lib_card1_desc: "ಮಂಗಳೂರು ವಿಶ್ವವಿದ್ಯಾಲಯದ ಹಿಂದಿನ ವರ್ಷದ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳು.",
+                lib_card2_title: "ಪಿಯುಸಿ ನೋಟ್ಸ್",
+                lib_card2_desc: "ಪಿಯುಸಿ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಸಮಗ್ರ ನೋಟ್ಸ್.",
+                lib_card3_title: "ಸ್ಪರ್ಧಾತ್ಮಕ ಪರೀಕ್ಷೆಗಳು",
+                lib_card3_desc: "UPSC, ಬ್ಯಾಂಕಿಂಗ್ ಮತ್ತು ಇತರ ಸ್ಪರ್ಧಾತ್ಮಕ ಪರೀಕ್ಷೆಗಳ ಅಧ್ಯಯನ ಸಾಮಗ್ರಿ.",
+                lib_btn_download_pdf: "PDF ಡೌನ್‌ಲೋಡ್",
+                lib_btn_download_zip: "ZIP ಡೌನ್‌ಲೋಡ್",
+                lib_btn_download_material: "ಸಾಮಗ್ರಿ ಡೌನ್‌ಲೋಡ್",
+                coach_title: "ಉಚಿತ ತರಬೇತಿ",
+                coach_subtitle: "ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಎಸ್‌ಎಫ್‌ಐ ಉಚಿತ ತರಬೇತಿ ಕಾರ್ಯಕ್ರಮ",
+                coach_badge: "ತರಬೇತಿ",
+                coach_name: "ನಿಮ್ಮ ಹೆಸರು",
+                coach_phone: "ದೂರವಾಣಿ ಸಂಖ್ಯೆ",
+                coach_course: "ಕೋರ್ಸ್ ಆಯ್ಕೆ",
+                opt_coach_select: "-- ಕೋರ್ಸ್ ಆಯ್ಕೆ --",
+                opt_coach_general: "ಸಾಮಾನ್ಯ ಅಧ್ಯಯನ",
+                opt_coach_upsc: "UPSC / KAS",
+                opt_coach_banking: "ಬ್ಯಾಂಕಿಂಗ್ ಪರೀಕ್ಷೆಗಳು",
+                opt_coach_net: "NET / GATE",
+                btn_register_coach: "ತರಬೇತಿಗೆ ನೋಂದಣಿ",
+                blood_title: "ರಕ್ತದಾನಿ ಜಾಲ",
+                blood_subtitle: "ದ.ಕ. ಉದ್ದಕ್ಕೂ ರಕ್ತದಾನಿಗಳ ಜೊತೆ ಸಂಪರ್ಕ",
+                blood_badge: "ರಕ್ತದಾನಿಗಳು",
+                gallery_hero_title: "ಫೋಟೋ ಗ್ಯಾಲರಿ",
+                gallery_hero_subtitle: "ನಮ್ಮ ಅಭಿಯಾನ ಮತ್ತು ಕಾರ್ಯಕ್ರಮಗಳ ಕ್ಷಣಗಳು",
+                filter_all: "ಎಲ್ಲ",
+                filter_protest: "ಪ್ರತಿಭಟನೆ",
+                filter_seminar: "ವಿಚಾರ ಸಂಕಿರಣ",
+                filter_cultural: "ಸಾಂಸ್ಕೃತಿಕ",
+                filter_meet: "ಸಭೆಗಳು",
+                filter_video: "ವೀಡಿಯೋ",
+                video_section_title: "ವೀಡಿಯೋ ಗ್ಯಾಲರಿ",
+                video_section_subtitle: "ನಮ್ಮ ಅಭಿಯಾನಗಳನ್ನು ಕ್ರಿಯೆಯಲ್ಲಿ ನೋಡಿ",
+                v1_title: "ಶುಲ್ಕ ಏರಿಕೆ ಪ್ರತಿಭಟನಾ ಮೆರವಣಿಗೆ",
+                v1_desc: "ವಿಶ್ವವಿದ್ಯಾಲಯ ಶುಲ್ಕ ಏರಿಕೆ ವಿರುದ್ಧ ವಿದ್ಯಾರ್ಥಿ ಮೆರವಣಿಗೆ.",
+                v2_title: "ಜಿಲ್ಲಾ ಅಧಿವೇಶನ ಮುಖ್ಯಾಂಶಗಳು",
+                v2_desc: "18ನೇ ಜಿಲ್ಲಾ ಅಧಿವೇಶನದ ಮುಖ್ಯಾಂಶಗಳು.",
+                vtag_protest: "ಪ್ರತಿಭಟನೆ",
+                vtag_conference: "ಅಧಿವೇಶನ",
+                join_hero_title: "ಎಸ್‌ಎಫ್‌ಐ ಸೇರಿ",
+                join_hero_subtitle: "ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳ ಚಳವಳಿಯ ಭಾಗವಾಗಿ",
+                join_form_title: "ಸದಸ್ಯತ್ವ ಅರ್ಜಿ",
+                join_form_desc: "ಎಸ್‌ಎಫ್‌ಐ ದಕ್ಷಿಣ ಕನ್ನಡ ಸೇರಲು ಕೆಳಗಿನ ಫಾರ್ಮ್ ತುಂಬಿ.",
+                step1_label: "ವ್ಯಕ್ತಿಗತ ವಿವರ",
+                step2_label: "ಪಾವತಿ",
+                step3_label: "ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್",
+                payment_title: "ಸದಸ್ಯತ್ವ ಶುಲ್ಕ ಪಾವತಿ",
+                payment_desc: "ನೋಂದಣಿ ಪೂರ್ಣಗೊಳಿಸಲು UPI ಮೂಲಕ ₹50 ಸದಸ್ಯತ್ವ ಶುಲ್ಕ ಪಾವತಿ ಮಾಡಿ.",
+                payment_badge: "ಪಾವತಿ",
+                upi_label: "UPI ID",
+                timer_title: "ಪಾವತಿ ಟೈಮರ್",
+                timer_note: "ನಿಗದಿತ ಸಮಯದಲ್ಲಿ ಪಾವತಿ ಪೂರ್ಣಗೊಳಿಸಿ.",
+                btn_confirm_payment: "ಪಾವತಿ ಮಾಡಿದ್ದೇನೆ — ಖಚಿತಪಡಿಸಿ",
+                btn_next_payment: "ಪಾವತಿಗೆ ಮುಂದುವರಿ",
+                btn_back_form: "← ಹಿಂದಕ್ಕೆ",
+                verify_title: "ಪಾವತಿ ಪರಿಶೀಲನೆ",
+                verify_subtitle: "ಪಾವತಿ ಪರಿಶೀಲಿಸಲು ನಿಮ್ಮ ವ್ಯವಹಾರ ID ನಮೂದಿಸಿ.",
+                verify_badge: "ಪರಿಶೀಲನೆ",
+                verify_btn: "ಪರಿಶೀಲಿಸಿ & ಕಾರ್ಡ್ ಪಡೆಯಿರಿ",
+                ticket_title: "ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್",
+                ticket_subtitle: "ಎಸ್‌ಎಫ್‌ಐ ದ.ಕ. ಡಿಜಿಟಲ್ ಸದಸ್ಯತ್ವ",
+                ticket_label_name: "ಹೆಸರು",
+                ticket_label_id: "ಸದಸ್ಯ ID",
+                ticket_label_college: "ಕಾಲೇಜು",
+                ticket_label_course: "ಕೋರ್ಸ್",
+                ticket_label_taluk: "ತಾಲೂಕು",
+                ticket_label_date: "ಸೇರ್ಪಡೆ ದಿನಾಂಕ",
+                ticket_footer: "ಸ್ಟೂಡೆಂಟ್ಸ್ ಫೆಡರೇಷನ್ ಆಫ್ ಇಂಡಿಯಾ — ದಕ್ಷಿಣ ಕನ್ನಡ",
+                join_success_congrats: "ಅಭಿನಂದನೆ! ನೀವು ಈಗ ಎಸ್‌ಎಫ್‌ಐ ದ.ಕ. ಸದಸ್ಯರಾಗಿದ್ದೀರಿ.",
+                join_success_info: "ನಿಮ್ಮ ಡಿಜಿಟಲ್ ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್ ಸಿದ್ಧ. ಕೆಳಗೆ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.",
+                join_download_card: "ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್ ಡೌನ್‌ಲೋಡ್",
+                join_register_another: "ಮತ್ತೊಬ್ಬ ಸದಸ್ಯ ನೋಂದಣಿ",
+                poll_title: "ವಿದ್ಯಾರ್ಥಿ ಸಮೀಕ್ಷೆ",
+                poll_subtitle: "ನಿಮ್ಮ ಅಭಿಪ್ರಾಯ ಮುಖ್ಯ",
+                poll_badge: "ಸಮೀಕ್ಷೆ",
+                poll_q1: "ದ.ಕ.ದಲ್ಲಿ ಪ್ರಮುಖ ವಿದ್ಯಾರ್ಥಿ ಸಮಸ್ಯೆ ಯಾವುದು?",
+                poll_o1: "ಬಸ್ ಪಾಸ್ ಹಕ್ಕು",
+                poll_o2: "ಶುಲ್ಕ ಏರಿಕೆ",
+                poll_voted: "ಮತ ಹಾಕಿದ್ದಕ್ಕೆ ಧನ್ಯವಾದ!",
+                faq_title: "ಪದೇ ಪದೇ ಕೇಳಲಾಗುವ ಪ್ರಶ್ನೆಗಳು",
+                faq_subtitle: "ಎಸ್‌ಎಫ್‌ಐ ಮತ್ತು ಸದಸ್ಯತ್ವ ಬಗ್ಗೆ ಸಾಮಾನ್ಯ ಪ್ರಶ್ನೆಗಳಿಗೆ ಉತ್ತರ",
+                faq_badge: "FAQ",
+                faq_q1: "ಎಸ್‌ಎಫ್‌ಐ ಹೇಗೆ ಸೇರಬೇಕು?",
+                faq_a1: "'ಎಸ್‌ಎಫ್‌ಐ ಸೇರಿ' ವಿಭಾಗದಲ್ಲಿ ಸದಸ್ಯತ್ವ ಫಾರ್ಮ್ ತುಂಬಿ ₹50 UPI ಮೂಲಕ ಶುಲ್ಕ ಪಾವತಿ ಮಾಡಿ.",
+                faq_q2: "ಸೇರಲು ವಯಸ್ಸಿನ ಮಿತಿ ಇದೆಯೇ?",
+                faq_a2: "ಮಾನ್ಯ ಶಿಕ್ಷಣ ಸಂಸ್ಥೆಯಲ್ಲಿ ನೋಂದಾಯಿತ 14 ರಿಂದ 28 ವರ್ಷದ ಎಲ್ಲ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಎಸ್‌ಎಫ್‌ಐ ಸದಸ್ಯತ್ವ ಮುಕ್ತ.",
+                faq_q3: "ದೂರು ಹೇಗೆ ಸಲ್ಲಿಸಬೇಕು?",
+                faq_a3: "'ಸಹಾಯ ಕೇಂದ್ರ' ವಿಭಾಗಕ್ಕೆ ಹೋಗಿ ದೂರು ಫಾರ್ಮ್ ತುಂಬಿ. ಅನಾಮಧೇಯವಾಗಿಯೂ ಸಲ್ಲಿಸಬಹುದು. ನಮ್ಮ ತಂಡ 48 ಗಂಟೆಯಲ್ಲಿ ಪ್ರತಿಕ್ರಿಯಿಸುತ್ತದೆ.",
+                faq_q4: "ಎಸ್‌ಎಫ್‌ಐ ದ.ಕ. ಯಾವ ಕಾರ್ಯಕ್ರಮ ಆಯೋಜಿಸುತ್ತದೆ?",
+                faq_a4: "ಪ್ರತಿಭಟನಾ ಮೆರವಣಿಗೆ, ವಿಚಾರ ಸಂಕಿರಣ, ನಾಯಕತ್ವ ಕಾರ್ಯಾಗಾರ, ಉಚಿತ ತರಬೇತಿ, ಸಾಂಸ್ಕೃತಿಕ ಕಾರ್ಯಕ್ರಮ ಮತ್ತು ರಕ್ತದಾನ ಶಿಬಿರ.",
+                cta_title: "ಚಳವಳಿಯಲ್ಲಿ ಭಾಗವಹಿಸಿ",
+                cta_subtitle: "ಬದಲಾವಣೆಯ ಭಾಗವಾಗಿ — ಎಸ್‌ಎಫ್‌ಐ ದ.ಕ. ಜೊತೆ ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳಿಗಾಗಿ ಹೋರಾಡಿ",
+                cta_btn: "ಇಂದೇ ಎಸ್‌ಎಫ್‌ಐ ಸೇರಿ",
+                achieve_title: "ನಮ್ಮ ಸಾಧನೆಗಳು",
+                achieve_subtitle: "ನಾವು ಒಟ್ಟಾಗಿ ಸಾಧಿಸಿದ್ದು",
+                achieve_badge: "ಸಾಧನೆಗಳು",
+                wa_title: "ವಾಟ್ಸಾಪ್ ಸಮುದಾಯ",
+                wa_desc: "ಅಪ್‌ಡೇಟ್ ಮತ್ತು ಪ್ರಕಟಣೆಗಳಿಗಾಗಿ ನಮ್ಮ ವಾಟ್ಸಾಪ್ ಸಮುದಾಯಕ್ಕೆ ಸೇರಿ.",
+                wa_tooltip: "ವಾಟ್ಸಾಪ್ ಗ್ರೂಪ್ ಸೇರಿ",
+                amb_title: "ಕ್ಯಾಂಪಸ್ ರಾಯಭಾರಿ",
+                amb_subtitle: "ನಿಮ್ಮ ಕಾಲೇಜಿನಲ್ಲಿ ಎಸ್‌ಎಫ್‌ಐ ಪ್ರತಿನಿಧಿ",
+                btn_apply_ambassador: "ರಾಯಭಾರಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ",
+                vulcan_title: "ವಲ್ಕನ್ ಶೀಲ್ಡ್",
+                vulcan_desc: "ಎಸ್‌ಎಫ್‌ಐ ರ‍್ಯಾಗಿಂಗ್ ವಿರೋಧಿ ಮತ್ತು ಕ್ಯಾಂಪಸ್ ಸುರಕ್ಷತಾ ಉಪಕ್ರಮ.",
+                vulcan_badge: "ಸುರಕ್ಷಿತ ಕ್ಯಾಂಪಸ್",
+                vulcan_btn: "ರ‍್ಯಾಗಿಂಗ್ ವರದಿ",
+                unit_dir_title: "ಘಟಕ ನಿರ್ದೇಶಿಕೆ",
+                unit_dir_subtitle: "ನಿಮ್ಮ ಕಾಲೇಜಿನಲ್ಲಿ ಎಸ್‌ಎಫ್‌ಐ ಘಟಕ ಹುಡುಕಿ",
+                admin_portal_title: "ನಿರ್ವಾಹಕ ಪೋರ್ಟಲ್",
+                admin_portal_desc: "ಎಸ್‌ಎಫ್‌ಐ ದ.ಕ. ವೆಬ್‌ಸೈಟ್ ವಿಷಯ ನಿರ್ವಹಿಸಿ",
+                admin_auth_btn: "ಲಾಗಿನ್",
+                admin_auth_error: "ತಪ್ಪಾದ ಪಾಸ್‌ವರ್ಡ್. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+                admin_password_label: "ನಿರ್ವಾಹಕ ಪಾಸ್‌ವರ್ಡ್",
+                admin_dashboard_title: "ನಿರ್ವಾಹಕ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+                admin_dashboard_subtitle: "ಎಲ್ಲ ಸೈಟ್ ವಿಷಯ ನಿರ್ವಹಿಸಿ",
+                admin_logout_btn: "ಲಾಗ್‌ಔಟ್",
+                admin_news_title: "ಸುದ್ದಿ ನಿರ್ವಹಣೆ",
+                admin_news_desc: "ಸುದ್ದಿ ಲೇಖನ ಸೇರಿಸಿ, ಸಂಪಾದಿಸಿ ಅಥವಾ ತೆಗೆದುಹಾಕಿ",
+                admin_tab_news: "ಸುದ್ದಿ",
+                admin_tab_members: "ಸದಸ್ಯರು",
+                admin_tab_grievances: "ದೂರುಗಳು",
+                office_address_title: "ಜಿಲ್ಲಾ ಕಚೇರಿ",
+                office_address: "ಎಸ್‌ಎಫ್‌ಐ ದ.ಕ. ಜಿಲ್ಲಾ ಕಚೇರಿ, ಮಂಗಳೂರು",
+                office_email: "sfidkdistrict@gmail.com",
+                office_mangaluru: "ಮಂಗಳೂರು",
+                footer_org_name: "ಎಸ್‌ಎಫ್‌ಐ ದಕ್ಷಿಣ ಕನ್ನಡ",
+                footer_motto: "ಓದು. ಹೋರಾಟ. ಪ್ರಗತಿ.",
+                footer_copyright: "© 2025 ಎಸ್‌ಎಫ್‌ಐ ದಕ್ಷಿಣ ಕನ್ನಡ. ಎಲ್ಲ ಹಕ್ಕುಗಳು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.",
+                footer_sub_text: "ಸ್ಟೂಡೆಂಟ್ಸ್ ಫೆಡರೇಷನ್ ಆಫ್ ಇಂಡಿಯಾ — ವಿದ್ಯಾರ್ಥಿ ಶಕ್ತಿಯ ಮೂಲಕ ಉತ್ತಮ ನಾಳೆ ನಿರ್ಮಿಸುತ್ತಿದ್ದೇವೆ.",
+            }
+    };
+
+    function renderSiteContent() {
+        const sc = Object.assign({}, DEFAULT_SITE_CONTENT, STATE.siteContent || {});
+        const lang = STATE.language || "en";
+        const t = (typeof TRANSLATIONS !== "undefined" && TRANSLATIONS[lang]) ? TRANSLATIONS[lang] : null;
+
+        function isCustom(val, defaultVal) {
+            return val && typeof val === "string" && val.trim() !== "" && val !== "undefined" && val !== "null" && val !== defaultVal;
         }
-    });
+
+        // Update Hero
+        const heroTitle = document.getElementById("dynamic-hero-title");
+        const heroSubtitle = document.getElementById("dynamic-hero-subtitle");
+
+        if (heroTitle) {
+            if (isCustom(sc.heroTitle, DEFAULT_SITE_CONTENT.heroTitle)) {
+                heroTitle.innerText = sc.heroTitle;
+            } else if (t && t["hero_title"]) {
+                heroTitle.innerText = t["hero_title"];
+            } else {
+                heroTitle.innerText = DEFAULT_SITE_CONTENT.heroTitle;
+            }
+        }
+
+        if (heroSubtitle) {
+            if (isCustom(sc.heroSubtitle, DEFAULT_SITE_CONTENT.heroSubtitle)) {
+                heroSubtitle.innerText = sc.heroSubtitle;
+            } else if (t && t["hero_lead"]) {
+                heroSubtitle.innerText = t["hero_lead"];
+            } else {
+                heroSubtitle.innerText = DEFAULT_SITE_CONTENT.heroSubtitle;
+            }
+        }
+
+        // Update About History
+        const hist1 = document.getElementById("dynamic-about-history1");
+        const hist2 = document.getElementById("dynamic-about-history2");
+        if (hist1) {
+            if (isCustom(sc.history1, DEFAULT_SITE_CONTENT.history1)) {
+                hist1.innerText = sc.history1;
+            } else if (t && t["about_history_p1"]) {
+                hist1.innerText = t["about_history_p1"];
+            } else {
+                hist1.innerText = DEFAULT_SITE_CONTENT.history1;
+            }
+        }
+        if (hist2) {
+            if (isCustom(sc.history2, DEFAULT_SITE_CONTENT.history2)) {
+                hist2.innerText = sc.history2;
+            } else if (t && t["about_history_p2"]) {
+                hist2.innerText = t["about_history_p2"];
+            } else {
+                hist2.innerText = DEFAULT_SITE_CONTENT.history2;
+            }
+        }
+
+        // Update WhatsApp Floating Button
+        const waBtn = document.getElementById("whatsapp-float-btn");
+        if (waBtn) {
+            const phone = (sc && sc.whatsapp && sc.whatsapp !== "undefined") ? sc.whatsapp.replace(/[^0-9]/g, "") : "";
+            if (phone) {
+                waBtn.href = `https://wa.me/${phone}?text=Hello%20SFI%20DK%20Helpdesk,%20I%20need%20assistance%20regarding:`;
+            } else {
+                waBtn.href = `https://wa.me/?text=Hello%20SFI%20DK%20Helpdesk,%20I%20need%20assistance%20regarding:`;
+            }
+        }
+    }
+
+    function applyLanguage() {
+        const lang = STATE.language || "en";
+        const t = TRANSLATIONS[lang] || TRANSLATIONS["en"];
+
+        // 1. Translate all [data-i18n] elements
+        document.querySelectorAll("[data-i18n]").forEach(el => {
+            const key = el.getAttribute("data-i18n");
+            if (t && t[key] !== undefined) {
+                if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+                    el.placeholder = t[key];
+                } else if (el.tagName === "OPTION") {
+                    el.textContent = t[key];
+                } else {
+                    el.textContent = t[key];
+                }
+            }
+        });
+
+        // 2. Update language toggle button label
+        const langLabel = document.getElementById("lang-text-label");
+        const langBtn = document.getElementById("lang-toggle-btn");
+        if (langLabel) {
+            langLabel.textContent = lang === "en" ? "ಕನ್ನಡ" : "English";
+        } else if (langBtn) {
+            langBtn.textContent = lang === "en" ? "ಕನ್ನಡ" : "English";
+        }
+
+        // 3. Update HTML lang attribute
+        document.documentElement.lang = lang;
+
+        // 4. Re-render dynamic elements that use language strings
+        if (typeof renderCampaigns === "function") renderCampaigns();
+        if (typeof renderDailyNews === "function") renderDailyNews();
+        if (typeof renderNewsCarousel === "function") renderNewsCarousel();
+        if (typeof renderSiteContent === "function") renderSiteContent();
+    }
 
     // --- SPA Client-Side Router ---
     function handleRouting() {
@@ -697,55 +1511,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (window.lucide) lucide.createIcons();
     }
 
-    // --- Dynamic Site Content (Hero, About, Footer) ---
-    function renderSiteContent() {
-        const sc = STATE.siteContent;
-        const lang = STATE.language;
-
-        // Update Hero
-        const heroTitle = document.getElementById("dynamic-hero-title");
-        const heroSubtitle = document.getElementById("dynamic-hero-subtitle");
-
-        if (heroTitle) {
-            if (sc.heroTitle === DEFAULT_SITE_CONTENT.heroTitle && TRANSLATIONS[lang] && TRANSLATIONS[lang]["hero_title"]) {
-                heroTitle.innerText = TRANSLATIONS[lang]["hero_title"];
-            } else {
-                heroTitle.innerText = sc.heroTitle;
-            }
-        }
-
-        if (heroSubtitle) {
-            if (sc.heroSubtitle === DEFAULT_SITE_CONTENT.heroSubtitle && TRANSLATIONS[lang] && TRANSLATIONS[lang]["hero_lead"]) {
-                heroSubtitle.innerText = TRANSLATIONS[lang]["hero_lead"];
-            } else {
-                heroSubtitle.innerText = sc.heroSubtitle;
-            }
-        }
-
-        // Update About History
-        const hist1 = document.getElementById("dynamic-about-history1");
-        const hist2 = document.getElementById("dynamic-about-history2");
-        if (hist1) {
-            if (sc.history1 === DEFAULT_SITE_CONTENT.history1 && TRANSLATIONS[lang] && TRANSLATIONS[lang]["about_history_p1"]) {
-                hist1.innerText = TRANSLATIONS[lang]["about_history_p1"];
-            } else {
-                hist1.innerText = sc.history1;
-            }
-        }
-        if (hist2) {
-            if (sc.history2 === DEFAULT_SITE_CONTENT.history2 && TRANSLATIONS[lang] && TRANSLATIONS[lang]["about_history_p2"]) {
-                hist2.innerText = TRANSLATIONS[lang]["about_history_p2"];
-            } else {
-                hist2.innerText = sc.history2;
-            }
-        }
-
-        // Update WhatsApp Floating Button
-        const waBtn = document.getElementById("whatsapp-float-btn");
-        if (waBtn) {
-            waBtn.href = `https://wa.me/${sc.whatsapp}?text=Hello%20SFI%20DK%20Helpdesk,%20I%20need%20assistance%20regarding:`;
-        }
-    }
 
     // --- Student Grievance Submission ---
     if (grievanceForm) {
@@ -916,9 +1681,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const formattedDate = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
 
             pendingMemberData = {
-                id: memberId,
-                name: `Comrade ${name}`,
-                rawName: name,
+                memberId,
+                name,
                 dob,
                 phone,
                 email,
@@ -926,9 +1690,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 taluk,
                 course,
                 year,
-                fullCourse: `${course} (${year})`,
-                date: formattedDate
+                date: formattedDate,
+                status: "Pending",
+                createdAt: new Date().toISOString()
             };
+
+            if (window.db) {
+                window.db.collection("members").add(pendingMemberData).then(() => {
+                    console.log("Member application saved to Firebase.");
+                }).catch(err => console.error("Error saving member:", err));
+            }
 
             // Switch to Step 2
             if (joinStep1) joinStep1.classList.add("hidden");
@@ -953,13 +1724,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             clearInterval(paymentTimerInterval);
 
-            // Save to State and LocalStorage
             STATE.members.push({
-                id: pendingMemberData.id,
+                id: pendingMemberData.memberId,
                 name: pendingMemberData.name,
                 college: pendingMemberData.college,
                 taluk: pendingMemberData.taluk,
-                course: pendingMemberData.fullCourse,
+                course: pendingMemberData.course,
                 phone: pendingMemberData.phone,
                 date: pendingMemberData.date
             });
@@ -967,10 +1737,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Populate Ticket Card
             if (ticketName) ticketName.innerText = pendingMemberData.name;
-            if (ticketId) ticketId.innerText = `#${pendingMemberData.id}`;
+            if (ticketId) ticketId.innerText = `#${pendingMemberData.memberId}`;
             if (ticketCollege) ticketCollege.innerText = pendingMemberData.college;
             if (ticketTaluk) ticketTaluk.innerText = pendingMemberData.taluk;
-            if (ticketCourse) ticketCourse.innerText = pendingMemberData.fullCourse;
+            if (ticketCourse) ticketCourse.innerText = pendingMemberData.course;
             if (ticketDate) ticketDate.innerText = pendingMemberData.date;
 
             // Trigger Brevo Email via backend API
@@ -981,7 +1751,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({
                         name: pendingMemberData.name,
                         email: pendingMemberData.email,
-                        memberId: pendingMemberData.id,
+                        memberId: pendingMemberData.memberId,
                         college: pendingMemberData.college,
                         taluk: pendingMemberData.taluk,
                         course: pendingMemberData.course,
@@ -1037,12 +1807,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- College & Taluk Unit Directory System ---
     const DEFAULT_UNITS = [
-        { college: "University College Mangaluru", taluk: "Mangaluru", leader: "Comrade Nihal", phone: "8951565792" },
-        { college: "Government First Grade College Carstreet", taluk: "Mangaluru", leader: "Comrade Sinan", phone: "8951565792" },
-        { college: "GFGC Siddakatte (Bantwal)", taluk: "Bantwal", leader: "Comrade Kaushik", phone: "8951565792" },
-        { college: "Government College Puttur", taluk: "Puttur", leader: "Comrade Suhas", phone: "8951565792" },
-        { college: "GFGC Belthangady", taluk: "Belthangady", leader: "Comrade Anusha", phone: "8951565792" },
-        { college: "GFGC Sullia", taluk: "Sullia", leader: "Comrade Yathish", phone: "8951565792" }
+        { college: "University College Mangaluru", taluk: "Mangaluru", leader: "Comrade Nihal", phone: "9480112233" },
+        { college: "Government First Grade College Carstreet", taluk: "Mangaluru", leader: "Comrade Sinan", phone: "9480112234" },
+        { college: "GFGC Siddakatte (Bantwal)", taluk: "Bantwal", leader: "Comrade Kaushik", phone: "9480112235" },
+        { college: "Government College Puttur", taluk: "Puttur", leader: "Comrade Suhas", phone: "9480112236" },
+        { college: "GFGC Belthangady", taluk: "Belthangady", leader: "Comrade Anusha", phone: "9480112237" },
+        { college: "GFGC Sullia", taluk: "Sullia", leader: "Comrade Yathish", phone: "9480112238" }
     ];
 
     let activeTalukFilter = "all";
@@ -1102,1703 +1872,20 @@ document.addEventListener("DOMContentLoaded", () => {
     renderUnits();
 
     // --- FAQ Accordion Logic ---
-    document.querySelectorAll(".faq-question").forEach(q => {
-        q.addEventListener("click", () => {
-            const item = q.closest(".faq-item");
-            if (item) item.classList.toggle("active");
-        });
+    document.addEventListener("click", (e) => {
+        const header = e.target.closest(".faq-question");
+        if (!header) return;
+        const item = header.parentElement;
+        if (!item || !item.classList.contains("faq-item")) return;
+        
+        const isActive = item.classList.contains("active");
+        
+        // Find all faq-items in the same container to close them
+        const container = item.closest('.faq-container, .faq-accordion') || document.body;
+        container.querySelectorAll(".faq-item").forEach(i => i.classList.remove("active"));
+        
+        if (!isActive) item.classList.add("active");
     });
-
-    // --- SFI Struggle Songs Audio Player Widget ---
-    const audioToggleBtn = document.getElementById("audio-toggle-btn");
-    const audioPanel = document.getElementById("audio-panel");
-    const audioClose = document.getElementById("audio-close");
-    const audioPlayBtn = document.getElementById("audio-play-btn");
-    const sfiAudioElement = document.getElementById("sfi-audio-element");
-
-    if (audioToggleBtn && audioPanel) {
-        audioToggleBtn.addEventListener("click", () => {
-            audioPanel.classList.toggle("hidden");
-        });
-    }
-
-    if (audioClose && audioPanel) {
-        audioClose.addEventListener("click", () => {
-            audioPanel.classList.add("hidden");
-        });
-    }
-
-    if (audioPlayBtn && sfiAudioElement) {
-        audioPlayBtn.addEventListener("click", () => {
-            const playIcon = document.getElementById("audio-play-icon");
-            const playText = document.getElementById("audio-play-text");
-            if (sfiAudioElement.paused) {
-                sfiAudioElement.play();
-                if (playIcon) playIcon.setAttribute("data-lucide", "pause");
-                if (playText) playText.innerText = STATE.language === "kn" ? "ವಿರಾಮ" : "Pause";
-            } else {
-                sfiAudioElement.pause();
-                if (playIcon) playIcon.setAttribute("data-lucide", "play");
-                if (playText) playText.innerText = STATE.language === "kn" ? "ಪ್ಲೇ" : "Play";
-            }
-            if (window.lucide) lucide.createIcons();
-        });
-    }
-
-    // --- Event RSVP Reminder Logic ---
-    document.querySelectorAll(".rsvp-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const eventName = btn.dataset.event || "Event";
-            const msg = STATE.language === "kn"
-                ? `"${eventName}" ಗಾಗಿ ಜ್ಞಾಪನೆ ಹೊಂದಿಸಲಾಗಿದೆ! ದಕ್ಷಿಣ ಕನ್ನಡದಲ್ಲಿ ನಿಮ್ಮ ಭಾಗವಹಿಸುವಿಕೆಯನ್ನು ನಾವು ಎದುರುನೋಡುತ್ತಿದ್ದೇವೆ.`
-                : `Reminder set for "${eventName}"! We look forward to your participation in Dakshina Kannada.`;
-            alert(msg);
-        });
-    });
-
-    // --- Student Issue Opinion Poll Logic ---
-    const pollOptions = document.querySelectorAll(".poll-option-btn");
-    const pollVotedMsg = document.getElementById("poll-voted-msg");
-    let hasVoted = localStorage.getItem("sfi_dk_poll_voted") === "true";
-
-    if (hasVoted) {
-        if (pollVotedMsg) pollVotedMsg.classList.remove("hidden");
-        pollOptions.forEach(opt => opt.classList.add("disabled"));
-        const userVote = localStorage.getItem("sfi_dk_poll_choice");
-        if (userVote) {
-            const selectedOpt = document.querySelector(`.poll-option-btn[data-opt="${userVote}"]`);
-            if (selectedOpt) selectedOpt.classList.add("voted");
-        }
-    } else {
-        pollOptions.forEach(btn => {
-            btn.addEventListener("click", () => {
-                if (hasVoted) return;
-
-                const opt = btn.dataset.opt;
-                localStorage.setItem("sfi_dk_poll_voted", "true");
-                localStorage.setItem("sfi_dk_poll_choice", opt);
-                hasVoted = true;
-
-                btn.classList.add("voted");
-                if (pollVotedMsg) pollVotedMsg.classList.remove("hidden");
-
-                // Simulate vote count update
-                const countEl = btn.querySelector(".vote-count");
-                if (countEl) {
-                    const currentVotes = parseInt(countEl.innerText);
-                    countEl.innerText = `${currentVotes + 1} votes`;
-                }
-            });
-        });
-    }
-
-    // --- Taluk Explorer Logic ---
-    const talukData = {
-        "mangaluru": {
-            name: "Mangaluru Taluk Unit",
-            nameKn: "ಮಂಗಳೂರು ತಾಲೂಕು ಘಟಕ",
-            desc: "District headquarters with active units in University College Mangaluru, GFGC Carstreet, St. Aloysius, and Canara College. Leading struggles for bus passes and democratic student elections.",
-            descKn: "ವಿಶ್ವವಿದ್ಯಾನಿಲಯ ಕಾಲೇಜು ಮಂಗಳೂರು, GFGC ಕಾರ್ಸ್ಟ್ರೀಟ್, ಸೇಂಟ್ ಅಲೋಶಿಯಸ್ ಮತ್ತು ಕೆನರಾ ಕಾಲೇಜುಗಳಲ್ಲಿ ಸಕ್ರಿಯ ಘಟಕಗಳನ್ನು ಹೊಂದಿರುವ ಜಿಲ್ಲಾ ಕೇಂದ್ರ. ಬಸ್ ಪಾಸ್ ಮತ್ತು ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ವಿದ್ಯಾರ್ಥಿ ಚುನಾವಣೆಗಳಿಗಾಗಿ ಹೋರಾಟಗಳನ್ನು ಮುನ್ನಡೆಸುತ್ತಿದೆ.",
-            units: "18 Colleges",
-            unitsKn: "18 ಕಾಲೇಜುಗಳು",
-            members: "2,400+ Members",
-            membersKn: "2,400+ ಸದಸ್ಯರು",
-            leader: "Comrade Nihal",
-            leaderKn: "ಒಡನಾಡಿ ನಿಹಾಲ್"
-        },
-        "bantwal": {
-            name: "Bantwal Taluk Unit",
-            nameKn: "ಬಂಟ್ವಾಳ ತಾಲೂಕು ಘಟಕ",
-            desc: "Active units in GFGC Siddakatte, SVS College, and Carmel College. Spearheading the movement for dedicated KSRTC student buses in rural routes.",
-            descKn: "GFGC ಸಿದ್ದಕಟ್ಟೆ, SVS ಕಾಲೇಜು ಮತ್ತು ಕಾರ್ಮೆಲ್ ಕಾಲೇಜುಗಳಲ್ಲಿ ಸಕ್ರಿಯ ಘಟಕಗಳಿವೆ. ಗ್ರಾಮೀಣ ಮಾರ್ಗಗಳಲ್ಲಿ ವಿಶೇಷ KSRTC ವಿದ್ಯಾರ್ಥಿ ಬಸ್‌ಗಳಿಗಾಗಿ ಚಳುವಳಿಯನ್ನು ಮುನ್ನಡೆಸುತ್ತಿದೆ.",
-            units: "8 Colleges",
-            unitsKn: "8 ಕಾಲೇಜುಗಳು",
-            members: "850+ Members",
-            membersKn: "850+ ಸದಸ್ಯರು",
-            leader: "Comrade Kaushik",
-            leaderKn: "ಒಡನಾಡಿ ಕೌಶಿಕ್"
-        },
-        "puttur": {
-            name: "Puttur Taluk Unit",
-            nameKn: "ಪುತ್ತೂರು ತಾಲೂಕು ಘಟಕ",
-            desc: "Strong presence in Government College Puttur and Vivekananda College. Organizing students against saffronization of campuses.",
-            descKn: "ಸರ್ಕಾರಿ ಕಾಲೇಜು ಪುತ್ತೂರು ಮತ್ತು ವಿವೇಕಾನಂದ ಕಾಲೇಜಿನಲ್ಲಿ ಬಲಿಷ್ಠ ಅಸ್ತಿತ್ವವಿದೆ. ಕಾಲೇಜು ಕ್ಯಾಂಪಸ್‌ಗಳ ಕೇಸರೀಕರಣದ ವಿರುದ್ಧ ವಿದ್ಯಾರ್ಥಿಗಳನ್ನು ಸಂಘಟಿಸುತ್ತಿದೆ.",
-            units: "12 Colleges",
-            unitsKn: "12 ಕಾಲೇಜುಗಳು",
-            members: "1,200+ Members",
-            membersKn: "1,200+ ಸದಸ್ಯರು",
-            leader: "Comrade Suhas",
-            leaderKn: "ಒಡನಾಡಿ ಸುಹಾಸ್"
-        },
-        "belthangady": {
-            name: "Belthangady Taluk Unit",
-            nameKn: "ಬೆಳ್ತಂಗಡಿ ತಾಲೂಕು ಘಟಕ",
-            desc: "Units across GFGC Belthangady and SDM College. Leading campaigns for better infrastructure in government hostels and SC/ST scholarships.",
-            descKn: "GFGC ಬೆಳ್ತಂಗಡಿ ಮತ್ತು SDM ಕಾಲೇಜು ಉಜಿರೆಯಲ್ಲಿ ಘಟಕಗಳಿವೆ. ಸರ್ಕಾರಿ ಹಾಸ್ಟೆಲ್‌ಗಳಲ್ಲಿ ಉತ್ತಮ ಮೂಲಸೌಕರ್ಯ ಮತ್ತು SC/ST ವಿದ್ಯಾರ್ಥಿವೇತನಕ್ಕಾಗಿ ಹೋರಾಡುತ್ತಿದೆ.",
-            units: "6 Colleges",
-            unitsKn: "6 ಕಾಲೇಜುಗಳು",
-            members: "600+ Members",
-            membersKn: "600+ ಸದಸ್ಯರು",
-            leader: "Comrade Anusha",
-            leaderKn: "ಒಡನಾಡಿ ಅನುಷಾ"
-        },
-        "sullia": {
-            name: "Sullia Taluk Unit",
-            nameKn: "ಸುಳ್ಯ ತಾಲೂಕು ಘಟಕ",
-            desc: "Organizing students in KVG and NMC. Focusing on student welfare, library facilities, and protesting irregular fee collections.",
-            descKn: "KVG ಮತ್ತು NMC ಯಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿಗಳನ್ನು ಸಂಘಟಿಸುತ್ತಿದೆ. ವಿದ್ಯಾರ್ಥಿ ಕಲ್ಯಾಣ, ಗ್ರಂಥಾಲಯ ಸೌಲಭ್ಯಗಳು ಮತ್ತು ಅಕ್ರಮ ಶುಲ್ಕ ವಸೂಲಿ ವಿರುದ್ಧ ಹೋರಾಟ ನಡೆಸುತ್ತಿದೆ.",
-            units: "5 Colleges",
-            unitsKn: "5 ಕಾಲೇಜುಗಳು",
-            members: "450+ Members",
-            membersKn: "450+ ಸದಸ್ಯರು",
-            leader: "Comrade Yathish",
-            leaderKn: "ಒಡನಾಡಿ ಯತೀಶ್"
-        },
-        "moodbidri": {
-            name: "Moodbidri Taluk Unit",
-            nameKn: "ಮೂಡುಬಿದಿರೆ ತಾಲೂಕು ಘಟಕ",
-            desc: "Coordinating student activities in Alva's and Mahavira College. Defending student rights in private educational institutions.",
-            descKn: "ಆಳ್ವಾಸ್ ಮತ್ತು ಮಹಾವೀರ ಕಾಲೇಜಿನಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿ ಚಟುವಟಿಕೆಗಳನ್ನು ಸಮನ್ವಯಗೊಳಿಸುತ್ತಿದೆ. ಖಾಸಗಿ ಶಿಕ್ಷಣ ಸಂಸ್ಥೆಗಳಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳನ್ನು ರಕ್ಷಿಸುತ್ತಿದೆ.",
-            units: "7 Colleges",
-            unitsKn: "7 ಕಾಲೇಜುಗಳು",
-            members: "750+ Members",
-            membersKn: "750+ ಸದಸ್ಯರು",
-            leader: "Comrade Ritesh",
-            leaderKn: "ಒಡನಾಡಿ ರಿತೇಶ್"
-        },
-        "kadaba": {
-            name: "Kadaba Taluk Unit",
-            nameKn: "ಕಡಬ ತಾಲೂಕು ಘಟಕ",
-            desc: "The newest taluk unit. Raising demands for new degree colleges and better transport connectivity for rural students.",
-            descKn: "ಅತಿ ಹೊಸ ತಾಲೂಕು ಘಟಕ. ನೂತನ ಪದವಿ ಕಾಲೇಜುಗಳು ಮತ್ತು ಗ್ರಾಮೀಣ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಉತ್ತಮ ಸಾರಿಗೆ ಸಂಪರ್ಕಕ್ಕಾಗಿ ಒತ್ತಾಯಿಸುತ್ತಿದೆ.",
-            units: "3 Colleges",
-            unitsKn: "3 ಕಾಲೇಜುಗಳು",
-            members: "300+ Members",
-            membersKn: "300+ ಸದಸ್ಯರು",
-            leader: "Comrade Sandesh",
-            leaderKn: "ಒಡನಾಡಿ ಸಂದೇಶ್"
-        }
-    };
-
-    const talukBtns = document.querySelectorAll(".taluk-map-btn");
-    const tdName = document.getElementById("td-name");
-    const tdDesc = document.getElementById("td-desc");
-    const tdUnits = document.getElementById("td-units");
-    const tdMembers = document.getElementById("td-members");
-    const tdLeader = document.getElementById("td-leader");
-
-    function renderActiveTaluk() {
-        const talukKey = STATE.activeTaluk || "mangaluru";
-        const lang = STATE.language;
-        if (talukData[talukKey]) {
-            const data = talukData[talukKey];
-            const name = lang === "kn" && data.nameKn ? data.nameKn : data.name;
-            const desc = lang === "kn" && data.descKn ? data.descKn : data.desc;
-            const units = lang === "kn" && data.unitsKn ? data.unitsKn : data.units;
-            const members = lang === "kn" && data.membersKn ? data.membersKn : data.members;
-            const leader = lang === "kn" && data.leaderKn ? data.leaderKn : data.leader;
-
-            if (tdName) tdName.innerText = name;
-            if (tdDesc) tdDesc.innerText = desc;
-            if (tdUnits) tdUnits.innerText = units;
-            if (tdMembers) tdMembers.innerText = members;
-            if (tdLeader) tdLeader.innerText = leader;
-        }
-    }
-
-    talukBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            talukBtns.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-
-            const talukKey = btn.dataset.talukInfo;
-            STATE.activeTaluk = talukKey;
-            renderActiveTaluk();
-        });
-    });
-
-    // --- Membership Verification Search Portal ---
-    const verifyInput = document.getElementById("verify-input");
-    const verifyBtn = document.getElementById("verify-btn");
-    const verifyResult = document.getElementById("verify-result");
-    const verifyStatus = document.getElementById("verify-status");
-    const vdName = document.getElementById("vd-name");
-    const vdCollege = document.getElementById("vd-college");
-    const vdTaluk = document.getElementById("vd-taluk");
-    const vdDate = document.getElementById("vd-date");
-
-    if (verifyBtn && verifyInput && verifyResult) {
-        verifyBtn.addEventListener("click", () => {
-            const memberId = verifyInput.value.trim().toUpperCase();
-            if (!memberId) {
-                alert("Please enter a Membership ID to verify.");
-                return;
-            }
-
-            verifyResult.classList.remove("hidden");
-
-            // Mock Verification Logic
-            if (memberId.startsWith("SFIDK-")) {
-                verifyStatus.className = "verify-status valid flex-align-center gap-xs";
-                const statusText = STATE.language === "kn" ? "ಸಕ್ರಿಯ ಮತ್ತು ದೃಢೀಕರಿಸಲ್ಪಟ್ಟ ಸದಸ್ಯತ್ವ" : "ACTIVE & VERIFIED MEMBER";
-                verifyStatus.innerHTML = `<i data-lucide="check-circle" class="icon-sm"></i> <span>${statusText}</span>`;
-
-                // If it's a known recent registration from LocalStorage
-                const recentId = pendingMemberData ? pendingMemberData.id : null;
-
-                if (memberId === recentId) {
-                    vdName.innerText = pendingMemberData.name;
-                    vdCollege.innerText = pendingMemberData.college;
-                    vdTaluk.innerText = pendingMemberData.taluk;
-                    vdDate.innerText = pendingMemberData.date;
-                } else {
-                    // Random mock data for other valid IDs
-                    vdName.innerText = "Comrade Verified";
-                    vdCollege.innerText = "University College, Mangaluru";
-                    vdTaluk.innerText = "Mangaluru";
-                    vdDate.innerText = "15-06-2025";
-                }
-            } else {
-                verifyStatus.className = "verify-status invalid flex-align-center gap-xs";
-                const statusText = STATE.language === "kn" ? "ಅಮಾನ್ಯ ಸದಸ್ಯತ್ವ ಐಡಿ" : "INVALID MEMBERSHIP ID";
-                verifyStatus.innerHTML = `<i data-lucide="x-circle" class="icon-sm"></i> <span>${statusText}</span>`;
-                vdName.innerText = "N/A";
-                vdCollege.innerText = "N/A";
-                vdTaluk.innerText = "N/A";
-                vdDate.innerText = "N/A";
-            }
-            if (window.lucide) lucide.createIcons();
-        });
-    }
-
-    // --- Anonymous Grievance Form Logic ---
-    const anonForm = document.getElementById("anonymous-report-form");
-    const anonSuccessMsg = document.getElementById("anon-success-msg");
-    const anonSubmitBtn = anonForm ? anonForm.querySelector('button[type="submit"]') : null;
-
-    if (anonForm) {
-        anonForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            if (anonSubmitBtn) anonSubmitBtn.disabled = true;
-
-            // Show fake success
-            if (anonSuccessMsg) {
-                anonSuccessMsg.classList.remove("hidden");
-                // Reset form fields
-                anonForm.reset();
-                setTimeout(() => {
-                    anonSuccessMsg.classList.add("hidden");
-                    if (anonSubmitBtn) anonSubmitBtn.disabled = false;
-                }, 5000);
-            }
-        });
-    }
-
-    // --- Blood Donation Form Logic ---
-    const bloodDonorForm = document.getElementById("blood-donor-form");
-    if (bloodDonorForm) {
-        bloodDonorForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            alert("Thank you! Your details have been added to the SFI DK Blood Donor Registry. We will contact you during emergencies.");
-            bloodDonorForm.reset();
-        });
-    }
-
-    // --- Admin Authentication & Dashboard Logic ---
-    if (adminLoginForm) {
-        adminLoginForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-
-            const password = adminPasswordInput.value;
-
-            // Password check
-            if (password === "SFIDKadmin") {
-                adminAuthCard.classList.add("hidden");
-                adminDashboardView.classList.remove("hidden");
-                adminPasswordInput.value = "";
-                adminAuthError.classList.add("hidden");
-
-                // Load Dashboard Lists
-                loadAdminDashboardData();
-            } else {
-                adminAuthError.classList.remove("hidden");
-            }
-        });
-    }
-
-    if (adminLogoutBtn) {
-        adminLogoutBtn.addEventListener("click", () => {
-            adminDashboardView.classList.add("hidden");
-            adminAuthCard.classList.remove("hidden");
-        });
-    }
-
-    // Admin Tabs Switching
-    adminDashTabs.forEach(tabBtn => {
-        tabBtn.addEventListener("click", () => {
-            adminDashTabs.forEach(b => b.classList.remove("active"));
-            tabBtn.classList.add("active");
-
-            const paneId = `pane-${tabBtn.getAttribute("data-dash-tab")}`;
-            adminDashPanes.forEach(pane => {
-                if (pane.id === paneId) {
-                    pane.classList.add("active");
-                } else {
-                    pane.classList.remove("active");
-                }
-            });
-        });
-    });
-
-    function loadAdminDashboardData() {
-        if (!adminMembersTbody || !adminGrievancesTbody) return;
-
-        // 1. Populate Members Directory
-        adminMembersTbody.innerHTML = "";
-        STATE.members.forEach(member => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><strong>${member.id}</strong></td>
-                <td>${member.name}</td>
-                <td>${member.college}</td>
-                <td>${member.taluk}</td>
-                <td>${member.course}</td>
-                <td><a href="tel:${member.phone}">${member.phone}</a></td>
-                <td>${member.date}</td>
-            `;
-            adminMembersTbody.appendChild(tr);
-        });
-        countMembers.innerText = STATE.members.length;
-
-        // 2. Populate Grievance List
-        adminGrievancesTbody.innerHTML = "";
-        STATE.grievances.forEach(grievance => {
-            const tr = document.createElement("tr");
-            const displayStudent = grievance.anonymous
-                ? `<span style="color: var(--text-muted)">Confidential (Anonymous)</span>`
-                : `<strong>${grievance.name}</strong>`;
-
-            const displayPhone = grievance.anonymous
-                ? `<span>-</span>`
-                : `<a href="tel:${grievance.phone}">${grievance.phone}</a>`;
-
-            tr.innerHTML = `
-                <td><strong>${grievance.ticketId}</strong></td>
-                <td>${displayStudent}</td>
-                <td>${displayPhone}</td>
-                <td>${grievance.college}</td>
-                <td>${grievance.taluk}</td>
-                <td><span style="color: var(--primary); font-weight: 600;">${grievance.category}</span></td>
-                <td><div style="max-width: 250px; white-space: normal; line-height: 1.4;">${grievance.description}</div></td>
-                <td><span class="status-badge status-pending">${grievance.status}</span></td>
-            `;
-            adminGrievancesTbody.appendChild(tr);
-        });
-        countGrievances.innerText = STATE.grievances.length;
-
-        // 3. Load gallery manager preview
-        loadAdminGalleryPreview();
-
-        // 4. Populate Site Content Form
-        const scForm = document.getElementById("site-content-form");
-        if (scForm) {
-            document.getElementById("admin-hero-title").value = STATE.siteContent.heroTitle || "";
-            document.getElementById("admin-hero-subtitle").value = STATE.siteContent.heroSubtitle || "";
-            document.getElementById("admin-whatsapp-number").value = STATE.siteContent.whatsapp || "";
-            document.getElementById("admin-history1").value = STATE.siteContent.history1 || "";
-            document.getElementById("admin-history2").value = STATE.siteContent.history2 || "";
-        }
-    }
-
-    // Reset Buttons in Admin Panel
-    if (clearMembersBtn) {
-        clearMembersBtn.addEventListener("click", () => {
-            if (confirm("Are you sure you want to reset the Member Directory to original defaults? This will erase new submissions.")) {
-                STATE.members = [...DEFAULT_MEMBERS];
-                saveState();
-                loadAdminDashboardData();
-            }
-        });
-    }
-
-    if (clearGrievancesBtn) {
-        clearGrievancesBtn.addEventListener("click", () => {
-            if (confirm("Are you sure you want to clear all Student Grievance submissions?")) {
-                STATE.grievances = [];
-                saveState();
-                loadAdminDashboardData();
-            }
-        });
-    }
-
-    // News Publisher Form Submission
-    if (newsPublishForm) {
-        newsPublishForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-
-            const title = document.getElementById("news-title").value;
-            const date = document.getElementById("news-date").value;
-            const category = document.getElementById("news-category").value;
-            const content = document.getElementById("news-content").value;
-
-            if (!title || !date || !category || !content) {
-                alert("Please fill in all announcement fields.");
-                return;
-            }
-
-            const newAnn = {
-                title,
-                date,
-                category: category.toUpperCase(),
-                content
-            };
-
-            // Prepend new announcement so it shows first on Home Carousel
-            STATE.news.unshift(newAnn);
-            saveState();
-
-            // Clear inputs
-            newsPublishForm.reset();
-
-            // Force homepage news re-render (both sections)
-            renderDailyNews();
-            renderNewsCarousel();
-
-            // Display success alert inside admin dashboard
-            newsPublishSuccess.classList.remove("hidden");
-            setTimeout(() => {
-                newsPublishSuccess.classList.add("hidden");
-            }, 4000);
-        });
-    }
-
-    // Site Content Manager Form Submission
-    const siteContentForm = document.getElementById("site-content-form");
-    if (siteContentForm) {
-        siteContentForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-
-            STATE.siteContent = {
-                heroTitle: document.getElementById("admin-hero-title").value,
-                heroSubtitle: document.getElementById("admin-hero-subtitle").value,
-                whatsapp: document.getElementById("admin-whatsapp-number").value,
-                history1: document.getElementById("admin-history1").value,
-                history2: document.getElementById("admin-history2").value
-            };
-
-            saveState();
-            renderSiteContent();
-
-            const successMsg = document.getElementById("site-content-success");
-            successMsg.classList.remove("hidden");
-            setTimeout(() => {
-                successMsg.classList.add("hidden");
-            }, 4000);
-        });
-    }
-
-    // --- Admin Secret Access Link (double-click copyright in footer) ---
-    const footerLink = document.getElementById("footer-admin-link");
-    const footerBottomContainer = document.querySelector(".footer-bottom");
-    if (footerBottomContainer) {
-        footerBottomContainer.addEventListener("dblclick", () => {
-            window.location.hash = "#admin";
-        });
-    }
-
-    // --- Gallery and Lightbox Functions ---
-    function renderGallery() {
-        if (!galleryGrid) return;
-
-        galleryGrid.innerHTML = "";
-
-        const filteredItems = STATE.activeGalleryFilter === "all"
-            ? STATE.gallery
-            : STATE.gallery.filter(item => item.category === STATE.activeGalleryFilter);
-
-        if (filteredItems.length === 0) {
-            galleryGrid.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding: 40px 0;">No items in this category yet.</p>`;
-            return;
-        }
-
-        filteredItems.forEach((item, index) => {
-            const card = document.createElement("div");
-            card.className = "gallery-item";
-            const isVideo = item.category === "video" && item.src;
-
-            const mediaHTML = isVideo
-                ? `<img src="${item.img}" alt="${item.title}" style="width:100%;display:block;">
-                   <div class="gallery-video-play-icon">▶</div>`
-                : `<img src="${item.img}" alt="${item.title}" loading="lazy">`;
-
-            const shareText = encodeURIComponent(`Check out SFI DK: ${item.title} — ${window.location.origin}/#gallery`);
-            const whatsappLink = `https://wa.me/?text=${shareText}`;
-
-            card.innerHTML = `
-                ${mediaHTML}
-                <button class="gallery-share-btn flex-align-center justify-center" title="Share on WhatsApp" onclick="event.stopPropagation(); window.open('${whatsappLink}','_blank')"><i data-lucide="share-2" class="icon-xs"></i></button>
-                <div class="gallery-item-overlay">
-                    <span class="gallery-item-category">${isVideo ? "VIDEO" : item.category.toUpperCase()}</span>
-                    <h3 class="gallery-item-title">${item.title}</h3>
-                    <p class="gallery-item-desc">${item.desc}</p>
-                </div>
-            `;
-            card.addEventListener("click", () => {
-                openLightbox(item, index, filteredItems);
-            });
-            galleryGrid.appendChild(card);
-        });
-    }
-
-    // Filter Buttons Listeners
-    if (galleryFilterBtns) {
-        galleryFilterBtns.forEach(btn => {
-            btn.addEventListener("click", () => {
-                galleryFilterBtns.forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-                STATE.activeGalleryFilter = btn.getAttribute("data-filter");
-                renderGallery();
-            });
-        });
-    }
-
-    // Lightbox Controls
-    let lightboxCurrentList = [];
-
-    function openLightbox(item, index, list) {
-        if (!galleryLightbox) return;
-        STATE.activeLightboxIndex = index;
-        lightboxCurrentList = list;
-        updateLightboxContent();
-        galleryLightbox.classList.remove("hidden");
-        document.body.style.overflow = "hidden";
-    }
-
-    function closeLightbox() {
-        if (!galleryLightbox) return;
-        // Pause any playing video
-        if (lightboxVideo) {
-            lightboxVideo.pause();
-            lightboxVideo.src = "";
-        }
-        // Reset zoom
-        if (lightboxImg) lightboxImg.classList.remove("zoomed");
-        galleryLightbox.classList.add("hidden");
-        document.body.style.overflow = "";
-    }
-
-    function updateLightboxContent() {
-        if (lightboxCurrentList.length === 0) return;
-
-        const item = lightboxCurrentList[STATE.activeLightboxIndex];
-        const isVideo = item.category === "video" && item.src;
-
-        // Update counter
-        if (lightboxCounter) {
-            lightboxCounter.textContent = `${STATE.activeLightboxIndex + 1} / ${lightboxCurrentList.length}`;
-        }
-
-        // Reset zoom on navigation
-        if (lightboxImg) lightboxImg.classList.remove("zoomed");
-
-        // Animate fade
-        if (lightboxContentWrapper) {
-            lightboxContentWrapper.style.opacity = "0";
-            setTimeout(() => {
-                lightboxContentWrapper.style.opacity = "1";
-            }, 100);
-        }
-
-        if (isVideo) {
-            // Show video, hide image
-            if (lightboxImg) lightboxImg.classList.add("hidden");
-            if (lightboxVideo) {
-                lightboxVideo.classList.remove("hidden");
-                lightboxVideo.src = item.src;
-                lightboxVideo.poster = item.img;
-            }
-        } else {
-            // Show image, hide video
-            if (lightboxVideo) {
-                lightboxVideo.pause();
-                lightboxVideo.src = "";
-                lightboxVideo.classList.add("hidden");
-            }
-            if (lightboxImg) {
-                lightboxImg.classList.remove("hidden");
-                lightboxImg.src = item.img;
-            }
-        }
-
-        // Update caption
-        if (lightboxCaption) {
-            lightboxCaption.innerHTML = `
-                <span style="color: var(--primary); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 5px; letter-spacing: 1px;">${isVideo ? "VIDEO" : item.category.toUpperCase()}</span>
-                <strong style="font-size: 1.15rem; display: block; margin-bottom: 3px; font-family: var(--font-heading);">${item.title}</strong>
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">${item.desc}</span>
-            `;
-        }
-
-        // Update share button
-        if (lightboxShareBtn) {
-            const shareText = encodeURIComponent(`SFI DK: ${item.title} — ${window.location.origin}/#gallery`);
-            lightboxShareBtn.onclick = () => window.open(`https://wa.me/?text=${shareText}`, "_blank");
-        }
-    }
-
-    function navigateLightbox(dir) {
-        if (lightboxCurrentList.length === 0) return;
-        STATE.activeLightboxIndex += dir;
-        if (STATE.activeLightboxIndex < 0) {
-            STATE.activeLightboxIndex = lightboxCurrentList.length - 1;
-        } else if (STATE.activeLightboxIndex >= lightboxCurrentList.length) {
-            STATE.activeLightboxIndex = 0;
-        }
-        updateLightboxContent();
-    }
-
-    if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
-    if (lightboxPrev) lightboxPrev.addEventListener("click", () => navigateLightbox(-1));
-    if (lightboxNext) lightboxNext.addEventListener("click", () => navigateLightbox(1));
-
-    // Zoom on click
-    if (lightboxImg) {
-        lightboxImg.addEventListener("click", () => {
-            lightboxImg.classList.toggle("zoomed");
-        });
-    }
-    if (lightboxZoomBtn) {
-        lightboxZoomBtn.addEventListener("click", () => {
-            if (lightboxImg) lightboxImg.classList.toggle("zoomed");
-        });
-    }
-
-    // Click outside image to close
-    if (galleryLightbox) {
-        galleryLightbox.addEventListener("click", (e) => {
-            if (e.target === galleryLightbox) closeLightbox();
-        });
-    }
-
-    // Keyboard Navigation
-    document.addEventListener("keydown", (e) => {
-        if (!galleryLightbox || galleryLightbox.classList.contains("hidden")) return;
-        if (e.key === "Escape") closeLightbox();
-        else if (e.key === "ArrowLeft") navigateLightbox(-1);
-        else if (e.key === "ArrowRight") navigateLightbox(1);
-    });
-
-    // Touch/Swipe Navigation
-    if (galleryLightbox) {
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        galleryLightbox.addEventListener("touchstart", (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-
-        galleryLightbox.addEventListener("touchend", (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            const diff = touchStartX - touchEndX;
-            if (Math.abs(diff) > 50) { // threshold 50px
-                if (diff > 0) navigateLightbox(1);  // swipe left = next
-                else navigateLightbox(-1);            // swipe right = prev
-            }
-        }, { passive: true });
-    }
-
-    // --- Admin Gallery Upload Manager ---
-    const galleryUploadForm = document.getElementById("gallery-upload-form");
-    const galleryFileInput = document.getElementById("gallery-file-input");
-    const galleryFilePreview = document.getElementById("gallery-file-preview");
-    const galleryUploadSuccess = document.getElementById("gallery-upload-success");
-    const adminGalleryPreview = document.getElementById("admin-gallery-preview");
-    const galleryItemCount = document.getElementById("gallery-item-count");
-
-    // File preview on selection
-    if (galleryFileInput) {
-        galleryFileInput.addEventListener("change", () => {
-            const file = galleryFileInput.files[0];
-            if (!file || !galleryFilePreview) return;
-            const url = URL.createObjectURL(file);
-            if (file.type.startsWith("video/")) {
-                galleryFilePreview.innerHTML = `<video src="${url}" controls style="max-height:150px; border-radius:8px; max-width:100%;"></video>`;
-            } else {
-                galleryFilePreview.innerHTML = `<img src="${url}" style="max-height:150px; border-radius:8px; max-width:100%;">`;
-            }
-        });
-    }
-
-    function loadAdminGalleryPreview() {
-        if (!adminGalleryPreview) return;
-        const uploads = JSON.parse(localStorage.getItem("sfi_gallery_uploads")) || [];
-        if (galleryItemCount) galleryItemCount.textContent = STATE.gallery.length;
-
-        adminGalleryPreview.innerHTML = "";
-        // Show all gallery items (defaults + uploads), uploads are deletable
-        const allItems = STATE.gallery;
-        allItems.forEach((item, idx) => {
-            const isUpload = idx >= DEFAULT_GALLERY.length + 2; // +2 for the 2 video defaults
-            const thumb = document.createElement("div");
-            thumb.className = "admin-gallery-thumb";
-            const isVideo = item.category === "video" && item.src;
-            thumb.innerHTML = `
-                ${isVideo ? `<video src="${item.src}" poster="${item.img}"></video>` : `<img src="${item.img}" alt="${item.title}">`}
-                <div class="thumb-label">${item.title}</div>
-                ${isUpload ? `<button class="thumb-delete-btn" data-idx="${idx}" title="Delete">✕</button>` : ""}
-            `;
-            adminGalleryPreview.appendChild(thumb);
-        });
-
-        // Delete handlers
-        adminGalleryPreview.querySelectorAll(".thumb-delete-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                const totalDefaults = DEFAULT_GALLERY.length + 2;
-                const uploadIdx = parseInt(btn.dataset.idx) - totalDefaults;
-                const uploads = JSON.parse(localStorage.getItem("sfi_gallery_uploads")) || [];
-                uploads.splice(uploadIdx, 1);
-                localStorage.setItem("sfi_gallery_uploads", JSON.stringify(uploads));
-                STATE.gallery = [...DEFAULT_GALLERY, ...uploads];
-                renderGallery();
-                loadAdminGalleryPreview();
-            });
-        });
-    }
-
-    if (galleryUploadForm) {
-        galleryUploadForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const file = galleryFileInput ? galleryFileInput.files[0] : null;
-            const title = document.getElementById("gallery-upload-title")?.value?.trim();
-            const category = document.getElementById("gallery-upload-category")?.value;
-            const desc = document.getElementById("gallery-upload-desc")?.value?.trim() || "";
-
-            if (!file || !title || !category) {
-                alert("Please fill in all required fields and select a file.");
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const dataUrl = ev.target.result;
-                const isVideo = file.type.startsWith("video/");
-
-                const newItem = {
-                    img: isVideo ? "assets/protest.png" : dataUrl, // Use thumbnail for video
-                    src: isVideo ? dataUrl : null,
-                    category,
-                    title,
-                    desc,
-                    uploadedAt: Date.now()
-                };
-                if (isVideo) newItem.img = dataUrl.startsWith("data:video") ? "assets/protest.png" : dataUrl;
-
-                const uploads = JSON.parse(localStorage.getItem("sfi_gallery_uploads")) || [];
-                uploads.unshift(newItem);
-                localStorage.setItem("sfi_gallery_uploads", JSON.stringify(uploads));
-
-                STATE.gallery = [...DEFAULT_GALLERY, ...uploads];
-
-                galleryUploadForm.reset();
-                if (galleryFilePreview) galleryFilePreview.innerHTML = "";
-                renderGallery();
-                loadAdminGalleryPreview();
-
-                if (galleryUploadSuccess) {
-                    galleryUploadSuccess.classList.remove("hidden");
-                    setTimeout(() => galleryUploadSuccess.classList.add("hidden"), 4000);
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // --- Translation System ---
-    const TRANSLATIONS = {
-        en: {
-            nav_home: "Home",
-            nav_about: "About Us",
-            nav_campaigns: "Campaigns",
-            nav_grievance: "Help Desk",
-            nav_gallery: "Gallery",
-            nav_join: "Join SFI",
-
-            hero_badge: "STUDY & STRUGGLE",
-            hero_title: "Independence. Democracy. Socialism.",
-            hero_lead: "Students' Federation of India (SFI) is the vanguard organization of progressive, democratic students fighting for equality, education, and student rights in Dakshina Kannada.",
-            hero_join_btn: "Become a Member",
-            hero_about_btn: "Learn Our Ideology",
-
-            news_header: "Latest Updates & News",
-            news_subtitle: "Stay informed about SFI Dakshina Kannada's recent events, protests, and news.",
-
-            stat_members: "Active Members",
-            stat_colleges: "Colleges Covered",
-            stat_campaigns: "Campaigns Conducted",
-            stat_grievances: "Grievances Solved",
-
-            cta_title: "Ready to stand up for student rights?",
-            cta_subtitle: "Join SFI Dakshina Kannada and become part of a historic movement ensuring quality, affordable, and equal education for all.",
-            cta_btn: "Join SFI Today",
-
-            about_hero_title: "About SFI Dakshina Kannada",
-            about_hero_subtitle: "Empowering the student community of the coastal district to fight for educational justice and progressive values.",
-            about_tab_history: "Our History",
-            about_tab_ideology: "Our Ideology",
-            about_tab_leadership: "Leadership Team",
-            about_tab_structure: "Organizational Structure",
-
-            campaigns_hero_title: "Active Campaigns",
-            campaigns_hero_subtitle: "We believe in action. SFI DK is actively fighting against policies that discriminate, commercialize, or dilute education.",
-
-            grievance_hero_title: "Student Help Desk & Grievance Cell",
-            grievance_hero_subtitle: "Facing issues with college fees, hostel facilities, scholarships, or transportation? Report your grievance to us. SFI DK will take it up with relevant authorities.",
-            grievance_form_title: "Submit a Grievance",
-            grievance_form_desc: "Fill out this form and our student representative team will contact you to assist.",
-            label_name: "Your Full Name",
-            label_phone: "Phone Number",
-            label_email: "Email Address",
-            label_taluk: "Taluk / Area",
-            label_college: "College / Institution",
-            label_category: "Category",
-            label_description: "Grievance Description",
-            label_anonymous: "Keep my name confidential when representing this issue to the management/authorities.",
-            btn_submit_grievance: "Submit Grievance",
-
-            join_hero_title: "Join the Movement",
-            join_hero_subtitle: "In SFI, every member is an activist. Join India's largest progressive student organisation and build a better future.",
-            join_form_title: "Membership Application Form",
-            join_form_desc: "Fill out this form to register as a member of SFI Dakshina Kannada. Annual membership fee is ₹2.",
-            label_dob: "Date of Birth",
-            label_course: "Course of Study",
-            label_year: "Year of Study",
-            label_declaration: "I agree to abide by the constitution of the Students' Federation of India and fight for Independence, Democracy, and Socialism.",
-            btn_submit_join: "Submit Application",
-
-            gallery_hero_title: "SFI DK Photo Gallery",
-            gallery_hero_subtitle: "Visual records of our struggles, student assemblies, educational seminars, and progressive cultural campaigns in Dakshina Kannada.",
-            filter_all: "All Events",
-            filter_protest: "Protests & Rallies",
-            filter_seminar: "Seminars & Forums",
-            filter_meet: "Student Conferences",
-            filter_cultural: "Cultural Campaigns",
-            filter_video: "Videos",
-
-            // About - History (inline content is static, but structure is translated via JS keys)
-            about_history_p1: "The Students' Federation of India (SFI) was formed in 1970, out of the need to unite the student community on a national scale to resist anti-student policies, commercialization, and privatization of education. Over the last five decades, SFI has grown into India's largest progressive student organisation, with millions of members.",
-            about_history_p2: "In the Dakshina Kannada district, SFI has a rich legacy of leading struggles. Being an educational hub with hundreds of professional, degree, and pre-university colleges, Mangaluru and its surrounding taluks have witnessed historical student movements led by SFI demanding fair bus passes, well-equipped government hostels, transparent evaluation processes, and democratic representation within educational institutions.",
-
-            // About - Ideology
-            ideology_intro: "These three words form the core ideology of SFI and are represented on our white flag with its five-pointed red star.",
-            ideology1_title: "Independence",
-            ideology1_desc: "An education system free from imperialist influences and commercial interests. Promoting scientific temper and rational, progressive thinking among students.",
-            ideology2_title: "Democracy",
-            ideology2_desc: "The right of students to organize, speak, and vote. SFI demands the restoration of democratic student union elections in all colleges and universities.",
-            ideology3_title: "Socialism",
-            ideology3_desc: "Fighting for a society free from exploitation. We believe that quality education is not a commodity for sale, but a fundamental human right available to all, regardless of caste or economic status.",
-
-            // About - Leadership
-            leadership_intro: "Meet the office bearers steering the student movement from the district of Dakshina Kannada to the national committee.",
-            leader1_title: "District Secretary, Dakshina Kannada",
-            leader1_desc: "Leading the local campaigns and organizing protests against infrastructure gaps, bus pass issues, and fee regulations across Mangaluru.",
-            leader2_title: "District President, Dakshina Kannada",
-            leader2_desc: "Coordinating the state-level student struggles, representation in education boards, and statewide policy interventions.",
-            leader3_title: "Karnataka State President",
-            leader3_desc: "Coordinating the state-level student struggles, representation in education boards, and statewide policy interventions.",
-            leader4_title: "Karnataka State Secretary",
-            leader4_desc: "Orchestrating state campaigns, building organizations across districts, and leading delegations to the state education department.",
-            leader5_title: "All India President",
-            leader5_desc: "Leading the nationwide campaigns for student rights, education budget expansion, and resistance against central education policies.",
-
-            // About - Structure
-            structure_intro: "SFI operates on democratic centralism. Decisions are taken collectively after open discussions. Our structure ensures representation from the grassroots college level to the national executive.",
-            struct_unit_title: "Primary / Unit Committee",
-            struct_unit_desc: "Formed within individual colleges and high schools. The direct link to the student body.",
-            struct_taluk_title: "Local / Taluk Committee",
-            struct_taluk_desc: "Coordinates unit activities in specific taluks (e.g., Mangaluru, Bantwal, Puttur, Sullia, Belthangady).",
-            struct_district_title: "District Committee (SFI DK)",
-            struct_district_desc: "The governing body for Dakshina Kannada district, directing the local taluk committees and student struggles.",
-            struct_state_title: "State Committee",
-            struct_state_desc: "Coordinates all district committees within Karnataka, headquartered in Bengaluru.",
-            struct_central_title: "Central Executive Committee (CEC)",
-            struct_central_desc: "The apex national body representing SFI across all states of India.",
-
-            // Grievance success
-            grievance_success_title: "Grievance Submitted Successfully",
-            grievance_success_msg1: "Thank you for reaching out. We have logged your complaint under ticket:",
-            grievance_success_msg2: "Our district student coordination team will review the issue and contact you within 24-48 hours. Stay strong!",
-            grievance_another_btn: "Submit Another Complaint",
-
-            // Join / Ticket
-            ticket_title: "SFI MEMBERSHIP CARD",
-            ticket_subtitle: "Dakshina Kannada District Unit",
-            ticket_label_name: "MEMBER NAME",
-            ticket_label_id: "MEMBERSHIP NO.",
-            ticket_label_college: "COLLEGE",
-            ticket_label_taluk: "TALUK",
-            ticket_label_course: "COURSE & YEAR",
-            ticket_label_date: "REGISTRATION DATE",
-            ticket_footer: "\"Study and Struggle!\"",
-            join_success_congrats: "🎉 Congratulations, you are registered! Screenshot this membership card.",
-            join_success_info: "A representative from your college unit will contact you shortly to complete the physical verification and collect the ₹5 annual membership fee.",
-            join_register_another: "Register Another Student",
-
-            // Step labels & Payment
-            step1_label: "Member Details",
-            step2_label: "Pay ₹2 Fee",
-            step3_label: "Membership Card",
-
-            btn_next_payment: "Next: Proceed to Payment (₹2) →",
-            payment_badge: "SECURE UPI PAYMENT",
-            payment_title: "Scan QR & Pay Membership Fee (₹2)",
-            payment_desc: "Scan using any UPI app (GPay, PhonePe, Paytm, BHIM) to complete your SFI membership registration.",
-            upi_label: "UPI ID:",
-            timer_title: "Session Expires In",
-            timer_note: "Please complete payment before the timer expires to get your instant membership card.",
-            btn_confirm_payment: "I Have Completed Payment (₹2)",
-            btn_back_form: "← Back to Application Form",
-
-            join_form_desc: "Fill out this form to register as a member of SFI Dakshina Kannada. Annual membership fee is ₹2.",
-            join_success_congrats: "Congratulations, your payment is verified & registered! Membership card sent to your email.",
-            join_success_info: "A representative from your college unit will contact you shortly. Keep a screenshot of this card.",
-
-            // Select Options & Helpline
-            opt_select_taluk: "Select Taluk",
-            opt_select_year: "Select Year",
-            opt_y1: "1st Year",
-            opt_y2: "2nd Year",
-            opt_y3: "3rd Year",
-            opt_y4: "4th Year / Above",
-            opt_pu1: "PU - 1st Year (11th)",
-            opt_pu2: "PU - 2nd Year (12th)",
-
-            helpline_title: "SFI DK Student Helpline",
-            helpline_desc: "For immediate assistance or emergencies, you can directly reach out to our representatives:",
-            office_mangaluru: "District Office (Mangaluru)",
-            office_email: "Email Address",
-            office_address_title: "District Office Address",
-            office_address: "First Floor, Vikas, Near State Bank, Mangaluru, Dakshina Kannada - 575001",
-            resources_title: "Important Student Resources",
-            resources_desc: "Frequently accessed resources for students in Dakshina Kannada:",
-            res_mu: "Mangalore University Portal",
-            res_ssp: "State Scholarship Portal (SSP)",
-            res_bus: "KSRTC Student Bus Pass Portal",
-
-            footer_org_name: "Students' Federation of India",
-            footer_motto: "\"Study & Struggle. Independence, Democracy, Socialism.\"",
-            footer_admin_link: "Admin Portal",
-            footer_copyright: "© 2026 SFI Dakshina Kannada. Built for progressive student activism. All rights reserved.",
-            footer_sub_text: "SFI is affiliated with the All India Committee. Active in Mangaluru, Bantwal, Puttur, Sullia, Belthangady, Moodbidri, and Kadaba.",
-
-            // Admin Panel
-            admin_portal_title: "Admin Portal Access",
-            admin_portal_desc: "Enter the administrator password to view registrations, grievances, and post news updates.",
-            admin_password_label: "Password",
-            admin_auth_btn: "Authenticate",
-            admin_auth_error: "Incorrect password. Please try again.",
-            admin_dashboard_title: "Admin Dashboard",
-            admin_dashboard_subtitle: "SFI Dakshina Kannada Management Hub",
-            admin_logout_btn: "Log Out",
-            admin_tab_members: "Members Directory",
-            admin_tab_grievances: "Student Grievances",
-            admin_tab_news: "News Publisher",
-            admin_news_title: "Publish New Update",
-            admin_news_desc: "Post a news item, campaign announcement, or protest details. This will immediately display on the homepage news carousel.",
-
-            // Extended translations
-            logo_title: "SFI DK",
-            logo_subtitle: "D.K. District",
-            audio_btn: "SFI Songs",
-            audio_panel_title: "SFI Struggle Songs",
-            btn_download_statement: "Download Statement (PDF)",
-            lib_card1_title: "Mangalore University Old Papers",
-            lib_card1_desc: "Download previous 5 years question papers for BA, B.Com, B.Sc, BBA, and BCA courses under NEP scheme.",
-            lib_btn_download_zip: "Download ZIP",
-            lib_card2_title: "PUC Board Notes & Models",
-            lib_card2_desc: "Comprehensive study materials for 1st & 2nd PUC Commerce and Arts students prepared by our subject experts.",
-            lib_btn_download_pdf: "Download PDF",
-            lib_card3_title: "Competitive Exams (KPSC/UPSC)",
-            lib_card3_desc: "General knowledge compilations, current affairs digests, and FDA/SDA syllabus guides for aspirants.",
-            lib_btn_download_material: "Download Material",
-            opt_coach_select: "Select Coaching Program",
-            opt_coach_upsc: "KPSC / UPSC Foundation Course",
-            opt_coach_banking: "Banking / SSC Preparation",
-            opt_coach_net: "UGC NET / SLET Orientation",
-            opt_coach_general: "General Degree Career Guidance",
-            btn_register_coach: "Register for Free Workshop",
-            btn_apply_ambassador: "Apply for Campus Ambassador",
-            about_tab_articles: "Student Articles",
-            about_tab_taluk_explorer: "DK Taluk Explorer",
-            achieve_badge: "STUDENT EXCELLENCE",
-            achieve_subtitle: "Celebrating the academic, cultural, and sports achievements of our comrades across the district.",
-            achieve_title: "SFI DK Student Achievers",
-            amb_subtitle: "Lead the student movement in your college! We are looking for passionate individuals to represent SFI, organize local events, and act as the voice of the students.",
-            amb_title: "Become an SFI Campus Ambassador",
-            anon_badge: "CONFIDENTIAL REPORTING",
-            anon_college_label: "College / Institution Name",
-            anon_desc_label: "Incident Details",
-            anon_subtitle: "Securely report ragging, harassment, illegal fee collection, or college infrastructure issues anonymously. Your identity will remain hidden.",
-            anon_title: "Anonymous Grievance & Anti-Ragging Portal",
-            anon_type_label: "Incident Type",
-            articles_subtitle: "Articles on education, progressive thoughts, and student rights written by our comrades.",
-            articles_title: "Student Voice & Opinion Blog",
-            blood_badge: "LIFE SAVERS",
-            blood_subtitle: "Join the district's largest student blood donor registry. Register as a donor or request blood during medical emergencies.",
-            blood_title: "SFI DK Blood Donation Network",
-            coach_badge: "CAREER GUIDANCE",
-            coach_course: "Target Exam / Goal",
-            coach_name: "Full Name",
-            coach_phone: "WhatsApp Number",
-            coach_subtitle: "Register for upcoming free coaching workshops organized by SFI DK for competitive exams, career guidance, and skill development.",
-            coach_title: "Free Coaching & Career Orientation",
-            e1_desc: "Don-Bosco Hall, Jyothi Circle, Mangaluru | 9:30 AM",
-            e1_title: "Independence Day Student Flag Hoisting & Freedom March",
-            e2_desc: "KSRTC Bus Stand Division Office, Mangaluru | 11:00 AM",
-            e2_title: "KSRTC Student Bus Pass Delegation Meet",
-            e3_desc: "Town Hall, Mangaluru | 2:00 PM",
-            e3_title: "Save Public Education Seminar & Teachers' Forum",
-            etag_assembly: "DISTRICT ASSEMBLY",
-            etag_buspass: "BUS PASS CAMPAIGN",
-            etag_seminar: "EDUCATION SEMINAR",
-            events_badge: "DISTRICT SCHEDULE",
-            events_subtitle: "Key rallies, college conventions, and campaigns scheduled across Dakshina Kannada.",
-            events_title: "Upcoming Events & Protest Calendar",
-            faq_subtitle: "Everything you need to know about student bus passes, hostels, and college fee regulations in Dakshina Kannada.",
-            faq_title: "Student Rights & Bus Pass / Hostel FAQ",
-            history_t1_desc: "SFI formed at the All India Student Conference in Thiruvananthapuram, presenting the slogan \"Study and Struggle\".",
-            history_t1_title: "All India Foundation",
-            history_t2_desc: "Initiation of district units in Dakshina Kannada to represent students in government and private colleges.",
-            history_t2_title: "Establishing in Coastal Karnataka",
-            history_t3_desc: "Mobilizing students against national education policies, NEET corruption, and local student rights.",
-            history_t3_title: "Leading Modern Struggles",
-            join_download_card: "Download Membership Card (PNG)",
-            lib_badge: "FREE RESOURCES",
-            lib_subtitle: "Free access to Mangalore University previous year question papers, PU notes, and competitive exam study materials provided by SFI DK.",
-            lib_title: "SFI Digital Library & Study Materials",
-            news_badge: "MEDIA & UPDATES",
-            news_title: "ದೈನಂದಿನ ಸುದ್ದಿಗಳು ಮತ್ತು ಪತ್ರಿಕಾ ಪ್ರಕಟಣೆಗಳು",
-            poll_badge: "STUDENT VOICE POLL",
-            poll_o1: "Yes, Urgent Necessity for Rural Students",
-            poll_o2: "No, Existing buses are sufficient",
-            poll_q1: "Should KSRTC launch student special buses during college morning hours (8:00 AM - 9:30 AM) across rural Dakshina Kannada?",
-            poll_subtitle: "Cast your vote on pressing student issues across Dakshina Kannada.",
-            poll_title: "Live Student Issue Poll",
-            poll_voted: "Thank you! Your vote has been recorded in the SFI DK Student Opinion Registry.",
-            pr1_desc: "Press statement issuing ultimatum to transport authorities regarding Utre-Kokkada bus routes.",
-            pr1_title: "SFI DK Demands Immediate KSRTC Special Buses for Rural College Students",
-            pr2_desc: "Official resolution adopted at the 19th District Conference at Don-Bosco Hall Mangaluru.",
-            pr2_title: "Press Release on High Court Decision Regarding College Student Union Elections",
-            press_badge: "OFFICIAL STATEMENTS",
-            press_subtitle: "Official statements released by SFI Dakshina Kannada District Secretariat.",
-            press_title: "Press Releases & Media Hub",
-            taluk_all: "All Taluks",
-            taluk_bantwal: "Bantwal",
-            taluk_belthangady: "Belthangady",
-            taluk_exp_desc: "Select a taluk to explore active college units, student leaders, and local struggles.",
-            taluk_exp_title: "Dakshina Kannada District Units",
-            taluk_mangaluru: "Mangaluru",
-            taluk_puttur: "Puttur",
-            taluk_sullia: "Sullia",
-            unit_dir_subtitle: "Find and connect directly with SFI student leaders across Dakshina Kannada colleges.",
-            unit_dir_title: "College & Taluk Unit Directory",
-            v1_desc: "SFI Dakshina Kannada district demonstration held at Jyothi Circle, Mangaluru.",
-            v1_title: "NEET Exam Corruption Student March",
-            v2_desc: "Keynote speech on public education defense at Don-Bosco Hall, Mangaluru.",
-            v2_title: "District Student Conference Address",
-            verify_badge: "MEMBERSHIP VERIFICATION",
-            verify_btn: "Verify Member",
-            verify_subtitle: "Verify the authenticity of any SFI DK membership card by entering the Member ID.",
-            verify_title: "Instant Membership Card Verification",
-            video_section_subtitle: "Watch video footage of student assemblies, street plays, and protests led by SFI in Dakshina Kannada.",
-            video_section_title: "Video Rallies & Protest Showcase",
-            vtag_conference: "DISTRICT CONFERENCE",
-            vtag_protest: "PROTEST RALLY",
-            wa_desc: "Join your respective Taluk's WhatsApp community to stay updated on local struggles, events, and student rights alerts.",
-            wa_title: "SFI DK Official WhatsApp Groups",
-            wa_tooltip: "Student Helpline",
-            filter_video: "Videos",
-            tbtn_mangaluru: "Mangaluru (District HQ)",
-            tbtn_bantwal: "Bantwal",
-            tbtn_puttur: "Puttur",
-            tbtn_belthangady: "Belthangady",
-            tbtn_sullia: "Sullia",
-            tbtn_moodbidri: "Moodbidri",
-            tbtn_kadaba: "Kadaba",
-            art1_tag: "EDUCATION",
-            art1_title: "Why Public Education is essential for a democratic society",
-            art1_meta: "By Comrade Rashmi, University College Mangaluru • Aug 5, 2026",
-            art1_excerpt: "A deep dive into how privatization and the influx of foreign universities under NEP are alienating rural students from higher education.",
-            art2_tag: "STUDENT RIGHTS",
-            art2_title: "Commercialization of Higher Education & the Student Debt Trap",
-            art2_meta: "By Comrade Kaushik, GFGC Bantwal • Jul 28, 2026",
-            art2_excerpt: "Analyzing the steep hike in professional college fees and its direct impact on first-generation learners in coastal Karnataka.",
-            btn_read_article: "Read Full Article",
-            btn_submit_article: "Submit Your Article",
-
-            // Homepage Leadership
-            home_leaders_bg: "DistrictCommittee",
-            home_leaders_title: "Meet the dedicated <span class=\"highlight-red\">leaders</span> guiding SFI's mission across Dakshina Kannada with vision, strength, and unity.",
-            home_leaders_view_all: "View All",
-            home_leaders_state_committee: "State Committee",
-            home_leaders_sec: "District Secretary",
-            home_leaders_pres: "District President"
-        },
-        kn: {
-            nav_home: "ಮುಖಪುಟ",
-            nav_about: "ನಮ್ಮ ಬಗ್ಗೆ",
-            nav_campaigns: "ಹೋರಾಟಗಳು",
-            nav_grievance: "ಸಹಾಯ ಕೇಂದ್ರ",
-            nav_gallery: "ಚಿತ್ರಸಂಪುಟ",
-            nav_join: "SFI ಸೇರಿ",
-
-            hero_badge: "ಅಭ್ಯಾಸ ಮತ್ತು ಹೋರಾಟ",
-            hero_title: "ಸ್ವಾತಂತ್ರ್ಯ. ಪ್ರಜಾಪ್ರಭುತ್ವ. ಸಮಾಜವಾದ.",
-            hero_lead: "ಭಾರತ ವಿದ್ಯಾರ್ಥಿ ಫೆಡರೇಶನ್ (SFI) ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲೆಯ ಸಮಾನತೆ, ಶಿಕ್ಷಣ ಮತ್ತು ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳಿಗಾಗಿ ಹೋರಾಡುವ ಪ್ರಗತಿಪರ, ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ವಿದ್ಯಾರ್ಥಿಗಳ ಪ್ರಮುಖ ಸಂಘಟನೆಯಾಗಿದೆ.",
-            hero_join_btn: "ಸದಸ್ಯರಾಗಿ",
-            hero_about_btn: "ನಮ್ಮ ಸಿದ್ಧಾಂತ ತಿಳಿಯಿರಿ",
-
-            news_header: "ಇತ್ತೀಚಿನ ಸುದ್ದಿಗಳು",
-            news_subtitle: "ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡದ ಇತ್ತೀಚಿನ ಹೋರಾಟಗಳು, ಪ್ರತಿಭಟನೆಗಳು ಮತ್ತು ಸುದ್ದಿಗಳ ಬಗ್ಗೆ ಮಾಹಿತಿ ಪಡೆಯಿರಿ.",
-
-            stat_members: "ಸಕ್ರಿಯ ಸದಸ್ಯರು",
-            stat_colleges: "ಒಳಪಟ್ಟ ಕಾಲೇಜುಗಳು",
-            stat_campaigns: "ನಡೆಸಿದ ಹೋರಾಟಗಳು",
-            stat_grievances: "ಪರಿಹರಿಸಿದ ಸಮಸ್ಯೆಗಳು",
-
-            cta_title: "ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳಿಗಾಗಿ ಹೋರಾಡಲು ಸಿದ್ಧರಿದ್ದೀರಾ?",
-            cta_subtitle: "ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡ ಸೇರಿ ಮತ್ತು ಎಲ್ಲರಿಗೂ ಗುಣಮಟ್ಟದ, ಕೈಗೆಟುಕುವ ಮತ್ತು ಸಮಾನ ಶಿಕ್ಷಣವನ್ನು ಖಚಿತಪಡಿಸುವ ಐತಿಹಾಸಿಕ ಚಳುವಳಿಯ ಭಾಗವಾಗಿ.",
-            cta_btn: "ಇಂದೇ ಎಸ್.ಎಫ್.ಐ ಸೇರಿ",
-
-            about_hero_title: "ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡದ ಬಗ್ಗೆ",
-            about_hero_subtitle: "ಕರಾವಳಿ ಜಿಲ್ಲೆಯ ವಿದ್ಯಾರ್ಥಿ ಸಮುದಾಯವನ್ನು ಶೈಕ್ಷಣಿಕ ನ್ಯಾಯ ಮತ್ತು ಪ್ರಗತಿಪರ ಮೌಲ್ಯಗಳಿಗಾಗಿ ಹೋರಾಡಲು ಸಶಕ್ತಗೊಳಿಸುವುದು.",
-            about_tab_history: "ನಮ್ಮ ಇತಿಹಾಸ",
-            about_tab_ideology: "ನಮ್ಮ ಸಿದ್ಧಾಂತ",
-            about_tab_leadership: "ನಾಯಕತ್ವ ತಂಡ",
-            about_tab_structure: "ಸಾಂಸ್ಥಿಕ ರಚನೆ",
-
-            campaigns_hero_title: "ಸಕ್ರಿಯ ಹೋರಾಟಗಳು",
-            campaigns_hero_subtitle: "ನಾವು ಕ್ರಿಯೆಯಲ್ಲಿ ನಂಬಿಕೆ ಇಟ್ಟಿದ್ದೇವೆ. ಶಿಕ್ಷಣದ ಖಾಸಗೀಕರಣ, ವಾಣಿಜ್ಯೀಕರಣ ಅಥವಾ ತಾರತಮ್ಯದ ನೀತಿಗಳ ವಿರುದ್ಧ SFI DK ಸಕ್ರಿಯವಾಗಿ ಹೋರಾಡುತ್ತಿದೆ.",
-
-            grievance_hero_title: "ವಿದ್ಯಾರ್ಥಿ ಸಹಾಯ ಕೇಂದ್ರ ಮತ್ತು ಕುಂದುಕೊರತೆ ವಿಭಾಗ",
-            grievance_hero_subtitle: "ಕಾಲೇಜು ಶುಲ್ಕ, ಹಾಸ್ಟೆಲ್ ಸೌಲಭ್ಯ, ವಿದ್ಯಾರ್ಥಿವೇತನ ಅಥವಾ ಸಾರಿಗೆ ಸಮಸ್ಯೆಗಳನ್ನು ಎದುರಿಸುತ್ತಿದ್ದೀರಾ? ನಿಮ್ಮ ಸಮಸ್ಯೆಯನ್ನು ನಮಗೆ ವರದಿ ಮಾಡಿ. SFI DK ಸಂಬಂಧಪಟ್ಟ ಅಧಿಕಾರಿಗಳೊಂದಿಗೆ ಚರ್ಚಿಸಲಿದೆ.",
-            grievance_form_title: "ಕುಂದುಕೊರತೆ ಸಲ್ಲಿಸಿ",
-            grievance_form_desc: "ಈ ಫಾರ್ಮ್ ಅನ್ನು ಭರ್ತಿ ಮಾಡಿ ಮತ್ತು ನಮ್ಮ ವಿದ್ಯಾರ್ಥಿ ಪ್ರತಿನಿಧಿ ತಂಡವು ನಿಮಗೆ ಸಹಾಯ ಮಾಡಲು ಸಂಪರ್ಕಿಸುತ್ತದೆ.",
-            label_name: "ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರು",
-            label_phone: "ದೂರವಾಣಿ ಸಂಖ್ಯೆ",
-            label_email: "ಇಮೇಲ್ ವಿಳಾಸ",
-            label_taluk: "ತಾಲೂಕು / ಪ್ರದೇಶ",
-            label_college: "ಕಾಲೇಜು / ಸಂಸ್ಥೆ",
-            label_category: "ವರ್ಗ",
-            label_description: "ಸಮಸ್ಯೆಯ ವಿವರಣೆ",
-            label_anonymous: "ಅಧಿಕಾರಿಗಳ ಮುಂದೆ ಪ್ರತಿನಿಧಿಸುವಾಗ ನನ್ನ ಹೆಸರನ್ನು ಗೌಪ್ಯವಾಗಿಡಿ.",
-            btn_submit_grievance: "ಸಮಸ್ಯೆ ಸಲ್ಲಿಸಿ",
-
-            join_hero_title: "ಚಳುವಳಿಗೆ ಸೇರಿಕೊಳ್ಳಿ",
-            join_hero_subtitle: "ಎಸ್.ಎಫ್.ಐ ನಲ್ಲಿ ಪ್ರತಿ ಸದಸ್ಯನೂ ಹೋರಾಟಗಾರ. ಭಾರತದ ಅತಿ ದೊಡ್ಡ ಪ್ರಗತಿಪರ ವಿದ್ಯಾರ್ಥಿ ಸಂಘಟನೆಗೆ ಸೇರಿ ಮತ್ತು ಉತ್ತಮ ಭವಿಷ್ಯವನ್ನು ನಿರ್ಮಿಸಿ.",
-            join_form_title: "ಸದಸ್ಯತ್ವ ಅರ್ಜಿ ನಮೂನೆ",
-            join_form_desc: "ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡದ ಸದಸ್ಯರಾಗಿ ನೋಂದಾಯಿಸಿಕೊಳ್ಳಲು ಈ ಫಾರ್ಮ್ ಅನ್ನು ಭರ್ತಿ ಮಾಡಿ. ವಾರ್ಷಿಕ ಸದಸ್ಯತ್ವ ಶುಲ್ಕ ₹2.",
-            label_dob: "ಹುಟ್ಟಿದ ದಿನಾಂಕ",
-            label_course: "ಅಭ್ಯಾಸ ಮಾಡುವ ಕೋರ್ಸ್",
-            label_year: "ಅಭ್ಯಾಸ ಮಾಡುವ ವರ್ಷ",
-            label_declaration: "ನಾನು ಭಾರತ ವಿದ್ಯಾರ್ಥಿ ಫೆಡರೇಶನ್‌ನ ಸಂವಿಧಾನಕ್ಕೆ ಬದ್ಧನಾಗಿರಲು ಮತ್ತು ಸ್ವಾತಂತ್ರ್ಯ, ಪ್ರಜಾಪ್ರಭುತ್ವ ಮತ್ತು ಸಮಾಜವಾದಕ್ಕಾಗಿ ಹೋರಾಡಲು ಒಪ್ಪುತ್ತೇನೆ.",
-            btn_submit_join: "ಅರ್ಜಿ ಸಲ್ಲಿಸಿ",
-
-            gallery_hero_title: "ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡ ಚಿತ್ರಸಂಪುಟ",
-            gallery_hero_subtitle: "ದಕ್ಷಿಣ ಕನ್ನಡದಲ್ಲಿ ನಮ್ಮ ಹೋರಾಟಗಳು, ವಿದ್ಯಾರ್ಥಿ ಸಮಾವೇಶಗಳು, ಶೈಕ್ಷಣಿಕ ಸೆಮಿನಾರ್‌ಗಳು ಮತ್ತು ಪ್ರಗತಿಪರ ಸಾಂಸ್ಕೃತಿಕ ಚಳುವಳಿಗಳ ದೃಶ್ಯ ದಾಖಲೆಗಳು.",
-            filter_all: "ಎಲ್ಲಾ ಚಿತ್ರಗಳು",
-            filter_protest: "ಪ್ರತಿಭಟನೆ ಮತ್ತು ರ‍್ಯಾಲಿಗಳು",
-            filter_seminar: "ಸೆಮಿನಾರ್ ಮತ್ತು ವೇದಿಕೆಗಳು",
-            filter_meet: "ವಿದ್ಯಾರ್ಥಿ ಸಮ್ಮೇಳನಗಳು",
-            filter_cultural: "ಸಾಂಸ್ಕೃತಿಕ ಚಳುವಳಿಗಳು",
-
-            // About - History
-            about_history_p1: "ಭಾರತ ವಿದ್ಯಾರ್ಥಿ ಫೆಡರೇಶನ್ (SFI) 1970 ರಲ್ಲಿ ಸ್ಥಾಪಿಸಲ್ಪಟ್ಟಿತು. ಶಿಕ್ಷಣದ ವಾಣಿಜ್ಯೀಕರಣ ಮತ್ತು ಖಾಸಗೀಕರಣವನ್ನು ವಿರೋಧಿಸಿ ರಾಷ್ಟ್ರ ಮಟ್ಟದಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿ ಸಮುದಾಯವನ್ನು ಒಂದುಗೂಡಿಸಲು ಇದನ್ನು ರಚಿಸಲಾಯಿತು. ಐದು ದಶಕಗಳಲ್ಲಿ SFI ಭಾರತದ ಅತಿ ದೊಡ್ಡ ಪ್ರಗತಿಪರ ವಿದ್ಯಾರ್ಥಿ ಸಂಘಟನೆಯಾಗಿ ಬೆಳೆದಿದೆ.",
-            about_history_p2: "ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲೆಯಲ್ಲಿ SFI ಹೋರಾಟಗಳ ಶ್ರೀಮಂತ ಇತಿಹಾಸ ಹೊಂದಿದೆ. ಶೈಕ್ಷಣಿಕ ಕೇಂದ್ರವಾದ ಮಂಗಳೂರು ಮತ್ತು ಸುತ್ತಲಿನ ತಾಲೂಕುಗಳಲ್ಲಿ SFI ಬಸ್ ಪಾಸ್, ಸರ್ಕಾರಿ ಹಾಸ್ಟೆಲ್‌ಗಳ ಸೌಲಭ್ಯ, ಮತ್ತು ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ಪ್ರಾತಿನಿಧ್ಯಕ್ಕಾಗಿ ಹೋರಾಟ ನಡೆಸಿದೆ.",
-
-            // About - Ideology
-            ideology_intro: "ಈ ಮೂರು ಪದಗಳು SFI ಯ ಮೂಲ ಸಿದ್ಧಾಂತವನ್ನು ಪ್ರತಿನಿಧಿಸುತ್ತವೆ. ಬಿಳಿ ಬಾವುಟದ ಮೇಲಿನ ಐದು ತೊಟ್ಟಿನ ಕೆಂಪು ನಕ್ಷತ್ರದಲ್ಲಿ ಅವು ಸಂಕೇತಿಸಲ್ಪಟ್ಟಿವೆ.",
-            ideology1_title: "ಸ್ವಾತಂತ್ರ್ಯ",
-            ideology1_desc: "ಸಾಮ್ರಾಜ್ಯಶಾಹಿ ಪ್ರಭಾವ ಮತ್ತು ವಾಣಿಜ್ಯ ಹಿತಾಸಕ್ತಿಗಳಿಂದ ಮುಕ್ತವಾದ ಶಿಕ್ಷಣ ವ್ಯವಸ್ಥೆ. ವಿದ್ಯಾರ್ಥಿಗಳಲ್ಲಿ ವೈಜ್ಞಾನಿಕ ಮನೋಭಾವ ಮತ್ತು ಪ್ರಗತಿಪರ ಚಿಂತನೆಯನ್ನು ಬೆಳೆಸುವುದು.",
-            ideology2_title: "ಪ್ರಜಾಪ್ರಭುತ್ವ",
-            ideology2_desc: "ವಿದ್ಯಾರ್ಥಿಗಳ ಸಂಘಟಿಸುವ, ಮಾತನಾಡುವ ಮತ್ತು ಮತ ಚಲಾಯಿಸುವ ಹಕ್ಕು. ಎಲ್ಲ ಕಾಲೇಜು ಮತ್ತು ವಿಶ್ವವಿದ್ಯಾಲಯಗಳಲ್ಲಿ ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ವಿದ್ಯಾರ್ಥಿ ಸಂಘ ಚುನಾವಣೆಗಳನ್ನು ಮರುಸ್ಥಾಪಿಸಲು SFI ಆಗ್ರಹಿಸುತ್ತದೆ.",
-            ideology3_title: "ಸಮಾಜವಾದ",
-            ideology3_desc: "ಶೋಷಣೆ ಮುಕ್ತ ಸಮಾಜಕ್ಕಾಗಿ ಹೋರಾಡುವುದು. ಗುಣಮಟ್ಟದ ಶಿಕ್ಷಣ ಮಾರಾಟದ ಸರಕಲ್ಲ, ಬದಲಾಗಿ ಜಾತಿ ಅಥವಾ ಆರ್ಥಿಕ ಸ್ಥಿತಿ ಏನೇ ಆಗಿರಲಿ ಎಲ್ಲರಿಗೂ ಲಭ್ಯವಾಗಬೇಕಾದ ಮೂಲಭೂತ ಮಾನವ ಹಕ್ಕು ಎಂದು ನಾವು ನಂಬುತ್ತೇವೆ.",
-
-            // About - Leadership
-            leadership_intro: "ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲೆಯಿಂದ ರಾಷ್ಟ್ರ ಸಮಿತಿಯವರೆಗೆ ವಿದ್ಯಾರ್ಥಿ ಚಳುವಳಿಯನ್ನು ಮುನ್ನಡೆಸುವ ಹುದ್ದೆ ಪ್ರತಿನಿಧಿಗಳನ್ನು ಭೇಟಿ ಮಾಡಿ.",
-            leader1_title: "ಜಿಲ್ಲಾ ಕಾರ್ಯದರ್ಶಿ, ದಕ್ಷಿಣ ಕನ್ನಡ",
-            leader1_desc: "ಮಂಗಳೂರಿನಾದ್ಯಂತ ಮೂಲಸೌಕರ್ಯ ಕೊರತೆ, ಬಸ್ ಪಾಸ್ ಸಮಸ್ಯೆ ಮತ್ತು ಶುಲ್ಕ ನಿಯಂತ್ರಣಕ್ಕಾಗಿ ಸ್ಥಳೀಯ ಹೋರಾಟಗಳನ್ನು ಮುನ್ನಡೆಸುವುದು ಮತ್ತು ಪ್ರತಿಭಟನೆ ಆಯೋಜಿಸುವುದು.",
-            leader2_title: "ಜಿಲ್ಲಾ ಅಧ್ಯಕ್ಷ, ದಕ್ಷಿಣ ಕನ್ನಡ",
-            leader2_desc: "ರಾಜ್ಯ ಮಟ್ಟದ ವಿದ್ಯಾರ್ಥಿ ಹೋರಾಟಗಳ ಸಮನ್ವಯ, ಶಿಕ್ಷಣ ಮಂಡಳಿಗಳಲ್ಲಿ ಪ್ರಾತಿನಿಧ್ಯ ಮತ್ತು ರಾಜ್ಯ ವ್ಯಾಪಿ ನೀತಿ ಮಧ್ಯಸ್ಥಿಕೆ.",
-            leader3_title: "ಕರ್ನಾಟಕ ರಾಜ್ಯ ಅಧ್ಯಕ್ಷ",
-            leader3_desc: "ರಾಜ್ಯ ಮಟ್ಟದ ವಿದ್ಯಾರ್ಥಿ ಹೋರಾಟಗಳ ಸಮನ್ವಯ, ಶಿಕ್ಷಣ ಮಂಡಳಿಗಳಲ್ಲಿ ಪ್ರಾತಿನಿಧ್ಯ ಮತ್ತು ರಾಜ್ಯ ವ್ಯಾಪಿ ನೀತಿ ಮಧ್ಯಸ್ಥಿಕೆ.",
-            leader4_title: "ಕರ್ನಾಟಕ ರಾಜ್ಯ ಕಾರ್ಯದರ್ಶಿ",
-            leader4_desc: "ರಾಜ್ಯ ಹೋರಾಟಗಳ ಆಯೋಜನೆ, ಜಿಲ್ಲೆಗಳಾದ್ಯಂತ ಸಂಘಟನೆ ನಿರ್ಮಾಣ ಮತ್ತು ರಾಜ್ಯ ಶಿಕ್ಷಣ ಇಲಾಖೆಗೆ ನಿಯೋಗ ಕಳುಹಿಸುವುದು.",
-            leader5_title: "ಅಖಿಲ ಭಾರತ ಅಧ್ಯಕ್ಷ",
-            leader5_desc: "ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳು, ಶಿಕ್ಷಣ ಬಜೆಟ್ ವಿಸ್ತರಣೆ ಮತ್ತು ಕೇಂದ್ರ ಶಿಕ್ಷಣ ನೀತಿಗಳ ವಿರುದ್ಧ ರಾಷ್ಟ್ರ ಮಟ್ಟದ ಹೋರಾಟಗಳ ನೇತೃತ್ವ.",
-
-            // About - Structure
-            structure_intro: "SFI ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ಕೇಂದ್ರೀಕರಣದ ಆಧಾರದ ಮೇಲೆ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ. ಮುಕ್ತ ಚರ್ಚೆಗಳ ನಂತರ ಸಾಮೂಹಿಕ ನಿರ್ಧಾರ ತೆಗೆದುಕೊಳ್ಳಲಾಗುತ್ತದೆ. ನಮ್ಮ ರಚನೆ ತಳಮಟ್ಟದ ಕಾಲೇಜು ಮಟ್ಟದಿಂದ ರಾಷ್ಟ್ರೀಯ ಕಾರ್ಯಕಾರಿ ಮಂಡಳಿವರೆಗೆ ಪ್ರಾತಿನಿಧ್ಯ ಖಾತ್ರಿಪಡಿಸುತ್ತದೆ.",
-            struct_unit_title: "ಪ್ರಾಥಮಿಕ / ಘಟಕ ಸಮಿತಿ",
-            struct_unit_desc: "ಪ್ರತ್ಯೇಕ ಕಾಲೇಜು ಮತ್ತು ಹೈಸ್ಕೂಲ್‌ಗಳಲ್ಲಿ ರಚಿಸಲಾಗಿದೆ. ವಿದ್ಯಾರ್ಥಿ ಸಮುದಾಯದ ನೇರ ಸಂಪರ್ಕ.",
-            struct_taluk_title: "ಸ್ಥಳೀಯ / ತಾಲೂಕು ಸಮಿತಿ",
-            struct_taluk_desc: "ನಿರ್ದಿಷ್ಟ ತಾಲೂಕುಗಳಲ್ಲಿ (ಮಂಗಳೂರು, ಬಂಟ್ವಾಳ, ಪುತ್ತೂರು, ಸುಳ್ಯ, ಬೆಳ್ತಂಗಡಿ) ಘಟಕ ಚಟುವಟಿಕೆಗಳನ್ನು ಸಮನ್ವಯಗೊಳಿಸುತ್ತದೆ.",
-            struct_district_title: "ಜಿಲ್ಲಾ ಸಮಿತಿ (SFI DK)",
-            struct_district_desc: "ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲೆಯ ಆಡಳಿತ ಮಂಡಳಿ, ಸ್ಥಳೀಯ ತಾಲೂಕು ಸಮಿತಿಗಳ ಮತ್ತು ವಿದ್ಯಾರ್ಥಿ ಹೋರಾಟಗಳ ನಿರ್ದೇಶನ.",
-            struct_state_title: "ರಾಜ್ಯ ಸಮಿತಿ",
-            struct_state_desc: "ಕರ್ನಾಟಕದ ಎಲ್ಲ ಜಿಲ್ಲಾ ಸಮಿತಿಗಳನ್ನು ಸಮನ್ವಯಗೊಳಿಸುತ್ತದೆ, ಬೆಂಗಳೂರಿನಲ್ಲಿ ಮುಖ್ಯ ಕಾರ್ಯಾಲಯ.",
-            struct_central_title: "ಕೇಂದ್ರ ಕಾರ್ಯಕಾರಿ ಸಮಿತಿ (CEC)",
-            struct_central_desc: "ಭಾರತದ ಎಲ್ಲ ರಾಜ್ಯಗಳಲ್ಲಿ SFI ಯನ್ನು ಪ್ರತಿನಿಧಿಸುವ ಅತ್ಯುನ್ನತ ರಾಷ್ಟ್ರೀಯ ಮಂಡಳಿ.",
-
-            // Grievance success
-            grievance_success_title: "ಸಮಸ್ಯೆ ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ",
-            grievance_success_msg1: "ಸಂಪರ್ಕಿಸಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದ. ನಿಮ್ಮ ಕುಂದುಕೊರತೆಯನ್ನು ಟಿಕೆಟ್ ಅಡಿ ನೋಂದಾಯಿಸಲಾಗಿದೆ:",
-            grievance_success_msg2: "ನಮ್ಮ ಜಿಲ್ಲಾ ವಿದ್ಯಾರ್ಥಿ ಸಮನ್ವಯ ತಂಡ 24-48 ಗಂಟೆಗಳಲ್ಲಿ ಸಮಸ್ಯೆ ಪರಿಶೀಲಿಸಿ ಸಂಪರ್ಕಿಸಲಿದೆ. ಹೋರಾಡಿ!",
-            grievance_another_btn: "ಮತ್ತೊಂದು ಸಮಸ್ಯೆ ಸಲ್ಲಿಸಿ",
-
-            // Join / Ticket & Payment
-            step1_label: "ಸದಸ್ಯ ವಿವರಗಳು",
-            step2_label: "₹2 ಶುಲ್ಕ ಪಾವತಿಸಿ",
-            step3_label: "ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್",
-
-            btn_next_payment: "ಮುಂದೆ: ಪಾವತಿಗೆ ತೆರಳಿ (₹2) →",
-            payment_badge: "ಸುರಕ್ಷಿತ UPI ಪಾವತಿ",
-            payment_title: "QR ಸ್ಕ್ಯಾನ್ ಮಾಡಿ ₹2 ಸದಸ್ಯತ್ವ ಶುಲ್ಕ ಪಾವತಿಸಿ",
-            payment_desc: "ನಿಮ್ಮ SFI ಸದಸ್ಯತ್ವ ನೋಂದಣಿಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಲು ಯಾವುದೇ UPI ಆಪ್ (GPay, PhonePe, Paytm, BHIM) ಬಳಸಿ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ.",
-            upi_label: "UPI ID:",
-            timer_title: "ಸಮಯ ಮುಕ್ತಾಯಗೊಳ್ಳುತ್ತದೆ",
-            timer_note: "ನಿಮ್ಮ ತಕ್ಷಣದ ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್ ಪಡೆಯಲು ಸಮಯ ಮುಕ್ತಾಯಗೊಳ್ಳುವ ಮೊದಲು ಪಾವತಿ ಪೂರ್ಣಗೊಳಿಸಿ.",
-            btn_confirm_payment: "ನಾನು ಪಾವತಿ ಪೂರ್ಣಗೊಳಿಸಿದ್ದೇನೆ (₹2)",
-            btn_back_form: "← ಅರ್ಜಿ ಫಾರ್ಮ್‌ಗೆ ಹಿಂತಿರುಗಿ",
-
-            ticket_title: "SFI ಸದಸ್ಯತ್ವ ಪತ್ರ",
-            ticket_subtitle: "ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಘಟಕ",
-            ticket_label_name: "ಸದಸ್ಯರ ಹೆಸರು",
-            ticket_label_id: "ಸದಸ್ಯತ್ವ ಸಂಖ್ಯೆ",
-            ticket_label_college: "ಕಾಲೇಜು",
-            ticket_label_taluk: "ತಾಲೂಕು",
-            ticket_label_course: "ಕೋರ್ಸ್ ಮತ್ತು ವರ್ಷ",
-            ticket_label_date: "ನೋಂದಣಿ ದಿನಾಂಕ",
-            ticket_footer: "\"ಓದು ಮತ್ತು ಹೋರಾಟ!\"",
-            join_success_congrats: "ಅಭಿನಂದನೆಗಳು, ನಿಮ್ಮ ಪಾವತಿ ದೃಢೀಕರಿಸಲಾಗಿದೆ & ನೋಂದಾಯಿಸಲ್ಪಟ್ಟಿದ್ದೀರಿ! ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್ ಇಮೇಲ್‌ಗೆ ಕಳುಹಿಸಲಾಗಿದೆ.",
-            join_success_info: "ನಿಮ್ಮ ಕಾಲೇಜು ಘಟಕದ ಪ್ರತಿನಿಧಿ ಶೀಘ್ರದಲ್ಲೇ ಸಂಪರ್ಕಿಸಲಿದ್ದಾರೆ. ಈ ಕಾರ್ಡ್‌ನ ಸ್ಕ್ರೀನ್‌ಶಾಟ್ ಇಟ್ಟುಕೊಳ್ಳಿ.",
-            join_register_another: "ಮತ್ತೊಬ್ಬ ವಿದ್ಯಾರ್ಥಿ ನೋಂದಾಯಿಸಿ",
-
-            // Select Options & Helpline
-            opt_select_taluk: "ತಾಲೂಕು ಆಯ್ಕೆಮಾಡಿ",
-            opt_select_year: "ವರ್ಷ ಆಯ್ಕೆಮಾಡಿ",
-            opt_y1: "1ನೇ ವರ್ಷ",
-            opt_y2: "2ನೇ ವರ್ಷ",
-            opt_y3: "3ನೇ ವರ್ಷ",
-            opt_y4: "4ನೇ ವರ್ಷ / ಮೇಲ್ಪಟ್ಟು",
-            opt_pu1: "PU - 1ನೇ ವರ್ಷ (11ನೇ)",
-            opt_pu2: "PU - 2ನೇ ವರ್ಷ (12ನೇ)",
-
-            helpline_title: "SFI DK ವಿದ್ಯಾರ್ಥಿ ಸಹಾಯವಾಣಿ",
-            helpline_desc: "ತಕ್ಷಣದ ಸಹಾಯ ಅಥವಾ ತುರ್ತು ಪರಿಸ್ಥಿತಿಗಾಗಿ, ನಮ್ಮ ಪ್ರತಿನಿಧಿಗಳನ್ನು ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಬಹುದು:",
-            office_mangaluru: "ಜಿಲ್ಲಾ ಕಛೇರಿ (ಮಂಗಳೂರು)",
-            office_email: "ಇಮೇಲ್ ವಿಳಾಸ",
-            office_address_title: "ಜಿಲ್ಲಾ ಕಛೇರಿ ವಿಳಾಸ",
-            office_address: "1ನೇ ಮಹಡಿ, ವಿಕಾಸ್, ಸ್ಟೇಟ್ ಬ್ಯಾಂಕ್ ಹತ್ತಿರ, ಮಂಗಳೂರು, ದಕ್ಷಿಣ ಕನ್ನಡ - 575001",
-            resources_title: "ಪ್ರಮುಖ ವಿದ್ಯಾರ್ಥಿ ಸಂಪನ್ಮೂಲಗಳು",
-            resources_desc: "ದಕ್ಷಿಣ ಕನ್ನಡದ ವಿದ್ಯಾರ್ಥಿಗಳು ಹೆಚ್ಚಾಗಿ ಬಳಸುವ ವೆಬ್‌ಸೈಟ್‌ಗಳು:",
-            res_mu: "ಮಂಗಳೂರು ವಿಶ್ವವಿದ್ಯಾಲಯ ವೆಬ್‌ಸೈಟ್",
-            res_ssp: "ರಾಜ್ಯ ವಿದ್ಯಾರ್ಥಿವೇತನ ಪೋರ್ಟಲ್ (SSP)",
-            res_bus: "KSRTC ವಿದ್ಯಾರ್ಥಿ ಬಸ್ ಪಾಸ್ ಪೋರ್ಟಲ್",
-
-            footer_org_name: "ಭಾರತ ವಿದ್ಯಾರ್ಥಿ ಫೆಡರೇಶನ್",
-            footer_motto: "\"ಓದು ಮತ್ತು ಹೋರಾಟ. ಸ್ವಾತಂತ್ರ್ಯ, ಪ್ರಜಾಪ್ರಭುತ್ವ, ಸಮಾಜವಾದ.\"",
-            footer_admin_link: "ನಿರ್ವಾಹಕ ಪ್ರವೇಶ ದ್ವಾರ",
-            footer_copyright: "© 2026 SFI ದಕ್ಷಿಣ ಕನ್ನಡ. ಪ್ರಗತಿಪರ ವಿದ್ಯಾರ್ಥಿ ಚಳುವಳಿಗಾಗಿ ನಿರ್ಮಿಸಲಾಗಿದೆ. ಸರ್ವ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.",
-            footer_sub_text: "SFI ಅಖಿಲ ಭಾರತ ಸಮಿತಿಯೊಂದಿಗೆ ಸಂಯೋಜಿತವಾಗಿದೆ. ಮಂಗಳೂರು, ಬಂಟ್ವಾಳ, ಪುತ್ತೂರು, ಸುಳ್ಯ, ಬೆಳ್ತಂಗಡಿ, ಮೂಡುಬಿದಿರೆ ಮತ್ತು ಕಡಬದಲ್ಲಿ ಸಕ್ರಿಯವಾಗಿದೆ.",
-
-            // Admin Panel
-            admin_portal_title: "ನಿರ್ವಾಹಕ ಪ್ರವೇಶ ದ್ವಾರ",
-            admin_portal_desc: "ನೋಂದಣಿ, ಕುಂದುಕೊರತೆ ಮತ್ತು ಸುದ್ದಿ ಪ್ರಕಟಿಸಲು ನಿರ್ವಾಹಕ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ.",
-            admin_password_label: "ಪಾಸ್‌ವರ್ಡ್",
-            admin_auth_btn: "ದೃಢೀಕರಿಸಿ",
-            admin_auth_error: "ತಪ್ಪಾದ ಪಾಸ್‌ವರ್ಡ್. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
-            admin_dashboard_title: "ನಿರ್ವಾಹಕ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
-            admin_dashboard_subtitle: "SFI ದಕ್ಷಿಣ ಕನ್ನಡ ನಿರ್ವಹಣಾ ಕೇಂದ್ರ",
-            admin_logout_btn: "ಹೊರಗೆ ಹೋಗಿ",
-            admin_tab_members: "ಸದಸ್ಯ ನಿರ್ದೇಶಿಕೆ",
-            admin_tab_grievances: "ವಿದ್ಯಾರ್ಥಿ ಸಮಸ್ಯೆಗಳು",
-            admin_tab_news: "ಸುದ್ದಿ ಪ್ರಕಾಶಕ",
-            admin_news_title: "ಹೊಸ ಅಪ್ಡೇಟ್ ಪ್ರಕಟಿಸಿ",
-            admin_news_desc: "ಸುದ್ದಿ, ಹೋರಾಟದ ಘೋಷಣೆ ಅಥವಾ ಪ್ರತಿಭಟನೆ ವಿವರ ಪ್ರಕಟಿಸಿ. ಇದು ತಕ್ಷಣ ಮುಖಪುಟ ಸುದ್ದಿ ಕ್ಯಾರೋಸೆಲ್‌ನಲ್ಲಿ ತೋರಿಸುತ್ತದೆ.",
-
-            // Extended translations
-            logo_title: "ಎಸ್.ಎಫ್.ಐ ಡಿ.ಕೆ",
-            logo_subtitle: "ದ.ಕ ಜಿಲ್ಲೆ",
-            audio_btn: "ಎಸ್‌ಎಫ್‌ಐ ಹಾಡುಗಳು",
-            audio_panel_title: "ಎಸ್‌ಎಫ್‌ಐ ಹೋರಾಟದ ಹಾಡುಗಳು",
-            btn_download_statement: "ಪತ್ರಿಕಾ ಪ್ರಕಟಣೆ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ (PDF)",
-            lib_card1_title: "ಮಂಗಳೂರು ವಿಶ್ವವಿದ್ಯಾನಿಲಯದ ಹಳೆಯ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳು",
-            lib_card1_desc: "ಎನ್‌ಇಪಿ ಯೋಜನೆಯಡಿ ಬಿಎ, ಬಿಕಾಂ, ಬಿಸ್ಸಿ, ಬಿಬಿಎ ಮತ್ತು ಬಿಸಿಎ ಕೋರ್ಸ್‌ಗಳ ಹಿಂದಿನ 5 ವರ್ಷಗಳ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.",
-            lib_btn_download_zip: "ZIP ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ",
-            lib_card2_title: "ಪಿಯುಸಿ ಬೋರ್ಡ್ ನೋಟ್ಸ್ ಮತ್ತು ಮಾದರಿಗಳು",
-            lib_card2_desc: "ನಮ್ಮ ವಿಷಯ ತಜ್ಞರು ಸಿದ್ಧಪಡಿಸಿದ 1ನೇ ಮತ್ತು 2ನೇ ಪಿಯುಸಿ ವಾಣಿಜ್ಯ ಮತ್ತು ಕಲಾ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಸಮಗ್ರ ಅಧ್ಯಯನ ಸಾಮಗ್ರಿಗಳು.",
-            lib_btn_download_pdf: "PDF ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ",
-            lib_card3_title: "ಸ್ಪರ್ಧಾತ್ಮಕ ಪರೀಕ್ಷೆಗಳು (KPSC/UPSC)",
-            lib_card3_desc: "ಆಕಾಂಕ್ಷಿಗಳಿಗಾಗಿ ಸಾಮಾನ್ಯ ಜ್ಞಾನದ ಸಂಕಲನಗಳು, ಪ್ರಚಲಿತ ವಿದ್ಯಮಾನಗಳ ಡೈಜೆಸ್ಟ್‌ಗಳು ಮತ್ತು FDA/SDA ಪಠ್ಯಕ್ರಮ ಮಾರ್ಗದರ್ಶಿಗಳು.",
-            lib_btn_download_material: "ಅಧ್ಯಯನ ಸಾಮಗ್ರಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ",
-            opt_coach_select: "ತರಬೇತಿ ಕಾರ್ಯಕ್ರಮವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
-            opt_coach_upsc: "KPSC / UPSC ಫೌಂಡೇಶನ್ ಕೋರ್ಸ್",
-            opt_coach_banking: "ಬ್ಯಾಂಕಿಂಗ್ / SSC ಸಿದ್ಧತೆ",
-            opt_coach_net: "UGC NET / SLET ದೃಷ್ಟಿಕೋನ",
-            opt_coach_general: "ಸಾಮಾನ್ಯ ಪದವಿ ವೃತ್ತಿ ಮಾರ್ಗದರ್ಶನ",
-            btn_register_coach: "ಉಚಿತ ಕಾರ್ಯಾಗಾರಕ್ಕೆ ನೋಂದಾಯಿಸಿ",
-            btn_apply_ambassador: "ಕ್ಯಾಂಪಸ್ ರಾಯಭಾರಿಯಾಗಲು ಅರ್ಜಿ ಸಲ್ಲಿಸಿ",
-            about_tab_articles: "ವಿದ್ಯಾರ್ಥಿ ಲೇಖನಗಳು",
-            about_tab_taluk_explorer: "ದ.ಕ ತಾಲೂಕು ಅನ್ವೇಷಕ",
-            achieve_badge: "ವಿದ್ಯಾರ್ಥಿ ಸಾಧನೆ",
-            achieve_subtitle: "ನಮ್ಮ ಜಿಲ್ಲೆಯಾದ್ಯಂತದ ಸಹಪಾಠಿಗಳ ಶೈಕ್ಷಣಿಕ, ಸಾಂಸ್ಕೃತಿಕ ಮತ್ತು ಕ್ರೀಡಾ ಸಾಧನೆಗಳನ್ನು ಆಚರಿಸಲಾಗುತ್ತಿದೆ.",
-            achieve_title: "SFI DK ವಿದ್ಯಾರ್ಥಿ ಸಾಧಕರು",
-            amb_subtitle: "ನಿಮ್ಮ ಕಾಲೇಜಿನಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿ ಚಳುವಳಿಯನ್ನು ಮುನ್ನಡೆಸಿ! SFI ಅನ್ನು ಪ್ರತಿನಿಧಿಸಲು, ಸ್ಥಳೀಯ ಕಾರ್ಯಕ್ರಮಗಳನ್ನು ಸಂಘಟಿಸಲು ಮತ್ತು ವಿದ್ಯಾರ್ಥಿಗಳ ಧ್ವನಿಯಾಗಿ ಕಾರ್ಯನಿರ್ವಹಿಸಲು ನಾವು ಉತ್ಸಾಹಿ ವ್ಯಕ್ತಿಗಳನ್ನು ಹುಡುಕುತ್ತಿದ್ದೇವೆ.",
-            amb_title: "SFI ಕ್ಯಾಂಪಸ್ ರಾಯಭಾರಿಯಾಗಿ",
-            anon_badge: "ಗೌಪ್ಯ ವರದಿ",
-            anon_college_label: "ಕಾಲೇಜು / ಸಂಸ್ಥೆಯ ಹೆಸರು",
-            anon_desc_label: "ಘಟನೆಯ ವಿವರಗಳು",
-            anon_subtitle: "ರ್ಯಾಗಿಂಗ್, ಕಿರುಕುಳ, ಕಾನೂನುಬಾಹಿರ ಶುಲ್ಕ ವಸೂಲಿ ಅಥವಾ ಕಾಲೇಜು ಮೂಲಸೌಕರ್ಯ ಸಮಸ್ಯೆಗಳನ್ನು ಅನಾಮಧೇಯವಾಗಿ ಸುರಕ್ಷಿತವಾಗಿ ವರದಿ ಮಾಡಿ. ನಿಮ್ಮ ಗುರುತು ಗೌಪ್ಯವಾಗಿರುತ್ತದೆ.",
-            anon_title: "ಅನಾಮಧೇಯ ಕುಂದುಕೊರತೆ ಮತ್ತು ಆಂಟಿ-ರ್ಯಾಗಿಂಗ್ ಪೋರ್ಟಲ್",
-            anon_type_label: "ಘಟನೆಯ ಪ್ರಕಾರ",
-            articles_subtitle: "ನಮ್ಮ ಒಡನಾಡಿಗಳು ಬರೆದ ಶಿಕ್ಷಣ, ಪ್ರಗತಿಪರ ಆಲೋಚನೆಗಳು ಮತ್ತು ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳ ಬಗೆಗಿನ ಲೇಖನಗಳು.",
-            articles_title: "ವಿದ್ಯಾರ್ಥಿ ಧ್ವನಿ ಮತ್ತು ಅಭಿಪ್ರಾಯ ಬ್ಲಾಗ್",
-            blood_badge: "ಜೀವ ರಕ್ಷಕರು",
-            blood_subtitle: "ಜಿಲ್ಲೆಯ ಅತಿ ದೊಡ್ಡ ವಿದ್ಯಾರ್ಥಿ ರಕ್ತದಾನಿಗಳ ನೋಂದಣಿಗೆ ಸೇರಿ. ದಾನಿಯಾಗಿ ನೋಂದಾಯಿಸಿ ಅಥವಾ ತುರ್ತು ಸಂದರ್ಭದಲ್ಲಿ ರಕ್ತದ ಸಹಾಯಕ್ಕಾಗಿ ವಿನಂತಿಸಿ.",
-            blood_title: "SFI DK ರಕ್ತದಾನ ಜಾಲ",
-            coach_badge: "ವೃತ್ತಿ ಮಾರ್ಗದರ್ಶನ",
-            coach_course: "ಉದ್ದೇಶಿತ ಪರೀಕ್ಷೆ / ಗುರಿ",
-            coach_name: "ಪೂರ್ಣ ಹೆಸರು",
-            coach_phone: "WhatsApp ಸಂಖ್ಯೆ",
-            coach_subtitle: "ಸ್ಪರ್ಧಾತ್ಮಕ ಪರೀಕ್ಷೆಗಳು, ವೃತ್ತಿ ಮಾರ್ಗದರ್ಶನ ಮತ್ತು ಕೌಶಲ್ಯಾಭಿವೃದ್ಧಿಗಾಗಿ SFI DK ಆಯೋಜಿಸುವ ಉಚಿತ ತರಬೇತಿ ಕಾರ್ಯಾಗಾರಗಳಿಗಾಗಿ ನೋಂದಾಯಿಸಿ.",
-            coach_title: "ಉಚಿತ ತರಬೇತಿ ಮತ್ತು ವೃತ್ತಿ ದೃಷ್ಟಿಕೋನ",
-            e1_desc: "ಡಾನ್-ಬಾಸ್ಕೋ ಹಾಲ್, ಜ್ಯೋತಿ ಸರ್ಕಲ್, ಮಂಗಳೂರು | ಬೆಳಿಗ್ಗೆ 9:30",
-            e1_title: "ಸ್ವಾತಂತ್ರ್ಯ ದಿನಾಚರಣೆಯ ವಿದ್ಯಾರ್ಥಿ ಧ್ವಜಾರೋಹಣ ಮತ್ತು ಸ್ವಾತಂತ್ರ್ಯ ನಡಿಗೆ",
-            e2_desc: "KSRTC ಬಸ್ ನಿಲ್ದಾಣ ವಿಭಾಗೀಯ ಕಛೇರಿ, ಮಂಗಳೂರು | ಬೆಳಿಗ್ಗೆ 11:00",
-            e2_title: "KSRTC ವಿದ್ಯಾರ್ಥಿ ಬಸ್ ಪಾಸ್ ನಿಯೋಗದ ಸಭೆ",
-            e3_desc: "ಟೌನ್ ಹಾಲ್, ಮಂಗಳೂರು | ಮಧ್ಯಾಹ್ನ 2:00",
-            e3_title: "ಸಾರ್ವಜನಿಕ ಶಿಕ್ಷಣ ಉಳಿಸಿ ಸೆಮಿನಾರ್ ಮತ್ತು ಶಿಕ್ಷಕರ ವೇದಿಕೆ",
-            etag_assembly: "ಜಿಲ್ಲಾ ಸಮಾವೇಶ",
-            etag_buspass: "ಬಸ್ ಪಾಸ್ ಚಳುವಳಿ",
-            etag_seminar: "ಶೈಕ್ಷಣಿಕ ಸೆಮಿನಾರ್",
-            events_badge: "ಜಿಲ್ಲಾ ವೇಳಾಪಟ್ಟಿ",
-            events_subtitle: "ದಕ್ಷಿಣ ಕನ್ನಡದಾದ್ಯಂತ ನಿಗದಿಯಾಗಿರುವ ಪ್ರಮುಖ ರ‍್ಯಾಲಿಗಳು, ಕಾಲೇಜು ಸಮಾವೇಶಗಳು ಮತ್ತು ಪ್ರಚಾರಗಳು.",
-            events_title: "ಮುಂಬರುವ ಕಾರ್ಯಕ್ರಮಗಳು ಮತ್ತು ಪ್ರತಿಭಟನಾ ಕ್ಯಾಲೆಂಡರ್",
-            faq_subtitle: "ದಕ್ಷಿಣ ಕನ್ನಡದಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿ ಬಸ್ ಪಾಸ್‌ಗಳು, ಹಾಸ್ಟೆಲ್‌ಗಳು ಮತ್ತು ಕಾಲೇಜು ಶುಲ್ಕ ನಿಯಮಗಳ ಬಗ್ಗೆ ನೀವು ತಿಳಿದುಕೊಳ್ಳಬೇಕಾದ ಎಲ್ಲವೂ.",
-            faq_title: "ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳು ಮತ್ತು ಬಸ್ ಪಾಸ್ / ಹಾಸ್ಟೆಲ್ FAQ",
-            history_t1_desc: "ತಿರುವನಂತಪುರದಲ್ಲಿ ನಡೆದ ಅಖಿಲ ಭಾರತ ವಿದ್ಯಾರ್ಥಿ ಸಮ್ಮೇಳನದಲ್ಲಿ SFI ಸ್ಥಾಪನೆಯಾಯಿತು, 'ಓದು ಮತ್ತು ಹೋರಾಟ' ಘೋಷಣೆಯನ್ನು ಪ್ರಸ್ತುತಪಡಿಸಿತು.",
-            history_t1_title: "ಅಖಿಲ ಭಾರತ ಸ್ಥಾಪನೆ",
-            history_t2_desc: "ಸರ್ಕಾರಿ ಮತ್ತು ಖಾಸಗಿ ಕಾಲೇಜುಗಳಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿಗಳನ್ನು ಪ್ರತಿನಿಧಿಸಲು ದಕ್ಷಿಣ ಕನ್ನಡದಲ್ಲಿ ಜಿಲ್ಲಾ ಘಟಕಗಳ ಸ್ಥಾಪನೆ.",
-            history_t2_title: "ಕರಾವಳಿ ಕರ್ನಾಟಕದಲ್ಲಿ ಸ್ಥಾಪನೆ",
-            history_t3_desc: "ರಾಷ್ಟ್ರೀಯ ಶಿಕ್ಷಣ ನೀತಿಗಳು, ನೀಟ್ ಭ್ರಷ್ಟಾಚಾರ ಮತ್ತು ಸ್ಥಳೀಯ ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳ ವಿರುದ್ಧ ವಿದ್ಯಾರ್ಥಿಗಳನ್ನು ಸಂಘಟಿಸುವುದು.",
-            history_t3_title: "ಆಧುನಿಕ ಹೋರಾಟಗಳ ನೇತೃತ್ವ",
-            join_download_card: "ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ (PNG)",
-            lib_badge: "ಉಚಿತ ಸಂಪನ್ಮೂಲಗಳು",
-            lib_subtitle: "ಮಂಗಳೂರು ವಿಶ್ವವಿದ್ಯಾನಿಲಯದ ಹಿಂದಿನ ವರ್ಷದ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳು, PU ಟಿಪ್ಪಣಿಗಳು ಮತ್ತು SFI DK ಒದಗಿಸಿದ ಸ್ಪರ್ಧಾತ್ಮಕ ಪರೀಕ್ಷೆಯ ಅಧ್ಯಯನ ಸಾಮಗ್ರಿಗಳಿಗೆ ಉಚಿತ ಪ್ರವೇಶ.",
-            lib_title: "SFI ಡಿಜಿಟಲ್ ಲೈಬ್ರರಿ ಮತ್ತು ಅಧ್ಯಯನ ಸಾಮಗ್ರಿಗಳು",
-            news_badge: "ಮಾಧ್ಯಮ ಮತ್ತು ಅಪ್ಡೇಟ್",
-            news_title: "ದೈನಂದಿನ ಸುದ್ದಿಗಳು ಮತ್ತು ಪತ್ರಿಕಾ ಪ್ರಕಟಣೆಗಳು",
-            poll_badge: "ವಿದ್ಯಾರ್ಥಿ ಧ್ವನಿ ಸಮೀಕ್ಷೆ",
-            poll_o1: "ಹೌದು, ಗ್ರಾಮೀಣ ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ತುರ್ತು ಅವಶ್ಯಕತೆ",
-            poll_o2: "ಇಲ್ಲ, ಸದ್ಯವಿರುವ ಬಸ್ಸುಗಳು ಸಾಕು",
-            poll_q1: "ಗ್ರಾಮೀಣ ದಕ್ಷಿಣ ಕನ್ನಡದಾದ್ಯಂತ ಕಾಲೇಜು ಬೆಳಗಿನ ಅವಧಿಯಲ್ಲಿ (ಬೆಳಿಗ್ಗೆ 8:00 - 9:30) KSRTC ವಿದ್ಯಾರ್ಥಿ ವಿಶೇಷ ಬಸ್‌ಗಳನ್ನು ಪ್ರಾರಂಭಿಸಬೇಕೇ?",
-            poll_subtitle: "ದಕ್ಷಿಣ ಕನ್ನಡದಾದ್ಯಂತ ಇರುವ ಪ್ರಮುಖ ವಿದ್ಯಾರ್ಥಿ ಸಮಸ್ಯೆಗಳ ಕುರಿತು ನಿಮ್ಮ ಮತ ಚಲಾಯಿಸಿ.",
-            poll_title: "ಲೈವ್ ವಿದ್ಯಾರ್ಥಿ ಸಮಸ್ಯೆ ಸಮೀಕ್ಷೆ",
-            poll_voted: "ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ಮತವನ್ನು SFI DK ವಿದ್ಯಾರ್ಥಿ ಅಭಿಪ್ರಾಯ ದಾಖಲೆಯಲ್ಲಿ ನೋಂದಾಯಿಸಲಾಗಿದೆ.",
-            pr1_desc: "ಉಜಿರೆ-ಕೊಕ್ಕಡ ಬಸ್ ಮಾರ್ಗಗಳ ಕುರಿತು ಸಾರಿಗೆ ಅಧಿಕಾರಿಗಳಿಗೆ ಗಡುವು ನೀಡುವ ಪತ್ರಿಕಾ ಹೇಳಿಕೆ.",
-            pr1_title: "ಗ್ರಾಮೀಣ ಕಾಲೇಜು ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ತಕ್ಷಣದ KSRTC ವಿಶೇಷ ಬಸ್‌ಗಳಿಗಾಗಿ SFI DK ಆಗ್ರಹ",
-            pr2_desc: "ಮಂಗಳೂರಿನ ಡಾನ್-ಬಾಸ್ಕೋ ಹಾಲಿನಲ್ಲಿ ನಡೆದ 19ನೇ ಜಿಲ್ಲಾ ಸಮ್ಮೇಳನದಲ್ಲಿ ಅಂಗೀಕರಿಸಲಾದ ಅಧಿಕೃತ ನಿರ್ಣಯ.",
-            pr2_title: "ಕಾಲೇಜು ವಿದ್ಯಾರ್ಥಿ ಸಂಘದ ಚುನಾವಣೆಗಳ ಕುರಿತಂತೆ ಉಚ್ಚ ನ್ಯಾಯಾಲಯದ ತೀರ್ಪಿನ ಪತ್ರಿಕಾ ಪ್ರಕಟಣೆ",
-            press_badge: "ಅಧಿಕೃತ ಪ್ರಕಟಣೆಗಳು",
-            press_subtitle: "SFI ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಸಚಿವಾಲಯದಿಂದ ಬಿಡುಗಡೆ ಮಾಡಲಾದ ಅಧಿಕೃತ ಹೇಳಿಕೆಗಳು.",
-            press_title: "ಪತ್ರಿಕಾ ಪ್ರಕಟಣೆಗಳು ಮತ್ತು ಮಾಧ್ಯಮ ಕೇಂದ್ರ",
-            taluk_all: "ಎಲ್ಲಾ ತಾಲೂಕುಗಳು",
-            taluk_bantwal: "ಬಂಟ್ವಾಳ",
-            taluk_belthangady: "ಬೆಳ್ತಂಗಡಿ",
-            taluk_exp_desc: "ಸಕ್ರಿಯ ಕಾಲೇಜು ಘಟಕಗಳು, ವಿದ್ಯಾರ್ಥಿ ನಾಯಕರು ಮತ್ತು ಸ್ಥಳೀಯ ಹೋರಾಟಗಳನ್ನು ಅನ್ವೇಷಿಸಲು ತಾಲೂಕನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
-            taluk_exp_title: "ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಘಟಕಗಳು",
-            taluk_mangaluru: "ಮಂಗಳೂರು",
-            taluk_puttur: "ಪುತ್ತೂರು",
-            taluk_sullia: "ಸುಳ್ಯ",
-            unit_dir_subtitle: "ದಕ್ಷಿಣ ಕನ್ನಡದ ಕಾಲೇಜುಗಳಾದ್ಯಂತ ಇರುವ SFI ವಿದ್ಯಾರ್ಥಿ ನಾಯಕರನ್ನು ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ.",
-            unit_dir_title: "ಕಾಲೇಜು ಮತ್ತು ತಾಲೂಕು ಘಟಕ ಡೈರೆಕ್ಟರಿ",
-            v1_desc: "ಮಂಗಳೂರಿನ ಜ್ಯೋತಿ ಸರ್ಕಲ್‌ನಲ್ಲಿ ನಡೆದ SFI ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಪ್ರತಿಭಟನೆ.",
-            v1_title: "ನೀಟ್ ಪರೀಕ್ಷೆ ಭ್ರಷ್ಟಾಚಾರ ವಿರೋಧಿ ವಿದ್ಯಾರ್ಥಿ ನಡಿಗೆ",
-            v2_desc: "ಮಂಗಳೂರಿನ ಡಾನ್-ಬಾಸ್ಕೋ ಹಾಲಿನಲ್ಲಿ ಸಾರ್ವಜನಿಕ ಶಿಕ್ಷಣ ರಕ್ಷಣೆಯ ಕುರಿತು ಮಾಡಿದ ಮುಖ್ಯ ಭาಷಣ.",
-            v2_title: "ಜಿಲ್ಲಾ ವಿದ್ಯಾರ್ಥಿ ಸಮ್ಮೇಳನದ ಭಾಷಣ",
-            verify_badge: "ಸದಸ್ಯತ್ವ ಪರಿಶೀಲನೆ",
-            verify_btn: "ಸದಸ್ಯರನ್ನು ದೃಢೀಕರಿಸಿ",
-            verify_subtitle: "ಸದಸ್ಯರ ಐಡಿಯನ್ನು ನಮೂದಿಸುವ ಮೂಲಕ ಯಾವುದೇ SFI DK ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್‌ನ ದೃಢತೆಯನ್ನು ಪರಿಶೀಲಿಸಿ.",
-            verify_title: "ತ್ವರಿತ ಸದಸ್ಯತ್ವ ಕಾರ್ಡ್ ಪರಿಶೀಲನೆ",
-            video_section_subtitle: "ದಕ್ಷಿಣ ಕನ್ನಡದಲ್ಲಿ SFI ನೇತೃತ್ವದ ವಿದ್ಯಾರ್ಥಿ ಸಮಾವೇಶಗಳು, ಬೀದಿ ನಾಟಕಗಳು ಮತ್ತು ಪ್ರತಿಭಟನೆಗಳ ವೀಡಿಯೊ ದೃಶ್ಯಾವಳಿಗಳನ್ನು ವೀಕ್ಷಿಸಿ.",
-            video_section_title: "ವೀಡಿಯೊ ರ‍್ಯಾಲಿಗಳು ಮತ್ತು ಪ್ರತಿಭಟನಾ ಪ್ರದರ್ಶನ",
-            vtag_conference: "ಜಿಲ್ಲಾ ಸಮ್ಮೇಳನ",
-            vtag_protest: "ಪ್ರತಿಭಟನಾ ರ‍್ಯಾಲಿ",
-            wa_desc: "ಸ್ಥಳೀಯ ಹೋರಾಟಗಳು, ಕಾರ್ಯಕ್ರಮಗಳು ಮತ್ತು ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳ ಎಚ್ಚರಿಕೆಗಳ ಕುರಿತು ಅಪ್ಡೇಟ್ ಆಗಿರಲು ನಿಮ್ಮ ತಾಲೂಕಿನ WhatsApp ಸಮುದಾಯಕ್ಕೆ ಸೇರಿಕೊಳ್ಳಿ.",
-            wa_title: "SFI DK ಅಧಿಕೃತ WhatsApp ಗುಂಪುಗಳು",
-            wa_tooltip: "ವಿದ್ಯಾರ್ಥಿ ಸಹಾಯವಾಣಿ",
-            filter_video: "ವೀಡಿಯೊಗಳು",
-            tbtn_mangaluru: "ಮಂಗಳೂರು (ಜಿಲ್ಲಾ ಕೇಂದ್ರ)",
-            tbtn_bantwal: "ಬಂಟ್ವಾಳ",
-            tbtn_puttur: "ಪುತ್ತೂರು",
-            tbtn_belthangady: "ಬೆಳ್ತಂಗಡಿ",
-            tbtn_sullia: "ಸುಳ್ಯ",
-            tbtn_moodbidri: "ಮೂಡುಬಿದಿರೆ",
-            tbtn_kadaba: "ಕಡಬ",
-            art1_tag: "ಶಿಕ್ಷಣ",
-            art1_title: "ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ಸಮಾಜಕ್ಕೆ ಸಾರ್ವಜನಿಕ ಶಿಕ್ಷಣ ಏಕೆ ಅತ್ಯಗತ್ಯ",
-            art1_meta: "ಒಡನಾಡಿ ರಶ್ಮಿ, ಮಂಗಳೂರು ವಿಶ್ವವಿದ್ಯಾನಿಲಯ ಕಾಲೇಜು • ಆಗಸ್ಟ್ 5, 2026",
-            art1_excerpt: "ಖಾಸಗೀಕರಣ ಮತ್ತು ಎನ್‌ಇಪಿ ಅಡಿಯಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿಗಳನ್ನು ಉನ್ನತ ಶಿಕ್ಷಣದಿಂದ ಹೇಗೆ ದೂರ ತಳ್ಳುತ್ತಿದೆ ಎಂಬುದರ ಕುರಿತು ಆಳವಾದ ವಿಲೇಷಣೆ.",
-            art2_tag: "ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳು",
-            art2_title: "ಉನ್ನತ ಶಿಕ್ಷಣದ ವಾಣಿಜ್ಯೀಕರಣ ಮತ್ತು ವಿದ್ಯಾರ್ಥಿಗಳ ಸಾಲದ ಸುಳಿ",
-            art2_meta: "ಒಡನಾಡಿ ಕೌಶಿಕ್, GFGC ಬಂಟ್ವಾಳ • ಜುಲೈ 28, 2026",
-            art2_excerpt: "ಕರಾವಳಿ ಕರ್ನಾಟಕದ ಮೊದಲ ತಲೆಮಾರಿನ ವಿದ್ಯಾರ್ಥಿಗಳ ಮೇಲೆ ವೃತ್ತಿಪರ ಕಾಲೇಜು ಶುಲ್ಕದ ಭಾರಿ ಏರಿಕೆಯ ನೇರ ಪರಿಣಾಮದ ವಿಶ್ಲೇಷಣೆ.",
-            btn_read_article: "ಪೂರ್ಣ ಲೇಖನ ಓದಿ",
-            btn_submit_article: "ನಿಮ್ಮ ಲೇಖನ ಸಲ್ಲಿಸಿ",
-
-            // Homepage Leadership
-            home_leaders_bg: "DistrictCommittee",
-            home_leaders_title: "ದಕ್ಷಿಣ ಕನ್ನಡದಾದ್ಯಂತ SFI ಧ್ಯೇಯವನ್ನು ದೃಷ್ಟಿಕೋನ, ಶಕ್ತಿ ಮತ್ತು ಏಕತೆಯೊಂದಿಗೆ ಮುನ್ನಡೆಸುತ್ತಿರುವ ಸಮರ್ಪಿತ <span class=\"highlight-red\">ನಾಯಕರನ್ನು</span> ಭೇಟಿ ಮಾಡಿ.",
-            home_leaders_view_all: "ಎಲ್ಲರನ್ನೂ ವೀಕ್ಷಿಸಿ",
-            home_leaders_state_committee: "ರಾಜ್ಯ ಸಮಿತಿ",
-            home_leaders_sec: "ಜಿಲ್ಲಾ ಕಾರ್ಯದರ್ಶಿ",
-            home_leaders_pres: "ಜಿಲ್ಲಾ ಅಧ್ಯಕ್ಷ"
-        }
-    };
-
-    function applyLanguage() {
-        const lang = STATE.language;
-
-        // Update toggle button text to show the option they can switch TO
-        const langTextLabel = document.getElementById("lang-text-label");
-        if (langTextLabel) {
-            langTextLabel.innerText = lang === "en" ? "ಕನ್ನಡ" : "EN";
-        }
-
-        // Update audio toggle play/pause text if elements exist
-        if (audioPlayBtn && sfiAudioElement) {
-            const playIcon = document.getElementById("audio-play-icon");
-            const playText = document.getElementById("audio-play-text");
-            if (sfiAudioElement.paused) {
-                if (playIcon) playIcon.setAttribute("data-lucide", "play");
-                if (playText) playText.innerText = lang === "kn" ? "ಪ್ಲೇ" : "Play";
-            } else {
-                if (playIcon) playIcon.setAttribute("data-lucide", "pause");
-                if (playText) playText.innerText = lang === "kn" ? "ವಿರಾಮ" : "Pause";
-            }
-        }
-
-        // Update all standard nodes with data-i18n
-        const i18nElements = document.querySelectorAll("[data-i18n]");
-        i18nElements.forEach(el => {
-            const key = el.getAttribute("data-i18n");
-            if (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) {
-                // If element has a child with class 'required', preserve it
-                const reqSpan = el.querySelector(".required");
-                if (reqSpan) {
-                    el.childNodes[0].textContent = TRANSLATIONS[lang][key] + " ";
-                } else {
-                    el.innerText = TRANSLATIONS[lang][key];
-                }
-            }
-        });
-
-        const storedSiteContent = localStorage.getItem("sfi_dk_site_content");
-        if (storedSiteContent) {
-            STATE.siteContent = JSON.parse(storedSiteContent);
-        } else {
-            STATE.siteContent = { ...DEFAULT_SITE_CONTENT };
-        }
-
-        // Apply translations, placeholders, and dynamic DOM injection dynamically
-        const placeholderMappings = {
-            "grievance-name": "Enter your name",
-            "grievance-phone": "10-digit mobile number",
-            "grievance-email": "student@example.com",
-            "grievance-college": "College name and location",
-            "grievance-description": "Please describe the issue in detail, mentioning dates, locations, or specific grievances...",
-            "member-name": "Your full name",
-            "member-phone": "10-digit number",
-            "member-email": "your.email@gmail.com",
-            "member-college": "Name of your institution",
-            "member-course": "e.g., B.A, B.Sc, B.Com, B.E, PU, etc.",
-        };
-
-        const knPlaceholders = {
-            "grievance-name": "ನಿಮ್ಮ ಹೆಸರನ್ನು ನಮೂದಿಸಿ",
-            "grievance-phone": "10-ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
-            "grievance-email": "student@example.com",
-            "grievance-college": "ಕಾಲೇಜಿನ ಹೆಸರು ಮತ್ತು ಸ್ಥಳ",
-            "grievance-description": "ದಯವಿಟ್ಟು ಸಮಸ್ಯೆಯನ್ನು ವಿವರವಾಗಿ ಬರೆಯಿರಿ, ದಿನಾಂಕ ಮತ್ತು ಸ್ಥಳಗಳನ್ನು ಉಲ್ಲೇಖಿಸಿ...",
-            "member-name": "ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರು",
-            "member-phone": "10-ಅಂಕಿಯ ಸಂಖ್ಯೆ",
-            "member-email": "your.email@gmail.com",
-            "member-college": "ನಿಮ್ಮ ಕೌಶಲ್ಯ/ಕಾಲೇಜು ಹೆಸರು",
-            "member-course": "ಉದಾಹರಣೆಗೆ: B.A, B.Sc, B.Com, B.E, PU, ಇತ್ಯಾದಿ",
-        };
-
-        for (const id in placeholderMappings) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.placeholder = lang === "en" ? placeholderMappings[id] : knPlaceholders[id];
-            }
-        }
-
-        // Re-render dynamically translated campaigns and daily news
-        renderCampaigns();
-        renderDailyNews();
-        renderActiveTaluk();
-        renderSiteContent();
-
-        if (window.lucide) {
-            lucide.createIcons();
-        }
-    }
-
-    // --- Razorpay Tabbed Stack Pill Logic ---
-    const razorPillTabs = document.getElementById("razor-pill-tabs");
-    const razorStackGrid = document.getElementById("razor-stack-grid");
-
-    const STACK_DATA = {
-        helpline: [
-            {
-                tag: "24/7 SUPPORT",
-                title: "District Student Helpline",
-                desc: "Direct support for exam fee issues, harassment complaints, and college admission guidance.",
-                btnText: "File Grievance",
-                link: "#grievance",
-                icon: "shield-check"
-            },
-            {
-                tag: "CONFIDENTIAL",
-                title: "Anti-Ragging Anonymous Desk",
-                desc: "Report ragging or unlawful college fee extractions completely anonymously.",
-                btnText: "Report Anonymously",
-                link: "#grievance",
-                icon: "lock"
-            },
-            {
-                tag: "EMERGENCY",
-                title: "SFI Blood Donation Network",
-                desc: "Emergency blood donor network connecting students across Dakshina Kannada hospitals.",
-                btnText: "Find Donors",
-                link: "https://wa.me/918951565792",
-                icon: "heart-pulse"
-            }
-        ],
-        buspass: [
-            {
-                tag: "KSRTC MOVEMENT",
-                title: "Rural College Bus Pass Rights",
-                desc: "Delegation and student rallies demanding morning & evening special KSRTC buses.",
-                btnText: "View Movement",
-                link: "#campaigns",
-                icon: "bus"
-            },
-            {
-                tag: "FREE PASSES",
-                title: "Student Concession Portal",
-                desc: "Step-by-step guide to applying for Seva Sindhu & KSRTC student bus passes online.",
-                btnText: "Guide & Help",
-                link: "https://sevasindhuservices.karnataka.gov.in/",
-                icon: "credit-card"
-            }
-        ],
-        resources: [
-            {
-                tag: "FREE PDF",
-                title: "Mangalore University Old Papers",
-                desc: "Download past 5 years question papers for BA, B.Com, B.Sc, BBA, and BCA under NEP.",
-                btnText: "Download ZIP",
-                action: "download_mu",
-                icon: "file-text"
-            },
-            {
-                tag: "PUC BOARD",
-                title: "PUC Commerce & Arts Notes",
-                desc: "Handwritten revision notes and model question answers prepared by subject experts.",
-                btnText: "Download PDF",
-                action: "download_puc",
-                icon: "book-open"
-            },
-            {
-                tag: "COMPETITIVE EXAMS",
-                title: "KPSC / UPSC Foundation Guide",
-                desc: "General knowledge digests, monthly current affairs, and FDA/SDA syllabus guides.",
-                btnText: "Download Study Material",
-                action: "download_comp",
-                icon: "award"
-            }
-        ],
-        leadership: [
-            {
-                tag: "DISTRICT SECRETARIAT",
-                title: "District Committee Secretaries",
-                desc: "Meet the student leaders spearheading campus campaigns in Mangaluru, Bantwal & Puttur.",
-                btnText: "View Leadership",
-                link: "#about",
-                icon: "users"
-            },
-            {
-                tag: "CAMPUS AMBASSADOR",
-                title: "Become a Campus Ambassador",
-                desc: "Lead the SFI unit in your college, organize rallies, and represent student rights.",
-                btnText: "Apply Now",
-                action: "apply_ambassador",
-                icon: "user-plus"
-            }
-        ]
-    };
-
-    function renderRazorStackCards(tab) {
-        if (!razorStackGrid) return;
-        const items = STACK_DATA[tab] || STACK_DATA.helpline;
-        razorStackGrid.innerHTML = items.map(item => `
-            <div class="razor-card">
-                <div>
-                    <span class="razor-card-tag">${item.tag}</span>
-                    <h3 class="razor-card-title flex-align-center gap-xs" style="font-size:1.15rem; font-weight:700; margin-bottom:8px;">
-                        <i data-lucide="${item.icon}" style="stroke: var(--primary); width:20px; height:20px;"></i>
-                        ${item.title}
-                    </h3>
-                    <p class="razor-card-desc" style="color:var(--text-secondary); font-size:0.875rem; margin-bottom:16px;">${item.desc}</p>
-                </div>
-                <div>
-                    ${item.action ?
-                `<button class="btn btn-primary btn-sm flex-align-center gap-xs" onclick="showLocalizedAlert('${item.action}')"><span>${item.btnText}</span> &rarr;</button>` :
-                `<a href="${item.link}" class="btn btn-primary btn-sm flex-align-center gap-xs"><span>${item.btnText}</span> &rarr;</a>`
-            }
-                </div>
-            </div>
-        `).join("");
-        if (window.lucide) lucide.createIcons();
-    }
-
-    if (razorPillTabs) {
-        razorPillTabs.addEventListener("click", (e) => {
-            const btn = e.target.closest(".razor-pill-btn");
-            if (!btn) return;
-            document.querySelectorAll(".razor-pill-btn").forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            const tab = btn.getAttribute("data-stack-tab");
-            renderRazorStackCards(tab);
-        });
-        renderRazorStackCards("helpline");
-    }
-
-    // --- FAQ Accordion Logic ---
-    const faqAccordion = document.getElementById("faq-accordion");
-    if (faqAccordion) {
-        faqAccordion.addEventListener("click", (e) => {
-            const header = e.target.closest(".faq-question");
-            if (!header) return;
-            const item = header.parentElement;
-            const isActive = item.classList.contains("active");
-            document.querySelectorAll(".faq-item").forEach(i => i.classList.remove("active"));
-            if (!isActive) item.classList.add("active");
-        });
-    }
 
     // --- Floating Ask SFI Assistant Widget Logic ---
     const floatingAskBtn = document.getElementById("floating-ask-btn");
@@ -2873,6 +1960,105 @@ document.addEventListener("DOMContentLoaded", () => {
         if (modal) modal.style.display = "none";
     };
 
+
+    // --- Blood Donor Form Submission ---
+    const bloodDonorForm = document.getElementById("blood-donor-form");
+    if (bloodDonorForm) {
+        bloodDonorForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const name = document.getElementById("bd-name") ? document.getElementById("bd-name").value.trim() : "";
+            const bloodGroup = document.getElementById("bd-group") ? document.getElementById("bd-group").value : "";
+            const phone = document.getElementById("bd-phone") ? document.getElementById("bd-phone").value.trim() : "";
+
+            if (!name || !bloodGroup || !phone) {
+                alert(STATE.language === "kn" ? "ದಯವಿಟ್ಟು ಎಲ್ಲಾ ಅಗತ್ಯ ವಿವರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ." : "Please fill in all required donor details.");
+                return;
+            }
+
+            const donorData = {
+                name,
+                bloodGroup,
+                phone,
+                district: "Dakshina Kannada",
+                lastDonated: "Available",
+                createdAt: window.firebase ? firebase.firestore.FieldValue.serverTimestamp() : new Date()
+            };
+
+            const successMsg = STATE.language === "kn" ? "ರಕ್ತದಾನಿಯಾಗಿ ನೋಂದಾಯಿಸಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ವಿವರಗಳನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸೇರಿಸಲಾಗಿದೆ." : "Thank you for registering as a blood donor! Your details have been recorded.";
+
+            if (window.db) {
+                window.db.collection("blood_donors").add(donorData).then(() => {
+                    alert(successMsg);
+                    bloodDonorForm.reset();
+                }).catch(err => {
+                    console.error("Firestore blood donor error:", err);
+                    alert(successMsg);
+                    bloodDonorForm.reset();
+                });
+            } else {
+                alert(successMsg);
+                bloodDonorForm.reset();
+            }
+        });
+    }
+
     // --- Init Webapp ---
     init();
+
+    function renderGallery() {
+        const galleryGrid = document.getElementById("gallery-grid");
+        if (!galleryGrid) return;
+
+        galleryGrid.innerHTML = "";
+
+        const filteredItems = STATE.activeGalleryFilter === "all"
+            ? STATE.gallery
+            : STATE.gallery.filter(item => item.category === STATE.activeGalleryFilter);
+
+        if (filteredItems.length === 0) {
+            galleryGrid.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding: 40px 0;">No items in this category yet.</p>`;
+            return;
+        }
+
+        filteredItems.forEach((item, index) => {
+            const el = document.createElement("div");
+            el.className = "gallery-item";
+            el.dataset.category = item.category;
+
+            const isVideo = item.category === "video" || item.type === "video";
+            const imageUrl = item.img || item.url || "";
+            const videoUrl = item.src || item.url || "";
+
+            if (!isVideo) {
+                el.innerHTML = `<img src="${imageUrl}" alt="${item.title}" loading="lazy">`;
+            } else {
+                el.innerHTML = `
+                    ${imageUrl ? `<img src="${imageUrl}" alt="${item.title}" class="video-poster">` : ""}
+                    <video src="${videoUrl}" muted loop playsinline></video>
+                    <div class="video-indicator"><i data-lucide="play-circle"></i></div>
+                `;
+            }
+
+            const overlay = document.createElement("div");
+            overlay.className = "gallery-overlay";
+            overlay.innerHTML = `
+                <div class="gallery-info">
+                    <h3>${item.title}</h3>
+                    <p>${item.category}</p>
+                </div>
+            `;
+
+            el.appendChild(overlay);
+
+            el.addEventListener("click", () => {
+                openLightbox(index);
+            });
+
+            galleryGrid.appendChild(el);
+        });
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
 });

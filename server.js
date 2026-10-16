@@ -14,6 +14,14 @@ app.get("/api/health", (req, res) => {
     res.json({ status: "ok", message: "SFI DK Backend Server Running" });
 });
 
+// Provide public config to frontend
+app.get("/api/config", (req, res) => {
+    res.json({
+        cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || "",
+        cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET || ""
+    });
+});
+
 // Send Membership Card Email Endpoint via Brevo v3 API
 app.post("/api/send-membership", async (req, res) => {
     const { name, email, memberId, college, taluk, course, year, date } = req.body;
