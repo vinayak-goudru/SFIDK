@@ -1556,9 +1556,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 status: "Pending Investigation"
             };
 
-            // 3. Save to state and localStorage
+            // 3. Save to state, localStorage, and Firestore Database
             STATE.grievances.push(newGrievance);
             saveState();
+
+            if (window.db) {
+                window.db.collection("grievances").add({
+                    ...newGrievance,
+                    createdAt: (window.firebase && window.firebase.firestore) 
+                        ? firebase.firestore.FieldValue.serverTimestamp() 
+                        : new Date().toISOString()
+                }).then(() => {
+                    console.log("Grievance synced to Firebase database successfully.");
+                }).catch(err => console.error("Error saving grievance to Firebase:", err));
+            }
 
             // 4. Update UI Success Screen
             ticketNumberSpan.innerText = `#${ticketId}`;
