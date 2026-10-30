@@ -1766,6 +1766,183 @@ img {
   color: var(--text-muted);
 }
 
+/* 3D Flip Card Effect for Leaders */
+.leader-flip-card {
+  perspective: 1200px;
+  background-color: transparent;
+  min-height: 350px;
+  cursor: pointer;
+  outline: none;
+}
+
+.leader-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 350px;
+  text-align: center;
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.leader-flip-card:hover .leader-flip-inner,
+.leader-flip-card.is-flipped .leader-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.leader-flip-front,
+.leader-flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  top: 0;
+  left: 0;
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+}
+
+.leader-flip-front {
+  z-index: 2;
+  transform: rotateY(0deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1rem;
+}
+
+.leader-flip-back {
+  transform: rotateY(180deg);
+  background: var(--bg-card);
+  border: 2px solid var(--primary, #dc2626);
+  box-shadow: 0 12px 30px rgba(220, 38, 38, 0.25);
+  padding: 1.5rem 1.1rem;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.flip-hint-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--primary);
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px dashed rgba(220, 38, 38, 0.4);
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.leader-flip-card:hover .flip-hint-badge {
+  background: var(--primary);
+  color: #fff;
+}
+
+.flip-back-header {
+  border-bottom: 1px solid var(--border-main);
+  padding-bottom: 0.75rem;
+}
+
+.flip-star {
+  font-size: 1.25rem;
+  color: var(--primary);
+  display: inline-block;
+  margin-bottom: 0.25rem;
+}
+
+.flip-back-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: 0.2rem;
+}
+
+.flip-back-role {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary);
+  display: block;
+}
+
+.flip-back-body {
+  padding: 0.75rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.flip-back-desc {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-body);
+  margin: 0;
+}
+
+.flip-back-motto {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.flip-back-footer {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-main);
+}
+
+.btn-flip-phone {
+  background: var(--primary, #dc2626);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.45rem 0.8rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.btn-flip-phone:hover {
+  opacity: 0.9;
+  color: #fff;
+}
+
+.btn-flip-flipback {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-main);
+  font-size: 0.78rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s;
+}
+
+.btn-flip-flipback:hover {
+  color: var(--text-heading);
+  border-color: var(--primary);
+}
+
 .leadership-category-block {
   margin-bottom: 2.5rem;
 }

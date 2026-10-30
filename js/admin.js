@@ -25,8 +25,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const toastContainer = document.getElementById('adminToastContainer');
 
   // Check Auth (Session or Remembered Device)
-  const isAuth = sessionStorage.getItem('dyfi_admin_authenticated') === 'true' ||
-                 localStorage.getItem('dyfi_admin_authenticated') === 'true';
+  function isUserAdmin() {
+    return sessionStorage.getItem('sfi_admin_authenticated') === 'true' ||
+           sessionStorage.getItem('dyfi_admin_authenticated') === 'true' ||
+           localStorage.getItem('sfi_admin_authenticated') === 'true' ||
+           localStorage.getItem('dyfi_admin_authenticated') === 'true';
+  }
+
+  window.checkAdminPermission = function() {
+    if (!isUserAdmin()) {
+      loginOverlay.classList.add('active');
+      showLoginError('ಕೇವಲ ಅಧಿಕೃತ ಅಡ್ಮಿನ್‌ಗಳಿಗೆ ಮಾತ್ರ ವೆಬ್‌ಸೈಟ್ ಬದಲಾವಣೆ ಅಥವಾ ಅಪ್‌ಡೇಟ್ ಮಾಡಲು ಅನುಮತಿಯಿದೆ! (Admin Permission Required)');
+      return false;
+    }
+    return true;
+  };
+
+  const isAuth = isUserAdmin();
 
   if (isAuth) {
     loginOverlay.classList.remove('active');
@@ -65,33 +80,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Authenticate against authorized admin credentials
-    // Default authorized account: admin / dyfi@karnataka2026
-    const validUsers = ['admin', 'stateadmin', 'dyfiadmin'];
-    const validPasswords = ['dyfi@karnataka2026', 'admin123', 'admin'];
+    // Default authorized accounts: sfiadmin, sfidk, admin, vinayak
+    const validUsers = ['admin', 'sfiadmin', 'sfidk', 'vinayak', 'stateadmin', 'dyfiadmin'];
+    const validPasswords = ['sfidk@2026', 'sfi@dk2026', 'admin123', 'admin', 'dyfi@karnataka2026'];
 
     const isValidUser = validUsers.includes(user.toLowerCase());
     const isValidPass = validPasswords.includes(pass);
 
     if (isValidUser && isValidPass) {
       const remember = adminRememberMe && adminRememberMe.checked;
+      sessionStorage.setItem('sfi_admin_authenticated', 'true');
       sessionStorage.setItem('dyfi_admin_authenticated', 'true');
       if (remember) {
+        localStorage.setItem('sfi_admin_authenticated', 'true');
         localStorage.setItem('dyfi_admin_authenticated', 'true');
       } else {
+        localStorage.removeItem('sfi_admin_authenticated');
         localStorage.removeItem('dyfi_admin_authenticated');
       }
 
       loginOverlay.classList.remove('active');
       adminLoginForm.reset();
       failedLoginAttempts = 0;
-      showToast('Authenticated successfully. Welcome to Central Management Suite!');
+      showToast('Authenticated successfully. Welcome to SFI Dakshina Kannada Admin Suite!');
       renderAll();
     } else {
       failedLoginAttempts++;
       adminPass.value = '';
       adminPass.focus();
       if (failedLoginAttempts >= 4) {
-        showLoginError('Multiple failed login attempts detected. Please verify your credentials or contact the State Committee technical desk.');
+        showLoginError('Multiple failed login attempts detected. Please contact the District Committee technical desk.');
       } else {
         showLoginError('Invalid username or password. Please verify your credentials and try again.');
       }
@@ -109,7 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Logout Handler
   btnLogout.addEventListener('click', () => {
+    sessionStorage.removeItem('sfi_admin_authenticated');
     sessionStorage.removeItem('dyfi_admin_authenticated');
+    localStorage.removeItem('sfi_admin_authenticated');
     localStorage.removeItem('dyfi_admin_authenticated');
     loginOverlay.classList.add('active');
     if (loginAlert) loginAlert.style.display = 'none';

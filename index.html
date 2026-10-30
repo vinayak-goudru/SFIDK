@@ -99,6 +99,7 @@
 
       <!-- Header Actions -->
       <div class="header-actions">
+        <a href="admin.html" target="_blank" class="btn-admin-top" title="Admin Portal (ಕೇವಲ ಅಡ್ಮಿನ್‌ಗಳಿಗೆ ಮಾತ್ರ)"><i class="fa-solid fa-lock"></i> <span>ಅಡ್ಮಿನ್</span></a>
         <a href="#contact" class="btn-contact-top" data-i18n="navContactBtn">
           <span>ಸಂಪರ್ಕಿಸಿ</span> <i class="fa-solid fa-arrow-right"></i>
         </a>
@@ -696,49 +697,174 @@
           <h3 class="leadership-tier-title"><i class="fa-solid fa-flag" style="color:#dc2626;"></i> ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಮುಖಂಡರು</h3>
         </div>
         <div class="leadership-grid state-leaders-grid" id="districtLeadersGrid">
-          <div class="leader-card" style="cursor: pointer;">
-            <div class="leader-avatar-wrap">
-              <img src="images/vinayak.jpg" alt="Comrade Vinayak S I" loading="lazy" onerror="this.src='https://res.cloudinary.com/avytjxre/image/upload/v1788021848/photo.jpg'">
+          <!-- Leader 1: Vinayak S I (Flip Card) -->
+          <div class="leader-flip-card" tabindex="0" onclick="this.classList.toggle('is-flipped')" aria-label="Comrade Vinayak S I details">
+            <div class="leader-flip-inner">
+              <div class="leader-flip-front leader-card">
+                <div>
+                  <div class="leader-avatar-wrap">
+                    <img src="images/vinayak.jpg" alt="Comrade Vinayak S I" loading="lazy" onerror="this.src='https://res.cloudinary.com/avytjxre/image/upload/v1788021848/photo.jpg'">
+                  </div>
+                  <h3 class="leader-name">Comrade Vinayak S I</h3>
+                  <div class="leader-role">District Secretary (ಜಿಲ್ಲಾ ಕಾರ್ಯದರ್ಶಿ)</div>
+                  <div class="leader-region">SFI Dakshina Kannada</div>
+                </div>
+                <div class="flip-hint-badge"><i class="fa-solid fa-arrows-rotate"></i> <span>ತಿರುಗಿಸಿ ನೋಡಿ • Click to Flip</span></div>
+              </div>
+              <div class="leader-flip-back leader-card">
+                <div class="flip-back-header">
+                  <span class="flip-star"><i class="fa-solid fa-star"></i></span>
+                  <h4 class="flip-back-title">Comrade Vinayak S I</h4>
+                  <span class="flip-back-role">ಜಿಲ್ಲಾ ಕಾರ್ಯದರ್ಶಿ • District Secretary</span>
+                </div>
+                <div class="flip-back-body">
+                  <p class="flip-back-desc">ವಿದ್ಯಾರ್ಥಿ ಚಳುವಳಿ ಸಂಘಟನೆ, ಕೆಎಸ್‌ಆರ್‌ಟಿಸಿ ಬಸ್ ಪಾಸ್ ಹೋರಾಟ ಹಾಗೂ ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಸಮಿತಿಯ ಸಮಗ್ರ ಮುನ್ನಡೆ.</p>
+                  <div>
+                    <span class="flip-back-motto"><i class="fa-solid fa-graduation-cap"></i> Study &amp; Struggle</span>
+                  </div>
+                </div>
+                <div class="flip-back-footer">
+                  <a href="tel:+919480112233" class="btn-flip-phone" onclick="event.stopPropagation();"><i class="fa-solid fa-phone"></i> ಕರೆ ಮಾಡಿ</a>
+                  <button type="button" class="btn-flip-flipback" onclick="event.stopPropagation(); this.closest('.leader-flip-card').classList.remove('is-flipped');"><i class="fa-solid fa-arrow-rotate-left"></i> ವಾಪಸ್</button>
+                </div>
+              </div>
             </div>
-            <h3 class="leader-name">Comrade Vinayak S I</h3>
-            <div class="leader-role">District Secretary (ಜಿಲ್ಲಾ ಕಾರ್ಯದರ್ಶಿ)</div>
-            <div class="leader-region">SFI Dakshina Kannada</div>
           </div>
 
-          <div class="leader-card" style="cursor: pointer;">
-            <div class="leader-avatar-wrap">
-              <img src="images/hazlan.jpg" alt="Comrade Hazlan" loading="lazy" onerror="this.src='https://res.cloudinary.com/avytjxre/image/upload/v1788021809/hazlan.jpg'">
+          <!-- Leader 2: Hazlan (Flip Card) -->
+          <div class="leader-flip-card" tabindex="0" onclick="this.classList.toggle('is-flipped')" aria-label="Comrade Hazlan details">
+            <div class="leader-flip-inner">
+              <div class="leader-flip-front leader-card">
+                <div>
+                  <div class="leader-avatar-wrap">
+                    <img src="images/hazlan.jpg" alt="Comrade Hazlan" loading="lazy" onerror="this.src='https://res.cloudinary.com/avytjxre/image/upload/v1788021809/hazlan.jpg'">
+                  </div>
+                  <h3 class="leader-name">Comrade Hazlan</h3>
+                  <div class="leader-role">District President (ಜಿಲ್ಲಾಧ್ಯಕ್ಷರು)</div>
+                  <div class="leader-region">SFI Dakshina Kannada</div>
+                </div>
+                <div class="flip-hint-badge"><i class="fa-solid fa-arrows-rotate"></i> <span>ತಿರುಗಿಸಿ ನೋಡಿ • Click to Flip</span></div>
+              </div>
+              <div class="leader-flip-back leader-card">
+                <div class="flip-back-header">
+                  <span class="flip-star"><i class="fa-solid fa-star"></i></span>
+                  <h4 class="flip-back-title">Comrade Hazlan</h4>
+                  <span class="flip-back-role">ಜಿಲ್ಲಾಧ್ಯಕ್ಷರು • District President</span>
+                </div>
+                <div class="flip-back-body">
+                  <p class="flip-back-desc">ಕ್ಯಾಂಪಸ್ ಸಮನ್ವಯ, ಶಿಕ್ಷಣದ ಖಾಸಗೀಕರಣ ವಿರೋಧಿ ಚಳುವಳಿ ಮತ್ತು ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳ ರಕ್ಷಣೆ.</p>
+                  <div>
+                    <span class="flip-back-motto"><i class="fa-solid fa-graduation-cap"></i> Independence &amp; Equality</span>
+                  </div>
+                </div>
+                <div class="flip-back-footer">
+                  <a href="tel:+919480112234" class="btn-flip-phone" onclick="event.stopPropagation();"><i class="fa-solid fa-phone"></i> ಕರೆ ಮಾಡಿ</a>
+                  <button type="button" class="btn-flip-flipback" onclick="event.stopPropagation(); this.closest('.leader-flip-card').classList.remove('is-flipped');"><i class="fa-solid fa-arrow-rotate-left"></i> ವಾಪಸ್</button>
+                </div>
+              </div>
             </div>
-            <h3 class="leader-name">Comrade Hazlan</h3>
-            <div class="leader-role">District President (ಜಿಲ್ಲಾಧ್ಯಕ್ಷರು)</div>
-            <div class="leader-region">SFI Dakshina Kannada</div>
           </div>
 
-          <div class="leader-card" style="cursor: pointer;">
-            <div class="leader-avatar-wrap">
-              <img src="images/shivappa.jpg" alt="Comrade Shivappa" loading="lazy" onerror="this.src='https://res.cloudinary.com/avytjxre/image/upload/v1788021817/shivappa.jpg'">
+          <!-- Leader 3: Shivappa (Flip Card) -->
+          <div class="leader-flip-card" tabindex="0" onclick="this.classList.toggle('is-flipped')" aria-label="Comrade Shivappa details">
+            <div class="leader-flip-inner">
+              <div class="leader-flip-front leader-card">
+                <div>
+                  <div class="leader-avatar-wrap">
+                    <img src="images/shivappa.jpg" alt="Comrade Shivappa" loading="lazy" onerror="this.src='https://res.cloudinary.com/avytjxre/image/upload/v1788021817/shivappa.jpg'">
+                  </div>
+                  <h3 class="leader-name">Comrade Shivappa</h3>
+                  <div class="leader-role">District Vice President (ಜಿಲ್ಲಾ ಉಪಾಧ್ಯಕ್ಷರು)</div>
+                  <div class="leader-region">SFI Dakshina Kannada</div>
+                </div>
+                <div class="flip-hint-badge"><i class="fa-solid fa-arrows-rotate"></i> <span>ತಿರುಗಿಸಿ ನೋಡಿ • Click to Flip</span></div>
+              </div>
+              <div class="leader-flip-back leader-card">
+                <div class="flip-back-header">
+                  <span class="flip-star"><i class="fa-solid fa-star"></i></span>
+                  <h4 class="flip-back-title">Comrade Shivappa</h4>
+                  <span class="flip-back-role">ಜಿಲ್ಲಾ ಉಪಾಧ್ಯಕ್ಷರು • District Vice President</span>
+                </div>
+                <div class="flip-back-body">
+                  <p class="flip-back-desc">ಗ್ರಾಮೀಣ ಸಾರಿಗೆ, ಕೆಎಸ್‌ಆರ್‌ಟಿಸಿ ವಿದ್ಯಾರ್ಥಿ ಬಸ್ ಸೌಲಭ್ಯ ಹಾಗೂ ಸರ್ಕಾರಿ ಹಾಸ್ಟೆಲ್ ಸಮಸ್ಯೆಗಳ ಪರಿಹಾರ.</p>
+                  <div>
+                    <span class="flip-back-motto"><i class="fa-solid fa-hand-fist"></i> Student Rights First</span>
+                  </div>
+                </div>
+                <div class="flip-back-footer">
+                  <a href="tel:+919480112235" class="btn-flip-phone" onclick="event.stopPropagation();"><i class="fa-solid fa-phone"></i> ಕರೆ ಮಾಡಿ</a>
+                  <button type="button" class="btn-flip-flipback" onclick="event.stopPropagation(); this.closest('.leader-flip-card').classList.remove('is-flipped');"><i class="fa-solid fa-arrow-rotate-left"></i> ವಾಪಸ್</button>
+                </div>
+              </div>
             </div>
-            <h3 class="leader-name">Comrade Shivappa</h3>
-            <div class="leader-role">District Vice President (ಜಿಲ್ಲಾ ಉಪಾಧ್ಯಕ್ಷರು)</div>
-            <div class="leader-region">SFI Dakshina Kannada</div>
           </div>
 
-          <div class="leader-card" style="cursor: pointer;">
-            <div class="leader-avatar-wrap">
-              <img src="images/vijay.png" alt="Comrade Vijay" loading="lazy" onerror="this.src='https://res.cloudinary.com/avytjxre/image/upload/v1788021819/vijay.png'">
+          <!-- Leader 4: Vijay (Flip Card) -->
+          <div class="leader-flip-card" tabindex="0" onclick="this.classList.toggle('is-flipped')" aria-label="Comrade Vijay details">
+            <div class="leader-flip-inner">
+              <div class="leader-flip-front leader-card">
+                <div>
+                  <div class="leader-avatar-wrap">
+                    <img src="images/vijay.png" alt="Comrade Vijay" loading="lazy" onerror="this.src='https://res.cloudinary.com/avytjxre/image/upload/v1788021819/vijay.png'">
+                  </div>
+                  <h3 class="leader-name">Comrade Vijay</h3>
+                  <div class="leader-role">District Joint Secretary (ಜಿಲ್ಲಾ ಜೊತೆ ಕಾರ್ಯದರ್ಶಿ)</div>
+                  <div class="leader-region">SFI Dakshina Kannada</div>
+                </div>
+                <div class="flip-hint-badge"><i class="fa-solid fa-arrows-rotate"></i> <span>ತಿರುಗಿಸಿ ನೋಡಿ • Click to Flip</span></div>
+              </div>
+              <div class="leader-flip-back leader-card">
+                <div class="flip-back-header">
+                  <span class="flip-star"><i class="fa-solid fa-star"></i></span>
+                  <h4 class="flip-back-title">Comrade Vijay</h4>
+                  <span class="flip-back-role">ಜಿಲ್ಲಾ ಜೊತೆ ಕಾರ್ಯದರ್ಶಿ • Joint Secretary</span>
+                </div>
+                <div class="flip-back-body">
+                  <p class="flip-back-desc">ಸದಸ್ಯತ್ವ ಅಭಿಯಾನ, ಪ್ರಚಾರ ನಿರ್ವಹಣೆ ಹಾಗೂ ಕಾಲೇಜು ಪರೀಕ್ಷಾ ಶುಲ್ಕ ಹೆಚ್ಚಳ ವಿರೋಧಿ ಜಾಗೃತಿ.</p>
+                  <div>
+                    <span class="flip-back-motto"><i class="fa-solid fa-users"></i> Mass Membership</span>
+                  </div>
+                </div>
+                <div class="flip-back-footer">
+                  <a href="tel:+919480112236" class="btn-flip-phone" onclick="event.stopPropagation();"><i class="fa-solid fa-phone"></i> ಕರೆ ಮಾಡಿ</a>
+                  <button type="button" class="btn-flip-flipback" onclick="event.stopPropagation(); this.closest('.leader-flip-card').classList.remove('is-flipped');"><i class="fa-solid fa-arrow-rotate-left"></i> ವಾಪಸ್</button>
+                </div>
+              </div>
             </div>
-            <h3 class="leader-name">Comrade Vijay</h3>
-            <div class="leader-role">District Joint Secretary (ಜಿಲ್ಲಾ ಜೊತೆ ಕಾರ್ಯದರ್ಶಿ)</div>
-            <div class="leader-region">SFI Dakshina Kannada</div>
           </div>
 
-          <div class="leader-card" style="cursor: pointer;">
-            <div class="leader-avatar-wrap">
-              <img src="images/adarsh.avif" alt="Comrade Adarsh M Saji" loading="lazy" onerror="this.src='https://res.cloudinary.com/avytjxre/image/upload/v1788021809/Adarsh-m-saji-sfi.avif'">
+          <!-- Leader 5: Adarsh M Saji (Flip Card) -->
+          <div class="leader-flip-card" tabindex="0" onclick="this.classList.toggle('is-flipped')" aria-label="Comrade Adarsh M Saji details">
+            <div class="leader-flip-inner">
+              <div class="leader-flip-front leader-card">
+                <div>
+                  <div class="leader-avatar-wrap">
+                    <img src="images/adarsh.avif" alt="Comrade Adarsh M Saji" loading="lazy" onerror="this.src='https://res.cloudinary.com/avytjxre/image/upload/v1788021809/Adarsh-m-saji-sfi.avif'">
+                  </div>
+                  <h3 class="leader-name">Comrade Adarsh M Saji</h3>
+                  <div class="leader-role">District Joint Secretary (ಜಿಲ್ಲಾ ಜೊತೆ ಕಾರ್ಯದರ್ಶಿ)</div>
+                  <div class="leader-region">SFI Dakshina Kannada</div>
+                </div>
+                <div class="flip-hint-badge"><i class="fa-solid fa-arrows-rotate"></i> <span>ತಿರುಗಿಸಿ ನೋಡಿ • Click to Flip</span></div>
+              </div>
+              <div class="leader-flip-back leader-card">
+                <div class="flip-back-header">
+                  <span class="flip-star"><i class="fa-solid fa-star"></i></span>
+                  <h4 class="flip-back-title">Comrade Adarsh M Saji</h4>
+                  <span class="flip-back-role">ಜಿಲ್ಲಾ ಜೊತೆ ಕಾರ್ಯದರ್ಶಿ • Joint Secretary</span>
+                </div>
+                <div class="flip-back-body">
+                  <p class="flip-back-desc">ವಿದ್ಯಾರ್ಥಿ 24x7 ಸಹಾಯವಾಣಿ ಸಂಯೋಜನೆ, ಕ್ಯಾಂಪಸ್ ಘಟಕಗಳ ಭೇಟಿ ಹಾಗೂ ಸಾಂಸ್ಕೃತಿಕ ಚಟುವಟಿಕೆಗಳು.</p>
+                  <div>
+                    <span class="flip-back-motto"><i class="fa-solid fa-phone"></i> 24x7 Student Helpline</span>
+                  </div>
+                </div>
+                <div class="flip-back-footer">
+                  <a href="tel:+919480112237" class="btn-flip-phone" onclick="event.stopPropagation();"><i class="fa-solid fa-phone"></i> ಕರೆ ಮಾಡಿ</a>
+                  <button type="button" class="btn-flip-flipback" onclick="event.stopPropagation(); this.closest('.leader-flip-card').classList.remove('is-flipped');"><i class="fa-solid fa-arrow-rotate-left"></i> ವಾಪಸ್</button>
+                </div>
+              </div>
             </div>
-            <h3 class="leader-name">Comrade Adarsh M Saji</h3>
-            <div class="leader-role">District Joint Secretary (ಜಿಲ್ಲಾ ಜೊತೆ ಕಾರ್ಯದರ್ಶಿ)</div>
-            <div class="leader-region">SFI Dakshina Kannada</div>
           </div>
         </div>
       </div>

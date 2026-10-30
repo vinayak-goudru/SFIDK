@@ -47,15 +47,15 @@ const i18nData = {
     tickerText: 'Statewide Youth Convention against Unemployment — All District Committees advised to mobilize.',
     tickerHelp: 'Emergency Blood Helpline:',
     
-    heroTag: '<i class="fa-solid fa-star" style="color:var(--primary,#dc2626); font-size:0.8em; margin-right:4px;"></i> Students' Federation of India — Karnataka',
+    heroTag: '<i class="fa-solid fa-star" style="color:var(--primary,#dc2626); font-size:0.8em; margin-right:4px;"></i> Students\' Federation of India — Karnataka',
     heroTitle: 'Study &amp; Struggle, <span class="highlight-red">Save Public Education</span> — SFI Dakshina Kannada',
-    heroDesc: 'SFI Dakshina Kannada State Committee stands at the forefront of progressive youth struggles, advocating for employment, quality free education, communal harmony, and social justice across Karnataka.',
+    heroDesc: 'SFI Dakshina Kannada District Committee stands at the forefront of progressive youth and student struggles, advocating for equality, quality free public education, communal harmony, and social justice across Dakshina Kannada.',
     heroBtnJoin: 'Get Involved <i class="fa-solid fa-arrow-right"></i>',
     heroBtnMission: 'Our Ideology & Mission',
     
-    aboutTag: '<i class="fa-solid fa-star" style="color:var(--primary,#dc2626); font-size:0.8em; margin-right:4px;"></i> DEMOCRATIC YOUTH FEDERATION OF INDIA',
-    aboutHeadline: 'Education for All, <span class="highlight-red">Jobs for All</span> — For a Secure Youth Future',
-    aboutSubtext: 'The Students' Federation of India (DYFI) as a forward looking and progressive youth organisation inspired by anti-imperialist, democratic and socialist ideas takes upon itself the task of organising the young men and the young women of our country into a well-knit all India youth organisation to build a powerful youth movement to fight for a democratic and progressive social system and for the upliftment and betterment of the youth community as a whole.',
+    aboutTag: '<i class="fa-solid fa-star" style="color:var(--primary,#dc2626); font-size:0.8em; margin-right:4px;"></i> STUDENTS\' FEDERATION OF INDIA',
+    aboutHeadline: 'Independence, Democracy, <span class="highlight-red">Socialism</span> — Study &amp; Struggle',
+    aboutSubtext: 'The Students\' Federation of India (SFI) is the vanguard democratic students\' organisation fighting for free, equal quality public education, secularism, and student rights in Dakshina Kannada.',
     btnReadMore: 'Read More <i class="fa-solid fa-arrow-up-right-from-square"></i>',
     
     stat1: 'Active Youth Members',
@@ -166,7 +166,7 @@ const i18nData = {
     formMsg: 'Your Message or Inquiry',
     formSubmit: 'Send Message <i class="fa-solid fa-paper-plane"></i>',
     
-    footerDesc: 'Students' Federation of India (DYFI) — Leading the progressive youth movement for employment, education, secularism, and democracy.',
+    footerDesc: 'Students\' Federation of India (SFI) — Leading the progressive student movement for education, equality, democracy, and socialism in Dakshina Kannada.',
     footerQuick: 'Quick Links',
     footerDistricts: 'Key Districts',
     footerLegal: 'State Secretariat',
@@ -205,15 +205,15 @@ const i18nData = {
     tickerText: 'ರಾಜ್ಯವ್ಯಾಪಿ ನಿರುದ್ಯೋಗ ವಿರುದ್ಧ ಬೃಹತ್ ಯುವ ಜಾಗೃತಿ ಸಮಾವೇಶ — ಎಲ್ಲಾ ಜಿಲ್ಲಾ ಘಟಕಗಳು ಸಿದ್ಧತೆ ಕೈಗೊಳ್ಳಲು ಕರೆ.',
     tickerHelp: 'ತುರ್ತು ರಕ್ತದಾನ ಸಹಾಯವಾಣಿ:',
     
-    heroTag: '<i class="fa-solid fa-star" style="color:var(--primary,#dc2626); font-size:0.8em; margin-right:4px;"></i> ಭಾರತ ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ಯುವಜನ ಫೆಡರೇಶನ್ — ಕರ್ನಾಟಕ',
-    heroTitle: 'ಒಗ್ಗಟ್ಟಾದ ಯುವಜನತೆ, <span class="highlight-red">ಜಾತ್ಯತೀತ ಕರ್ನಾಟಕ</span> — ಉಜ್ವಲ ಭವಿಷ್ಯದೆಡೆಗೆ',
-    heroDesc: 'ಭಾರತ ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ಯುವಜನ ಫೆಡರೇಶನ್ (DYFI) ಕರ್ನಾಟಕ ರಾಜ್ಯ ಸಮಿತಿ — ನಿರುದ್ಯೋಗ, ಅಸಮಾನತೆ ಹಾಗೂ ಕೋಮುವಾದದ ವಿರುದ್ಧ ರಾಜ್ಯದ 31 ಜಿಲ್ಲೆಗಳಲ್ಲಿ ಸಾಗುತ್ತಿರುವ ಯುವಜನರ ಹೋರಾಟದ ಧ್ವನಿ.',
+    heroTag: '<i class="fa-solid fa-star" style="color:var(--primary,#dc2626); font-size:0.8em; margin-right:4px;"></i> ಭಾರತ ವಿದ್ಯಾರ್ಥಿ ಫೆಡರೇಶನ್ — ದಕ್ಷಿಣ ಕನ್ನಡ',
+    heroTitle: 'ಅಧ್ಯಯನ ಮತ್ತು ಹೋರಾಟ, <span class="highlight-red">ಸಾರ್ವಜನಿಕ ಶಿಕ್ಷಣ ಉಳಿಸಿ</span> — ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡ',
+    heroDesc: 'ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಸಮಿತಿ — ಉಚಿತ ಮತ್ತು ಗುಣಮಟ್ಟದ ಶಿಕ್ಷಣ, ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳು ಹಾಗೂ ಸಾಮಾಜಿಕ ನ್ಯಾಯಕ್ಕಾಗಿ ಸಾಗುತ್ತಿರುವ ವಿದ್ಯಾರ್ಥಿ ಚಳುವಳಿಯ ಮುಂಚೂಣಿ ಧ್ವನಿ.',
     heroBtnJoin: 'ಹೋರಾಟದಲ್ಲಿ ಕೈಜೋಡಿಸಿ <i class="fa-solid fa-arrow-right"></i>',
     heroBtnMission: 'ನಮ್ಮ ಧ್ಯೇಯೋದ್ದೇಶಗಳು',
     
-    aboutTag: '<i class="fa-solid fa-star" style="color:var(--primary,#dc2626); font-size:0.8em; margin-right:4px;"></i> ಭಾರತ ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ಯುವಜನ ಫೆಡರೇಶನ್ — ಕರ್ನಾಟಕ',
-    aboutHeadline: 'ಸರ್ವರಿಗೂ ಶಿಕ್ಷಣ, <span class="highlight-red">ಸರ್ವರಿಗೂ ಉದ್ಯೋಗ</span> — ಯುವಜನರ ಭದ್ರತೆಯ ಬದುಕಿಗಾಗಿ',
-    aboutSubtext: 'The Students' Federation of India (DYFI) as a forward looking and progressive youth organisation inspired by anti-imperialist, democratic and socialist ideas takes upon itself the task of organising the young men and the young women of our country into a well-knit all India youth organisation to build a powerful youth movement to fight for a democratic and progressive social system and for the upliftment and betterment of the youth community as a whole.',
+    aboutTag: '<i class="fa-solid fa-star" style="color:var(--primary,#dc2626); font-size:0.8em; margin-right:4px;"></i> ಭಾರತ ವಿದ್ಯಾರ್ಥಿ ಫೆಡರೇಶನ್ (SFI) — ದಕ್ಷಿಣ ಕನ್ನಡ',
+    aboutHeadline: 'ಸ್ವಾತಂತ್ರ್ಯ, ಪ್ರಜಾಪ್ರಭುತ್ವ, <span class="highlight-red">ಸಮಾಜವಾದ</span> — ಅಧ್ಯಯನ ಮತ್ತು ಹೋರಾಟ',
+    aboutSubtext: 'ಭಾರತ ವಿದ್ಯಾರ್ಥಿ ಫೆಡರೇಶನ್ (SFI) ಸಾಮ್ರಾಜ್ಯಶಾಹಿ ವಿರೋಧಿ, ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ಮತ್ತು ಸಮಾಜವಾದಿ ಮೌಲ್ಯಗಳೊಂದಿಗೆ ಸರ್ವರಿಗೂ ಸಮಾನ ಉಚಿತ ಶಿಕ್ಷಣ ಹಾಗೂ ವಿದ್ಯಾರ್ಥಿ ಸಮುದಾಯದ ಏಳಿಗೆಗಾಗಿ ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲೆಯಲ್ಲಿ ಸತತವಾಗಿ ಹೋರಾಡುತ್ತಿದೆ.',
     btnReadMore: 'ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ <i class="fa-solid fa-arrow-up-right-from-square"></i>',
     
     stat1: 'ಸಕ್ರಿಯ ಯುವ ಸದಸ್ಯರು',
@@ -324,12 +324,12 @@ const i18nData = {
     formMsg: 'ನಿಮ್ಮ ಸಂದೇಶ ಅಥವಾ ಪ್ರಶ್ನೆ',
     formSubmit: 'ಸಂದೇಶ ಕಳುಹಿಸಿ <i class="fa-solid fa-paper-plane"></i>',
     
-    footerDesc: 'ಭಾರತ ಪ್ರಜಾಸತ್ತಾತ್ಮಕ ಯುವಜನ ಫೆಡರೇಶನ್ (DYFI) — ಯುವಜನರ ಹಕ್ಕುಗಳು, ಶಿಕ್ಷಣ, ಉದ್ಯೋಗ ಮತ್ತು ಸಾಮಾಜಿಕ ನ್ಯಾಯಕ್ಕಾಗಿ ಹೋರಾಡುವ ಪ್ರಮುಖ ಸಂಘಟನೆ.',
+    footerDesc: 'ಭಾರತ ವಿದ್ಯಾರ್ಥಿ ಫೆಡರೇಶನ್ (SFI) — ವಿದ್ಯಾರ್ಥಿ ಹಕ್ಕುಗಳು, ಉಚಿತ ಶಿಕ್ಷಣ, ಪ್ರಜಾಪ್ರಭುತ್ವ ಮತ್ತು ಸಾಮಾಜಿಕ ನ್ಯಾಯಕ್ಕಾಗಿ ಹೋರಾಡುವ ಮುಂಚೂಣಿ ಸಂಘಟನೆ.',
     footerQuick: 'ತ್ವರಿತ ಲಿಂಕ್‌ಗಳು',
-    footerDistricts: 'ಪ್ರಮುಖ ಜಿಲ್ಲೆಗಳು',
-    footerLegal: 'ರಾಜ್ಯ ಸಚಿವಾಲಯ',
-    footerTerms: 'ಸಂಪಂಗಿರಾಮನಗರ, ಬೆಂಗಳೂರು - 560027',
-    footerRights: '© 2026 — ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡ ರಾಜ್ಯ ಸಮಿತಿ. ಸರ್ವ ಹಕ್ಕುಗಳೂ ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.',
+    footerDistricts: 'ಪ್ರಮುಖ ತಾಲ್ಲೂಕುಗಳು',
+    footerLegal: 'ಜಿಲ್ಲಾ ಸಮಿತಿ ಕಚೇರಿ',
+    footerTerms: 'ಮಂಗಳೂರು, ದಕ್ಷಿಣ ಕನ್ನಡ',
+    footerRights: '© 2026 — ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಸಮಿತಿ. ಸರ್ವ ಹಕ್ಕುಗಳೂ ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.',
     linkPrivacy: 'ಗೌಪ್ಯತಾ ನೀತಿ',
     linkTerms: 'ನಿಯಮಗಳು & ಷರತ್ತುಗಳು',
     legalModalBadge: 'ಅಧಿಕೃತ ನೀತಿ ಸಂಹಿತೆ',
@@ -340,8 +340,8 @@ const i18nData = {
 };
 
 // Current language and theme preferences
-let currentLang = localStorage.getItem('dyfi_lang') || 'kn';
-let currentTheme = localStorage.getItem('dyfi_theme') || 'dark';
+let currentLang = localStorage.getItem('sfi_lang') || localStorage.getItem('dyfi_lang') || 'kn';
+let currentTheme = localStorage.getItem('sfi_theme') || localStorage.getItem('dyfi_theme') || 'dark';
 
 document.addEventListener('DOMContentLoaded', () => {
   initThemeSwitcher();
@@ -368,6 +368,7 @@ function initThemeSwitcher() {
 
   const toggleHandler = () => {
     currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('sfi_theme', currentTheme);
     localStorage.setItem('dyfi_theme', currentTheme);
     applyTheme(currentTheme);
     const msg = currentTheme === 'light'
@@ -429,6 +430,7 @@ function initLanguageSwitcher() {
   
   const handleToggle = () => {
     currentLang = currentLang === 'en' ? 'kn' : 'en';
+    localStorage.setItem('sfi_lang', currentLang);
     localStorage.setItem('dyfi_lang', currentLang);
     applyLanguage(currentLang);
     if (typeof renderDistrictCards === 'function') {
@@ -642,7 +644,10 @@ window.openDistrictModal = function(districtId) {
   // Set Modal Title
   const modalTitle = document.getElementById('districtModalTitle');
   if (modalTitle) {
-    modalTitle.innerHTML = `<span style="color: #dc2626;"><i class="fa-solid fa-flag"></i></span> ${dName} — ${dZone}`;
+    const confDateBadge = d.conference_date
+      ? `<span style="font-size:0.8rem; background:rgba(220,38,38,0.15); color:#ef4444; padding:0.2rem 0.5rem; border-radius:4px; margin-left:8px;"><i class="fa-solid fa-calendar"></i> ${d.conference_date}</span>`
+      : `<span style="font-size:0.8rem; color:#94a3b8; font-style:italic; margin-left:8px;">[ ${isKn ? 'ಸಮ್ಮೇಳನ ದಿನಾಂಕ ನಮೂದಿಸಿಲ್ಲ' : 'Date not set'} ]</span>`;
+    modalTitle.innerHTML = `<span style="color: #dc2626;"><i class="fa-solid fa-flag"></i></span> ${dName} — ${dZone} ${confDateBadge}`;
   }
   
   // 1. District Leadership Spotlight (District President & Secretary)
@@ -719,6 +724,16 @@ window.openDistrictModal = function(districtId) {
             <div class="taluk-officer-col taluk-contact-col">
               ${t.phone ? `<a href="tel:${t.phone}" class="taluk-call-btn"><i class="fa-solid fa-phone"></i> ${t.phone}</a>` : `<span style="color:#64748b; font-size:0.85rem;"><i class="fa-solid fa-phone"></i> —</span>`}
             </div>
+          </div>
+          <div class="taluk-meta-row" style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; margin-top:0.6rem; padding-top:0.5rem; border-top:1px dashed var(--border-main,#e2e8f0); font-size:0.82rem;">
+            <span class="taluk-date-tag" style="background:rgba(220,38,38,0.1); color:#ef4444; padding:0.25rem 0.55rem; border-radius:4px; font-weight:600;">
+              <i class="fa-solid fa-calendar-day"></i> ${isKn ? 'ಸಮ್ಮೇಳನ/ರಚನಾ ದಿನಾಂಕ:' : 'Conference/Date:'} ${t.date ? t.date : `<span style="color:#94a3b8; font-weight:normal; font-style:italic;">${isKn ? '[ ದಿನಾಂಕ ಭರ್ತಿ ಮಾಡಿ ]' : '[ Date to be filled ]'}</span>`}
+            </span>
+            ${t.areas ? `
+              <div class="taluk-areas-box" style="width:100%; color:var(--text-muted,#94a3b8); margin-top:0.35rem; font-size:0.8rem; line-height:1.4;">
+                <strong style="color:var(--text-heading,#0f172a);"><i class="fa-solid fa-location-dot" style="color:#ef4444;"></i> ${isKn ? 'ಪ್ರಮುಖ ಕಾಲೇಜು & ಏರಿಯಾ ಘಟಕಗಳು:' : 'Key Campus & Area Units:'}</strong> ${t.areas}
+              </div>
+            ` : ''}
           </div>
         </div>
       `;

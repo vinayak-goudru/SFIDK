@@ -254,15 +254,467 @@ const DEFAULT_SFI_DATA = {
     }
   ],
   "districts": [
-    { "name": "Mangaluru City", "taluk": "Mangaluru", "leader": "Comrade Sinan", "phone": "9480112233" },
-    { "name": "Mangaluru Rural", "taluk": "Mangaluru", "leader": "Comrade Nihal", "phone": "9480112234" },
-    { "name": "Bantwal", "taluk": "Bantwal", "leader": "Comrade Kaushik", "phone": "9480112235" },
-    { "name": "Puttur", "taluk": "Puttur", "leader": "Comrade Suhas", "phone": "9480112236" },
-    { "name": "Belthangady", "taluk": "Belthangady", "leader": "Comrade Anusha", "phone": "9480112237" },
-    { "name": "Sullia", "taluk": "Sullia", "leader": "Comrade Yathish", "phone": "9480112238" },
-    { "name": "Moodbidri", "taluk": "Moodbidri", "leader": "Comrade Pranav", "phone": "9480112239" },
-    { "name": "Kadaba", "taluk": "Kadaba", "leader": "Comrade Chethan", "phone": "9480112240" }
-  ],
+    {
+        "id": "dakshina-kannada",
+        "name_kn": "ದಕ್ಷಿಣ ಕನ್ನಡ (Dakshina Kannada)",
+        "name_en": "Dakshina Kannada",
+        "zone": "coastal",
+        "zone_kn": "ಕರಾವಳಿ ಮತ್ತು ಮಲೆನಾಡು",
+        "zone_en": "Coastal & Malnad",
+        "president_kn": "ಕಾಂ|| ಹಜ್ಲಾನ್",
+        "president_en": "Comrade Hazlan",
+        "president_post_kn": "ಜಿಲ್ಲಾಧ್ಯಕ್ಷರು",
+        "president_post_en": "District President",
+        "president_phone": "+91 9480112234",
+        "president_photo": "images/hazlan.jpg",
+        "secretary_kn": "ಕಾಂ|| ವಿನಾಯಕ್ ಎಸ್ ಐ",
+        "secretary_en": "Comrade Vinayak S I",
+        "secretary_post_kn": "ಜಿಲ್ಲಾ ಕಾರ್ಯದರ್ಶಿ",
+        "secretary_post_en": "District Secretary",
+        "secretary_phone": "+91 9480112233",
+        "secretary_photo": "images/vinayak.jpg",
+        "office_kn": "ಎಸ್.ಎಫ್.ಐ ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲಾ ಸಮಿತಿ ಕಾರ್ಯಾಲಯ, ವಿಕಾಸ್ ಬಿಲ್ಡಿಂಗ್, ಸ್ಟೇಟ್ ಬ್ಯಾಂಕ್ ಬಳಿ, ಮಂಗಳೂರು - 575001.",
+        "office_en": "SFI Dakshina Kannada District Committee Office, Vikas Building, Near State Bank, Mangaluru - 575001.",
+        "phone": "+91 9480112233",
+        "conference_date": "",
+        "taluks_count": 8,
+        "units_count": 98,
+        "taluks_kn": [
+            "ಮಂಗಳೂರು ನಗರ",
+            "ಮಂಗಳೂರು ಗ್ರಾಮಾಂತರ & ಉಳ್ಳಾಲ",
+            "ಬಂಟ್ವಾಳ",
+            "ಪುತ್ತೂರು",
+            "ಬೆಳ್ತಂಗಡಿ",
+            "ಸುಳ್ಯ",
+            "ಮೂಡುಬಿದರೆ",
+            "ಕಡಬ"
+        ],
+        "taluks_en": [
+            "Mangaluru City",
+            "Mangaluru Rural & Ullal",
+            "Bantwal",
+            "Puttur",
+            "Belthangady",
+            "Sullia",
+            "Moodbidri",
+            "Kadaba"
+        ],
+        "taluks_data": [
+            {
+                "name_kn": "ಮಂಗಳೂರು ನಗರ (Mangaluru City)",
+                "name_en": "Mangaluru City",
+                "president_kn": "",
+                "president_en": "",
+                "secretary_kn": "",
+                "secretary_en": "",
+                "date": "",
+                "units": "18 ಸಕ್ರಿಯ ಘಟಕಗಳು",
+                "areas": "Hampankatta, Car Street, Kadri, Lalbagh, Mannagudda, Bunder, Urwa, University College, St. Aloysius Campus Zone, Canara College",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಮಂಗಳೂರು ಗ್ರಾಮಾಂತರ & ಉಳ್ಳಾಲ (Mangaluru Rural & Ullal)",
+                "name_en": "Mangaluru Rural & Ullal",
+                "president_kn": "",
+                "president_en": "",
+                "secretary_kn": "",
+                "secretary_en": "",
+                "date": "",
+                "units": "14 ಸಕ್ರಿಯ ಘಟಕಗಳು",
+                "areas": "Ullal, Konaje (Mangalore University Campus), Deralakatte, Mudipu, Bajal, Kavoor, Surathkal (NITK Zone)",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಬಂಟ್ವಾಳ (Bantwal)",
+                "name_en": "Bantwal",
+                "president_kn": "",
+                "president_en": "",
+                "secretary_kn": "",
+                "secretary_en": "",
+                "date": "",
+                "units": "12 ಸಕ್ರಿಯ ಘಟಕಗಳು",
+                "areas": "B.C. Road, Bantwal Town, Panemangalore, Melkar, Mani, Kalladka, Vittal",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಪುತ್ತೂರು (Puttur)",
+                "name_en": "Puttur",
+                "president_kn": "",
+                "president_en": "",
+                "secretary_kn": "",
+                "secretary_en": "",
+                "date": "",
+                "units": "11 ಸಕ್ರಿಯ ಘಟಕಗಳು",
+                "areas": "Puttur Town, Darbe, Uppinangady, Kombettu, Tingalady, Bettampady",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಬೆಳ್ತಂಗಡಿ (Belthangady)",
+                "name_en": "Belthangady",
+                "president_kn": "",
+                "president_en": "",
+                "secretary_kn": "",
+                "secretary_en": "",
+                "date": "",
+                "units": "13 ಸಕ್ರಿಯ ಘಟಕಗಳು",
+                "areas": "Belthangady Town, Ujire (SDM Campus), Dharmasthala, Guruvayanakere, Madanthyar, Kokkada",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಸುಳ್ಯ (Sullia)",
+                "name_en": "Sullia",
+                "president_kn": "",
+                "president_en": "",
+                "secretary_kn": "",
+                "secretary_en": "",
+                "date": "",
+                "units": "9 ಸಕ್ರಿಯ ಘಟಕಗಳು",
+                "areas": "Sullia Town, Bellare, Panja, Jalsoor, Subrahmanya, Aranthodu",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಮೂಡುಬಿದಿರೆ (Moodbidri)",
+                "name_en": "Moodbidri",
+                "president_kn": "",
+                "president_en": "",
+                "secretary_kn": "",
+                "secretary_en": "",
+                "date": "",
+                "units": "10 ಸಕ್ರಿಯ ಘಟಕಗಳು",
+                "areas": "Moodbidri Town, Alva's Campus Zone, Vidyagiri, Mijar, Kinnigoli",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಕಡಬ (Kadaba)",
+                "name_en": "Kadaba",
+                "president_kn": "",
+                "president_en": "",
+                "secretary_kn": "",
+                "secretary_en": "",
+                "date": "",
+                "units": "7 ಸಕ್ರಿಯ ಘಟಕಗಳು",
+                "areas": "Kadaba Town, Mardhala, Alankaru, Bilinele, Ramakunja, Kutrupady",
+                "phone": ""
+            }
+        ],
+        "area_units_kn": "ದಕ್ಷಿಣ ಕನ್ನಡ ಜಿಲ್ಲೆಯ ಮಂಗಳೂರು, ಬಂಟ್ವಾಳ, ಪುತ್ತೂರು, ಬೆಳ್ತಂಗಡಿ, ಸುಳ್ಯ, ಮೂಡುಬಿದಿರೆ, ಕಡಬ ತಾಲ್ಲೂಕುಗಳ ಎಲ್ಲಾ ಸರ್ಕಾರಿ ಮತ್ತು ಅನುದಾನಿತ ಕಾಲೇಜುಗಳಲ್ಲಿ ವಿದ್ಯಾರ್ಥಿ ಸಹಾಯವಾಣಿ ಮತ್ತು ಎಸ್.ಎಫ್.ಐ ಘಟಕಗಳು ಕಾರ್ಯಾಚರಿಸುತ್ತಿವೆ.",
+        "area_units_en": "Active college campus units and 24x7 student helplines operational across all major colleges and rural centers of Dakshina Kannada."
+    },
+    {
+        "id": "udupi",
+        "name_kn": "ಉಡುಪಿ (Udupi)",
+        "name_en": "Udupi",
+        "zone": "coastal",
+        "zone_kn": "ಕರಾವಳಿ ಮತ್ತು ಮಲೆನಾಡು",
+        "zone_en": "Coastal & Malnad",
+        "president_kn": "ಕಾಂ|| ಗಣೇಶ್",
+        "president_en": "Comrade Ganesh",
+        "secretary_kn": "ಕಾಂ|| ಸುಪ್ರಿತಾ",
+        "secretary_en": "Comrade Supritha",
+        "office_kn": "ಎಸ್.ಎಫ್.ಐ ಉಡುಪಿ ಜಿಲ್ಲಾ ಸಮಿತಿ ಕಾರ್ಯಾಲಯ, ಉಡುಪಿ",
+        "office_en": "SFI Udupi District Committee Office, Udupi",
+        "phone": "+91 9480112250",
+        "conference_date": "",
+        "taluks_count": 5,
+        "units_count": 42,
+        "taluks_kn": [
+            "ಉಡುಪಿ",
+            "ಕುಂದಾಪುರ",
+            "ಕಾರ್ಕಳ",
+            "ಬ್ರಹ್ಮಾವರ",
+            "ಬೈಂದೂರು"
+        ],
+        "taluks_en": [
+            "Udupi",
+            "Kundapura",
+            "Karkala",
+            "Brahmavara",
+            "Byndoor"
+        ],
+        "taluks_data": [
+            {
+                "name_kn": "ಉಡುಪಿ (Udupi)",
+                "name_en": "Udupi",
+                "president_kn": "",
+                "secretary_kn": "",
+                "date": "",
+                "units": "12 ಘಟಕಗಳು",
+                "areas": "Udupi Town, Malpe, Manipal Campus Zone",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಕುಂದಾಪುರ (Kundapura)",
+                "name_en": "Kundapura",
+                "president_kn": "",
+                "secretary_kn": "",
+                "date": "",
+                "units": "10 ಘಟಕಗಳು",
+                "areas": "Kundapura Town, Basrur, Koteshwara",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಕಾರ್ಕಳ (Karkala)",
+                "name_en": "Karkala",
+                "president_kn": "",
+                "secretary_kn": "",
+                "date": "",
+                "units": "8 ಘಟಕಗಳು",
+                "areas": "Karkala Town, Nitte Campus, Hebri",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಬ್ರಹ್ಮಾವರ (Brahmavara)",
+                "name_en": "Brahmavara",
+                "president_kn": "",
+                "secretary_kn": "",
+                "date": "",
+                "units": "6 ಘಟಕಗಳು",
+                "areas": "Brahmavara, Barkur, Saligrama",
+                "phone": ""
+            },
+            {
+                "name_kn": "ಬೈಂದೂರು (Byndoor)",
+                "name_en": "Byndoor",
+                "president_kn": "",
+                "secretary_kn": "",
+                "date": "",
+                "units": "6 ಘಟಕಗಳು",
+                "areas": "Byndoor, Shiroor, Uppunda",
+                "phone": ""
+            }
+        ]
+    },
+    {
+        "id": "uttara-kannada",
+        "name_kn": "ಉತ್ತರ ಕನ್ನಡ (Uttara Kannada)",
+        "name_en": "Uttara Kannada",
+        "zone": "coastal",
+        "zone_kn": "ಕರಾವಳಿ ಮತ್ತು ಮಲೆನಾಡು",
+        "zone_en": "Coastal & Malnad",
+        "president_kn": "ಕಾಂ|| ಮಂಜುನಾಥ",
+        "president_en": "Comrade Manjunath",
+        "secretary_kn": "ಕಾಂ|| ಪ್ರಕಾಶ್",
+        "secretary_en": "Comrade Prakash",
+        "office_kn": "ಎಸ್.ಎಫ್.ಐ ಜಿಲ್ಲಾ ಸಮಿತಿ, ಕಾರವಾರ",
+        "office_en": "SFI District Committee, Karwar",
+        "phone": "+91 9480112260",
+        "conference_date": "",
+        "taluks_count": 6,
+        "units_count": 36,
+        "taluks_kn": [
+            "ಕಾರವಾರ",
+            "ಅಂಕೋಲಾ",
+            "ಕುಮಟಾ",
+            "ಹೊನ್ನಾವರ",
+            "ಭಟ್ಕಳ",
+            "ಶಿರಸಿ"
+        ],
+        "taluks_en": [
+            "Karwar",
+            "Ankola",
+            "Kumta",
+            "Honnavar",
+            "Bhatkal",
+            "Sirsi"
+        ]
+    },
+    {
+        "id": "chikkamagaluru",
+        "name_kn": "ಚಿಕ್ಕಮಗಳೂರು (Chikkamagaluru)",
+        "name_en": "Chikkamagaluru",
+        "zone": "coastal",
+        "zone_kn": "ಕರಾವಳಿ ಮತ್ತು ಮಲೆನಾಡು",
+        "zone_en": "Coastal & Malnad",
+        "president_kn": "ಕಾಂ|| ಸಚಿನ್",
+        "president_en": "Comrade Sachin",
+        "secretary_kn": "ಕಾಂ|| ಕವಿತಾ",
+        "secretary_en": "Comrade Kavitha",
+        "office_kn": "ಎಸ್.ಎಫ್.ಐ ಜಿಲ್ಲಾ ಸಮಿತಿ, ಚಿಕ್ಕಮಗಳೂರು",
+        "office_en": "SFI District Committee, Chikkamagaluru",
+        "phone": "+91 9480112270",
+        "conference_date": "",
+        "taluks_count": 5,
+        "units_count": 30,
+        "taluks_kn": [
+            "ಚಿಕ್ಕಮಗಳೂರು",
+            "ತರೀಕೆರೆ",
+            "ಕಡೂರು",
+            "ಮೂಡಿಗೆರೆ",
+            "ಕೊಪ್ಪ"
+        ],
+        "taluks_en": [
+            "Chikkamagaluru",
+            "Tarikere",
+            "Kadur",
+            "Mudigere",
+            "Koppa"
+        ]
+    },
+    {
+        "id": "kodagu",
+        "name_kn": "ಕೊಡಗು (Kodagu)",
+        "name_en": "Kodagu",
+        "zone": "coastal",
+        "zone_kn": "ಕರಾವಳಿ ಮತ್ತು ಮಲೆನಾಡು",
+        "zone_en": "Coastal & Malnad",
+        "president_kn": "ಕಾಂ|| ರಾಜೇಶ್",
+        "president_en": "Comrade Rajesh",
+        "secretary_kn": "ಕಾಂ|| ಬಿಂದು",
+        "secretary_en": "Comrade Bindu",
+        "office_kn": "ಎಸ್.ಎಫ್.ಐ ಜಿಲ್ಲಾ ಸಮಿತಿ, ಮಡಿಕೇರಿ",
+        "office_en": "SFI District Committee, Madikeri",
+        "phone": "+91 9480112280",
+        "conference_date": "",
+        "taluks_count": 3,
+        "units_count": 22,
+        "taluks_kn": [
+            "ಮಡಿಕೇರಿ",
+            "ವಿರಾಜಪೇಟೆ",
+            "ಸೋಮವಾರಪೇಟೆ"
+        ],
+        "taluks_en": [
+            "Madikeri",
+            "Virajpet",
+            "Somwarpet"
+        ]
+    },
+    {
+        "id": "bengaluru-urban",
+        "name_kn": "ಬೆಂಗಳೂರು ನಗರ (Bengaluru Urban)",
+        "name_en": "Bengaluru Urban",
+        "zone": "bengaluru",
+        "zone_kn": "ಬೆಂಗಳೂರು ವಿಭಾಗ",
+        "zone_en": "Bengaluru Division",
+        "president_kn": "ಕಾಂ|| ಕಿರಣ್",
+        "president_en": "Comrade Kiran",
+        "secretary_kn": "ಕಾಂ|| ರಕ್ಷಿತ್",
+        "secretary_en": "Comrade Rakshith",
+        "office_kn": "ಎಸ್.ಎಫ್.ಐ ರಾಜ್ಯ ಕಾರ್ಯಾಲಯ, ಸಂಪಂಗಿರಾಮನಗರ, ಬೆಂಗಳೂರು",
+        "office_en": "SFI State Committee Office, Bengaluru",
+        "phone": "+91 80 2287 4521",
+        "conference_date": "",
+        "taluks_count": 5,
+        "units_count": 65,
+        "taluks_kn": [
+            "ಬೆಂಗಳೂರು ದಕ್ಷಿಣ",
+            "ಬೆಂಗಳೂರು ಉತ್ತರ",
+            "ಬೆಂಗಳೂರು ಕೇಂದ್ರ",
+            "ಆನೇಕಲ್",
+            "ಯಲಹಂಕ"
+        ],
+        "taluks_en": [
+            "Bengaluru South",
+            "Bengaluru North",
+            "Bengaluru Central",
+            "Anekal",
+            "Yelahanka"
+        ]
+    },
+    {
+        "id": "mysuru",
+        "name_kn": "ಮೈಸೂರು (Mysuru)",
+        "name_en": "Mysuru",
+        "zone": "mysuru",
+        "zone_kn": "ಮೈಸೂರು ವಿಭಾಗ",
+        "zone_en": "Mysuru Division",
+        "president_kn": "ಕಾಂ|| ಜಗದೀಶ್",
+        "president_en": "Comrade Jagadish",
+        "secretary_kn": "ಕಾಂ|| ಪ್ರಿಯಾಂಕಾ",
+        "secretary_en": "Comrade Priyanka",
+        "office_kn": "ಎಸ್.ಎಫ್.ಐ ಜಿಲ್ಲಾ ಸಮಿತಿ, ಮೈಸೂರು",
+        "office_en": "SFI District Committee, Mysuru",
+        "phone": "+91 9480112290",
+        "conference_date": "",
+        "taluks_count": 7,
+        "units_count": 48,
+        "taluks_kn": [
+            "ಮೈಸೂರು ನಗರ",
+            "ಹುಣಸೂರು",
+            "ನಂಜನಗೂಡು",
+            "ಟಿ.ನರಸೀಪುರ",
+            "ಪಿರಿಯಾಪಟ್ಟಣ",
+            "ಕೆ.ಆರ್.ನಗರ",
+            "ಸರಗೂರು"
+        ],
+        "taluks_en": [
+            "Mysuru City",
+            "Hunsur",
+            "Nanjangud",
+            "T. Narasipura",
+            "Piriyapatna",
+            "K.R. Nagar",
+            "Saragur"
+        ]
+    },
+    {
+        "id": "kalaburagi",
+        "name_kn": "ಕಲಬುರಗಿ (Kalaburagi)",
+        "name_en": "Kalaburagi",
+        "zone": "kalyana",
+        "zone_kn": "ಕಲ್ಯಾಣ ಕರ್ನಾಟಕ",
+        "zone_en": "Kalyana Karnataka",
+        "president_kn": "ಕಾಂ|| ಮಲ್ಲಿಕಾರ್ಜುನ್",
+        "president_en": "Comrade Mallikarjun",
+        "secretary_kn": "ಕಾಂ|| ಶರಣು",
+        "secretary_en": "Comrade Sharanu",
+        "office_kn": "ಎಸ್.ಎಫ್.ಐ ಜಿಲ್ಲಾ ಸಮಿತಿ, ಕಲಬುರಗಿ",
+        "office_en": "SFI District Committee, Kalaburagi",
+        "phone": "+91 9480112300",
+        "conference_date": "",
+        "taluks_count": 7,
+        "units_count": 44,
+        "taluks_kn": [
+            "ಕಲಬುರಗಿ ನಗರ",
+            "ಆಳಂದ",
+            "ಅಫಜಲಪುರ",
+            "ಜೇವರ್ಗಿ",
+            "ಸೇಡಂ",
+            "ಚಿತ್ತಾಪುರ",
+            "ಚಿಂಚೋಳಿ"
+        ],
+        "taluks_en": [
+            "Kalaburagi City",
+            "Aland",
+            "Afzalpur",
+            "Jevargi",
+            "Sedam",
+            "Chittapur",
+            "Chincholi"
+        ]
+    },
+    {
+        "id": "dharwad",
+        "name_kn": "ಧಾರವಾಡ (Dharwad)",
+        "name_en": "Dharwad",
+        "zone": "kittur",
+        "zone_kn": "ಕಿತ್ತೂರು ಕರ್ನಾಟಕ",
+        "zone_en": "Kittur Karnataka",
+        "president_kn": "ಕಾಂ|| ಬಸವರಾಜ್",
+        "president_en": "Comrade Basavaraj",
+        "secretary_kn": "ಕಾಂ|| ರವಿ",
+        "secretary_en": "Comrade Ravi",
+        "office_kn": "ಎಸ್.ಎಫ್.ಐ ಜಿಲ್ಲಾ ಸಮಿತಿ, ಧಾರವಾಡ",
+        "office_en": "SFI District Committee, Dharwad",
+        "phone": "+91 9480112310",
+        "conference_date": "",
+        "taluks_count": 5,
+        "units_count": 40,
+        "taluks_kn": [
+            "ಧಾರವಾಡ",
+            "ಹುಬ್ಬಳ್ಳಿ ನಗರ",
+            "ಹುಬ್ಬಳ್ಳಿ ಗ್ರಾಮೀಣ",
+            "ಕುಂದಗೋಳ",
+            "ನವಲಗುಂದ"
+        ],
+        "taluks_en": [
+            "Dharwad",
+            "Hubballi City",
+            "Hubballi Rural",
+            "Kundgol",
+            "Navalgund"
+        ]
+    }
+],
   "activities": [
     {
       "id": "a1",
@@ -298,10 +750,47 @@ class SfiDataStore {
   static set(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+
+      // Automatic Cloud Synchronization with Firebase Firestore
+      if (typeof window !== 'undefined' && window.SfiFirebase && window.SfiFirebase.db) {
+        try {
+          window.SfiFirebase.db.collection('site_data').doc(key).set({
+            data: value,
+            updatedAt: (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) 
+              ? firebase.firestore.FieldValue.serverTimestamp() 
+              : new Date().toISOString()
+          }).catch(err => {
+            console.info('Firebase sync offline fallback:', err.message);
+          });
+        } catch (e) {
+          // silent fallback
+        }
+      }
       return true;
     } catch (e) {
       console.warn("Error setting localStorage for", key, e);
       return false;
+    }
+  }
+
+  static syncFromCloud() {
+    if (typeof window !== 'undefined' && window.SfiFirebase && window.SfiFirebase.db) {
+      window.SfiFirebase.db.collection('site_data').get().then(snapshot => {
+        if (!snapshot.empty) {
+          snapshot.forEach(doc => {
+            const docKey = doc.id;
+            const docVal = doc.data();
+            if (docVal && docVal.data) {
+              localStorage.setItem(docKey, JSON.stringify(docVal.data));
+            }
+          });
+          if (typeof renderDynamicDataStoreContent === 'function') {
+            renderDynamicDataStoreContent();
+          }
+        }
+      }).catch(err => {
+        console.info('Using local cache:', err.message);
+      });
     }
   }
 
@@ -332,6 +821,14 @@ class SfiDataStore {
     this.set(SFI_DATA_KEYS.LEADERS, DEFAULT_SFI_DATA.leaders);
     this.set(SFI_DATA_KEYS.CAMPAIGNS, DEFAULT_SFI_DATA.campaigns);
     this.set(SFI_DATA_KEYS.TICKER, DEFAULT_SFI_DATA.ticker);
+
+    // Initialize Firebase Database & Cloud Sync
+    if (typeof window !== 'undefined' && window.SfiFirebase && typeof window.SfiFirebase.init === 'function') {
+      window.SfiFirebase.init();
+      setTimeout(() => {
+        this.syncFromCloud();
+      }, 500);
+    }
   }
 
   static resetToDefaults() {
