@@ -388,3 +388,4 @@ html = html.substring(0, lineStart) + newLeadershipSection + '\n\n  ' + html.sub
 
 fs.writeFileSync(indexPath, html, 'utf8');
 console.log('SUCCESS: Leadership section updated with National, State & District tiers!');
+

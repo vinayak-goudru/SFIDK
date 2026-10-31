@@ -33,3 +33,4 @@ appJs = appJs.replace(/navLeadership:\s*['"]District Leadership['"]/g, "navLeade
 fs.writeFileSync(appJsPath, appJs, 'utf8');
 console.log('app.js: Updated i18n navLeadership labels');
 console.log('DONE');
+

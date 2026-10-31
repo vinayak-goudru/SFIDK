@@ -1,0 +1,7 @@
+node_modules
+server.js
+serve.js
+package-lock.json
+scratch/
+.env
+*.log

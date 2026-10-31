@@ -1,15 +1,11 @@
 {
-  "name": "sfi-dk-backend",
+  "name": "sfi-dk-website",
   "version": "1.0.0",
-  "description": "Backend API server for SFI Dakshina Kannada Web Portal",
-  "main": "server.js",
+  "private": true,
+  "description": "SFI Dakshina Kannada District Committee Web Portal",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node serve.js"
   },
-  "dependencies": {
-    "@getbrevo/brevo": "^2.0.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2"
-  }
+  "dependencies": {}
 }
