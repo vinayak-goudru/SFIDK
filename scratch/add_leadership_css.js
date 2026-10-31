@@ -143,3 +143,4 @@ const leadershipStyles = `
 css += '\n' + leadershipStyles;
 fs.writeFileSync(cssPath, css, 'utf8');
 console.log('Appended leadership styles to style.css successfully!');
+

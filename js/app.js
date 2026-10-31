@@ -1447,48 +1447,48 @@ function showToast(message) {
       console.warn('Martyrs sync error:', e);
     }
 
-    // 7. Render Leaders (Admin Dynamic — National & State Grid Support)
+    // 7. Render Leaders (Admin Dynamic — National, State & District Grid Support)
     try {
       const nationalGrid = document.getElementById('nationalLeadersGrid');
       const stateGrid = document.getElementById('stateLeadersGrid');
-      const generalLeaderGrid = document.querySelector('.leadership-grid');
+      const districtGrid = document.getElementById('districtLeadersGrid');
       const leaders = DyfiDataStore.get(DYFI_DATA_KEYS.LEADERS) || [];
 
-      function renderLeaderCard(l, idx) {
+      function renderLeaderSimpleCard(l, idx) {
         const isBlankName = !l.name_kn && !l.name_en;
         const displayName = isKn ? (l.name_kn || l.name_en) : (l.name_en || l.name_kn);
         const displayRole = isKn ? (l.role_kn || l.role_en) : (l.role_en || l.role_kn);
-        const avatarHtml = l.photo
-          ? `<img src="${l.photo}" alt="${displayName || 'Leader'}" loading="lazy" onerror="this.outerHTML='<div class=\\'leader-avatar-wrap placeholder-avatar\\' style=\\'display:flex; align-items:center; justify-content:center; background:#1e293b; color:#94a3b8; font-size:2.4rem; border:3px solid #dc2626;\\'><i class=\\'fa-solid fa-user\\'></i></div>';">`
-          : `<div class="leader-avatar-wrap placeholder-avatar" style="display:flex; align-items:center; justify-content:center; background:#1e293b; color:#94a3b8; font-size:2.4rem; border:3px solid #dc2626;"><i class="fa-solid fa-user"></i></div>`;
+        const fallbackAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(l.name_en || 'Leader') + '&background=dc2626&color=fff&size=200';
+        const photoSrc = l.photo || fallbackAvatar;
 
         return `
-          <div class="leader-card" onclick="openContentDetails('leader', '${l.id || idx}')" style="cursor: pointer;">
-            <div class="leader-avatar-wrap">
-              ${avatarHtml}
-              <span class="officer-zoom-hint"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <div class="leader-simple-card">
+            <div class="leader-avatar-ring red-ring">
+              <img src="${photoSrc}" alt="${displayName || 'Leader'}" loading="lazy" onerror="this.onerror=null; this.src='${fallbackAvatar}';">
             </div>
-            <h3 class="leader-name" style="${isBlankName ? 'color:#94a3b8; font-style:italic;' : ''}">
+            <h3 class="leader-card-name" style="${isBlankName ? 'color:#94a3b8; font-style:italic;' : ''}">
               ${displayName || (isKn ? '(ಖಾಲಿ / To be assigned)' : '(To be assigned)')}
             </h3>
-            <div class="leader-role">${displayRole}</div>
-            <div class="leader-region">${l.region || 'DYFI'}</div>
+            <div class="leader-card-role">${displayRole || ''}</div>
+            <div class="leader-card-region">${l.region || ''}</div>
           </div>
         `;
       }
 
-      if (nationalGrid || stateGrid) {
+      if (nationalGrid || stateGrid || districtGrid) {
         const nationalLeaders = leaders.filter(l => l.tier === 'national' || (l.id && l.id.startsWith('nl')));
-        const stateLeaders = leaders.filter(l => l.tier !== 'national' && (!l.id || !l.id.startsWith('nl')));
+        const stateLeaders = leaders.filter(l => l.tier === 'state' || (l.id && l.id.startsWith('sl')));
+        const districtLeaders = leaders.filter(l => l.tier === 'district' || (l.id && l.id.startsWith('dl')) || (!l.tier && !l.id.startsWith('nl') && !l.id.startsWith('sl')));
 
         if (nationalGrid && nationalLeaders.length > 0) {
-          nationalGrid.innerHTML = nationalLeaders.map(renderLeaderCard).join('');
+          nationalGrid.innerHTML = nationalLeaders.map(renderLeaderSimpleCard).join('');
         }
         if (stateGrid && stateLeaders.length > 0) {
-          stateGrid.innerHTML = stateLeaders.map(renderLeaderCard).join('');
+          stateGrid.innerHTML = stateLeaders.map(renderLeaderSimpleCard).join('');
         }
-      } else if (generalLeaderGrid && leaders.length > 0) {
-        generalLeaderGrid.innerHTML = leaders.map(renderLeaderCard).join('');
+        if (districtGrid && districtLeaders.length > 0) {
+          districtGrid.innerHTML = districtLeaders.map(renderLeaderSimpleCard).join('');
+        }
       }
     } catch (e) {
       console.warn('Leaders sync error:', e);

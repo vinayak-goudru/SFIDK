@@ -135,3 +135,4 @@ const additionalStyles = `
 css += '\n' + additionalStyles;
 fs.writeFileSync(cssPath, css, 'utf8');
 console.log('Appended additional CSS styles successfully!');
+
