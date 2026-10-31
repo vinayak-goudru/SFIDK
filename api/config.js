@@ -5,3 +5,4 @@ module.exports = (req, res) => {
     cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET || ""
   });
 };
+
